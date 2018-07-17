@@ -1,0 +1,24 @@
+# Copyright (c) 2018 Cisco and/or its affiliates.
+# This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
+# You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# The code, technical concepts, and all information contained herein, are the property of Cisco Technology, Inc.
+# and/or its affiliated entities, under various laws including copyright, international treaties, patent,
+# and/or contract. Any use of the material herein must be in accordance with the terms of the License.
+# All rights not expressly granted by the License are reserved.
+# Unless required by applicable law or agreed to separately in writing, software distributed under the
+# License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+# either express or implied.
+
+export YANG=/home/yang
+export YANGVAR=/var/yang
+export BIN=$YANG/sdo_analysis/bin
+export CONF=$YANG/sdo_analysis/conf
+export NONIETFDIR=$YANGVAR/nonietf
+export IETFDIR=$YANGVAR/ietf
+export MODULES=$YANGVAR/yang/modules
+export LOGS=$YANGVAR/logs
+export TMP=$YANGVAR/tmp
+export CONFD_DIR=/opt/confd
+export PYANG=/usr/local/bin/pyang
+export WEB=/var/www/html
+export WEB_PRIVATE=/var/www/html/private
