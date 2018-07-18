@@ -1,3 +1,5 @@
+#!/bin/bash -e
+
 # Copyright (c) 2018 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -9,4 +11,22 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
-source ../conf/paths.sh
+source configure.sh
+
+cd $WEB_PRIVATE
+rm -f YANGPageMain.html
+cp IETFYANGPageMain.html YANGPageMain.html
+
+# Main page compilation out of existing created page for the different SDOs/projects
+cat MEFStandardYANGPageMain.html  >> YANGPageMain.html
+cat MEFExperimentalYANGPageMain.html  >> YANGPageMain.html
+cat IEEEStandardYANGPageMain.html  >> YANGPageMain.html
+cat IEEEExperimentalYANGPageMain.html  >> YANGPageMain.html
+cat BBFYANGPageMain.html  >> YANGPageMain.html
+cat OpenconfigYANGPageMain.html  >> YANGPageMain.html
+cat OpenDaylightPageMain.html  >> YANGPageMain.html
+cat ONFOpenTransportYANGPageMain.html  >> YANGPageMain.html
+cat SysrepoInternalYANGPageMain.html  >> YANGPageMain.html
+cat SysrepoApplicationYANGPageMain.html  >> YANGPageMain.html
+cat OpenROADM20YANGPageMain.html  >> YANGPageMain.html
+

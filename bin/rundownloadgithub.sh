@@ -21,6 +21,8 @@ source testI.sh
 # Get the local configuration
 source configure.sh
 LOG=$LOGS/downloadGitHub.log
+echo "Starting" > $LOG
+date >> $LOG
 
 # Ensure master directory exists
 mkdir -p $NONIETFDIR
@@ -33,22 +35,22 @@ mkdir -p $NONIETFDIR/yangmodels
 if [ ! -d $NONIETFDIR/yangmodels/yang ]
 then
 	cd $NONIETFDIR/yangmodels
-	git clone --recurse-submodules https://github.com/YangModels/yang.git
+	git clone --recurse-submodules https://github.com/YangModels/yang.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/yangmodels/yang
-git init
-git pull --recurse-submodules https://github.com/YangModels/yang.git
+git init >>$LOG 2>&1
+git pull --recurse-submodules https://github.com/YangModels/yang.git >>$LOG 2>&1
 
 # get the entire content of github (openconfig)
 mkdir -p $NONIETFDIR/openconfig
 if [ ! -d $NONIETFDIR/openconfig/yang ]
 then
 	cd $NONIETFDIR/openconfig
-	git clone --recurse-submodules https://github.com/openconfig/yang.git
+	git clone --recurse-submodules https://github.com/openconfig/yang.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/openconfig/yang
-git init
-git pull --recurse-submodules https://github.com/openconfig/yang.git
+git init >>$LOG 2>&1
+git pull --recurse-submodules https://github.com/openconfig/yang.git >>$LOG 2>&1
 
 #
 # A lot of ugly things here... including a 'clone' rather than a 'pull' which does not work as file structure is changed
@@ -56,13 +58,13 @@ git pull --recurse-submodules https://github.com/openconfig/yang.git
 
 cd $NONIETFDIR/openconfig
 rm -rf public
-git clone --recurse-submodules https://github.com/openconfig/public.git
+git clone --recurse-submodules https://github.com/openconfig/public.git >>$LOG 2>&1
 
 # the trick below is "flatten" all .yang files from subdirectories into one directory, to avoid the confd path issues. The old structure has been removed
 # TODO check for overwrite errors !!!
 mkdir -p $NONIETFDIR/openconfig/public/release/models-flat
 cd $NONIETFDIR/openconfig/public/release/models
-find . -name "*.yang" -exec cp -t $NONIETFDIR/openconfig/public/release/models-flat/ {} +
+find . -name "*.yang" -exec cp -t $NONIETFDIR/openconfig/public/release/models-flat/ {} + >>$LOG 2>&1
 cd ..
 rm -rf $NONIETFDIR/openconfig/public/release/models
 mv $NONIETFDIR/openconfig/public/release/models-flat $NONIETFDIR/openconfig/public/release/models
@@ -72,33 +74,33 @@ mkdir -p $NONIETFDIR/sysrepo
 if [ ! -d $NONIETFDIR/sysrepo/yang ]
 then
 	cd $NONIETFDIR/sysrepo
-	git clone --recurse-submodules https://github.com/sysrepo/yang.git
+	git clone --recurse-submodules https://github.com/sysrepo/yang.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/sysrepo/yang
-git init
-git pull --recurse-submodules https://github.com/sysrepo/yang.git
+git init >>$LOG 2>&1
+git pull --recurse-submodules https://github.com/sysrepo/yang.git >>$LOG 2>&1
 
 # get the entire content of github (ONF)
 mkdir -p $NONIETFDIR/onf
 if [ ! -d $NONIETFDIR/onf/Snowmass-ONFOpenTransport ]
 then
 	cd $NONIETFDIR/onf
-	git clone --recurse-submodules https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git
+	git clone --recurse-submodules https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/onf/Snowmass-ONFOpenTransport
-git init
-git pull --recurse-submodules https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git
+git init >>$LOG 2>&1
+git pull --recurse-submodules https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git >>$LOG 2>&1
 
 # get the entire content of OpenROADM (ONF)
 mkdir -p $NONIETFDIR/openroadm
 if [ ! -d $NONIETFDIR/openroadm/OpenROADM_MSA_Public ]
 then
 	cd $NONIETFDIR/openroadm
-	git clone --recurse-submodules https://github.com/OpenROADM/OpenROADM_MSA_Public.git
+	git clone --recurse-submodules https://github.com/OpenROADM/OpenROADM_MSA_Public.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
-git init
-git pull --recurse-submodules https://github.com/OpenROADM/OpenROADM_MSA_Public.git
+git init >>$LOG 2>&1
+git pull --recurse-submodules https://github.com/OpenROADM/OpenROADM_MSA_Public.git >>$LOG 2>&1
 
 #
 # This private repository is private and requires specific credentials
@@ -118,10 +120,11 @@ mkdir -p $NONIETFDIR/mef
 if [ ! -d $NONIETFDIR/mef/YANG-public ]
 then
 	cd $NONIETFDIR/mef
-	git clone --recurse-submodules https://github.com/MEF-GIT/YANG-public.git
+	git clone --recurse-submodules https://github.com/MEF-GIT/YANG-public.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/mef/YANG-public
-git init
-git pull --recurse-submodules https://github.com/MEF-GIT/YANG-public.git
+git init >>$LOG 2>&1
+git pull --recurse-submodules https://github.com/MEF-GIT/YANG-public.git >>$LOG 2>&1
 
-echo "End of the script!" >> $LOG 2>&1
+echo "End of the script!" >> $LOG
+date >> $LOG

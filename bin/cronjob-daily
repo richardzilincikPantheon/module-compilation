@@ -16,8 +16,8 @@ cd $BIN
 source activate
 rundownloadgithub.sh
 runYANGgenericstats-daily.sh
-exit
 runIETFstats.sh
+exit
 runRenameFileBackup.sh
 runGenerateAndFtpMainPage.sh
 runGenerateFiguresAndStats.sh

@@ -14,6 +14,7 @@
 source configure.sh
 LOG=$LOGS/runYANGgenericstats.log
 echo "Starting" > $LOG
+date >> $LOG
 
 # Test the Internet connectivity. Exit if no connectivity
 source testI.sh
@@ -32,12 +33,8 @@ find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec ln -s {} $TMP
 $BIN/YANG-generic.py --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/bbf@7abc8b9" --lint True --prefix BBF --rootdir "$TMP/bbf/" >> $LOG 2>&1
 rm $TMP/bbf/*fxs
 
-exit
-
 # Standard MEF
 $BIN/YANG-generic.py --metadata "MEF: Standard YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/standard/" --lint True --prefix MEFStandard --rootdir "$NONIETFDIR/mef/YANG-public/src/model/standard/" >> $LOG 2>&1
-
-exit
 
 # Experimental MEF
 $BIN/YANG-generic.py --metadata "MEF: Draft YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft/" --lint True --prefix MEFExperimental --rootdir "$NONIETFDIR/mef/YANG-public/src/model/draft/" >> $LOG 2>&1
@@ -72,32 +69,10 @@ rm -f $TMP/openroadm-public/*fxs
 
 # Removed openROADM private handling
 
+#clean up of the .fxs files created by confdc
+find $NONIETFDIR/ -name *.fxs -print | xargs rm
+
 exit
-
-/home/bclaise/bin/ftpfile.sh IEEEStandardYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh IEEEExperimentalYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh MEFStandardYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh MEFExperimentalYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh BBFYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh OpenconfigYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh ONFOpenTransportYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh SysrepoInternalYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh SysrepoApplicationYANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh OpenROADM20YANGPageCompilation.html
-/home/bclaise/bin/ftpfile.sh OpenROADMPrivateYANGPageCompilation.html
-
-/home/bclaise/bin/ftpfile.sh IEEEStandardYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh IEEEExperimentalYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh MEFStandardYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh MEFExperimentalYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh BBFYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh OpenconfigYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh ONFOpenTransportYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh SysrepoInternalYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh SysrepoApplicationYANGPageMain.html
-/home/bclaise/bin/ftpfile.sh OpenROADM20YANGPageMain.html
-/home/bclaise/bin/ftpfile.sh OpenROADMPrivateYANGPageMain.html
-
 /home/bclaise/bin/ftpfile.sh IEEEStandard.json
 /home/bclaise/bin/ftpfile.sh IEEEExperimental.json
 /home/bclaise/bin/ftpfile.sh MEFStandard.json
@@ -110,5 +85,3 @@ exit
 /home/bclaise/bin/ftpfile.sh OpenROADM20.json
 /home/bclaise/bin/ftpfile.sh OpenROADMPrivate.json
 
-#clean up of the .fxs files created by confdc
-find $NONIETFDIR/ -name *.fxs -print | xargs rm
