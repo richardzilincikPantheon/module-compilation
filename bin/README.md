@@ -21,3 +21,5 @@ https://www.yumaworks.com/dld/ yangpro-sdk
 Python package https://www.decalage.info/files/HTML.py-0.04.zip
 
 install xym with line 593 modified as with open(os.path.join(srcdir, source_id), encoding='latin-1', errors='ignore') as sf:
+
+Python package matplotlib

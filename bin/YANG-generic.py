@@ -129,7 +129,8 @@ def run_confd(p, model, allinclu, debug_level):
         bash_command = "confdc --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     else:
         bash_command = "confdc --yangpath $MODULES --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/802.1/draft/ --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-        print "DEBUG: " + " in run_confd: bash_command contains " + bash_command
+        if debug_level:
+            print "DEBUG: " + " in run_confd: bash_command contains " + bash_command
     return os.popen(bash_command).read()
 
 def run_confd_version(debug_level=0):

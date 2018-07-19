@@ -24,7 +24,8 @@ cat IEEEStandardYANGPageMain.html  >> YANGPageMain.html
 cat IEEEExperimentalYANGPageMain.html  >> YANGPageMain.html
 cat BBFYANGPageMain.html  >> YANGPageMain.html
 cat OpenconfigYANGPageMain.html  >> YANGPageMain.html
-cat OpenDaylightPageMain.html  >> YANGPageMain.html
+# No OpenDaylight data for now
+#cat OpenDaylightPageMain.html  >> YANGPageMain.html
 cat ONFOpenTransportYANGPageMain.html  >> YANGPageMain.html
 cat SysrepoInternalYANGPageMain.html  >> YANGPageMain.html
 cat SysrepoApplicationYANGPageMain.html  >> YANGPageMain.html

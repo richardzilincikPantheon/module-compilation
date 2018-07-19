@@ -1,4 +1,17 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
+# Copyright (c) 2018 Cisco and/or its affiliates.
+# This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
+# You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+# The code, technical concepts, and all information contained herein, are the property of Cisco Technology, Inc.
+# and/or its affiliated entities, under various laws including copyright, international treaties, patent,
+# and/or contract. Any use of the material herein must be in accordance with the terms of the License.
+# All rights not expressly granted by the License are reserved.
+# Unless required by applicable law or agreed to separately in writing, software distributed under the
+# License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+# either express or implied.
+
+
 import datetime
 import matplotlib as mpl
 mpl.use('Agg')
@@ -11,7 +24,7 @@ import matplotlib.finance
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 from random import randint
 import json
-# from benoitGenerateYangHistory import historical_yangmodule_compiled_readJSON
+import os
 
 YANGHISTORY_JSON_FILE_NAME = 'yangcompile_history.json'
 
@@ -84,8 +97,11 @@ monthsFmt = DateFormatter("%b '%y")
 # TODO transfer dictionary to 2x Array
 basedate = date2num(date1)
 
+# Get some directory values where to store files
+web_directory = os.environ['WEB_PRIVATE']
+
 # generate stats for Cisco
-yangmoduleCisco_history = historical_yangmodule_compiled_readJSON("/media/sf_ubuntu-share/www/stats/IETFYANGPageCompilationCiscoAuthorsStats.json")
+yangmoduleCisco_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFYANGPageCompilationCiscoAuthorsStats.json")
 # print json.dumps(yangmoduleCisco_history)
 # print yangmoduleCisco_history
 if len(yangmoduleCisco_history) == 0:
@@ -112,7 +128,7 @@ fig, ax = plt.subplots()
 ax.plot(yangmoduledates, yangmodulesuccess, 'g-', yangmoduledates, yangmoduletotal, 'b-', yangmoduledates, yangmodulewarning, 'r-')
 plt.text(735727, 80, r'TOTAL', fontdict=fontb)
 plt.text(735727, 25, r'PASSED', fontdict=fontg)
-plt.text(735732, 05, r'WARNING', fontdict=fontr)
+plt.text(735732,  5, r'WARNING', fontdict=fontr)
 #ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(daysFmt)
 ax.xaxis.set_minor_locator(mondays)
@@ -122,11 +138,12 @@ ax.autoscale_view()
 #print ax
 ax.grid(True)
 fig.autofmt_xdate()
-savefig('/media/sf_ubuntu-share/www/figures/IETFYANGPageCompilationCiscoAuthors.png', bbox_inches='tight')
+ax.xaxis_date()
+savefig(web_directory + '/figures/IETFYANGPageCompilationCiscoAuthors.png', bbox_inches='tight')
 # plt.show()
 
 # generate stats for the IETF
-yangmodule_history = historical_yangmodule_compiled_readJSON("/media/sf_ubuntu-share/www/stats/IETFYANGPageCompilationStats.json")
+yangmodule_history = historical_yangmodule_compiled_readJSON(web_directory + "/IETFYANGPageCompilationStats.json")
 if len(yangmodule_history) == 0:
     print ('Found no data in IETFYANGPageCompilation.json')
     raise SystemExit
@@ -143,7 +160,7 @@ fig, ax = plt.subplots()
 ax.plot(yangmoduledates, yangmodulesuccess, 'g-', yangmoduledates, yangmoduletotal, 'b-', yangmoduledates, yangmodulewarning, 'r-')
 plt.text(735697, 95, r'TOTAL', fontdict=fontb)
 plt.text(735697, 40, r'PASSED', fontdict=fontg)
-plt.text(735712, 05, r'WARNING', fontdict=fontr)
+plt.text(735712,  5, r'WARNING', fontdict=fontr)
 #ax.xaxis.set_major_locator(months)
 ax.xaxis.set_major_formatter(daysFmt)
 ax.xaxis.set_minor_locator(mondays)
@@ -153,10 +170,10 @@ ax.autoscale_view()
 #print ax
 ax.grid(True)
 fig.autofmt_xdate()
-savefig('/media/sf_ubuntu-share/www/figures/IETFYANGPageCompilation.png', bbox_inches='tight')
+savefig(web_directory + '/figures/IETFYANGPageCompilation.png', bbox_inches='tight')
 
 # generate stats for the IETF RFCs
-yangRFC_history = historical_yangmodule_compiled_readJSON("/media/sf_ubuntu-share/www/stats/IETFYANGOutOfRFCStats.json")
+yangRFC_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFYANGOutOfRFCStats.json")
 if len(yangRFC_history) == 0:
     print ('Found no data in "IETFYANGOutOfRFC.json')
     raise SystemExit
@@ -180,11 +197,4 @@ int(yangmoduledates[1].encode("utf-8").split(".")[0])
 #print ax
 ax.grid(True)
 fig.autofmt_xdate()
-savefig('/media/sf_ubuntu-share/www/figures/IETFYANGOutOfRFC.png', bbox_inches='tight')
-
-# plt.show()
-
-
-
-
-
+savefig(web_directory + '/IETFYANGOutOfRFC.png', bbox_inches='tight')

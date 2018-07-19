@@ -13,7 +13,7 @@
 
 source configure.sh
 
-LOG=$LOGS/runGenerateFiguresAndStats.log
+LOG=$LOGS/GenerateFiguresAndStats.log
 echo "Starting" > $LOG
 date >> $LOG
 
@@ -22,10 +22,11 @@ date >> $LOG
 # this is necessary so that the figures are up to date with today stats, and YANG-figures can pick those latest stats up
 # the YANG-get-stats.py --days 5 doesn't generate the json file.
 mkdir -p $WEB_PRIVATE/stats
-YANG-get-stats.py  >> $LOG  2>&1
+YANG-get-stats.py >> $LOG  2>&1
 YANG-get-stats.py --days 5 >> $LOG 2>&1
 YANG-figures.py >> $LOG 2>&1
 
+exit
 
 # part 1: Generate the dependency figures
 mkdir -p $WEB_PRIVATE/figures

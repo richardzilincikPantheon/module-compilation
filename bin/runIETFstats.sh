@@ -12,7 +12,7 @@
 # either express or implied.
 
 source configure.sh
-LOG=$LOGS/runIETFstats.log
+LOG=$LOGS/IETFstats.log
 echo "Starting" > $LOG
 date >> $LOG
 
@@ -58,6 +58,7 @@ mkdir -p $IETFDIR/YANG-example-old-rfc
 mkdir -p $IETFDIR/draft-with-YANG-strict
 mkdir -p $IETFDIR/draft-with-YANG-no-strict
 mkdir -p $IETFDIR/draft-with-YANG-example
+mkdir -p $IETFDIR/draft-with-YANG-diff
 rm $MODULES/ieee.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ $MODULES/ieee.draft
 rm $MODULES/ieee.802.1.draft
@@ -66,7 +67,6 @@ rm $MODULES/ieee.802.3.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ $MODULES/ieee.802.3.draft
 rm $MODULES/mef
 ln -f -s $NONIETFDIR/mef/YANG-public/src/model/standard/ $MODULES/mef
-ln -f -s $IETFDIR/YANG/ $MODULES/YANG
 ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 
 # Extract all YANG models from RFC/I-D

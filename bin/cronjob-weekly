@@ -15,12 +15,12 @@ BIN=/home/yang/sdo_analysis/bin
 cd $BIN
 source activate
 #
-rundownloadgithub.sh
-runYANGgenericstatsv2-weekly.sh
+#rundownloadgithub.sh
+runYANGgenericstats-weekly.sh
 runODLfullstats.sh
 #/home/bclaise/bin/runMEFstats.sh
-runIETFstats.sh
-runRenameFileBackup.sh
-runGenerateAndFtpMainPage.sh
+#runIETFstats.sh
+#runRenameFileBackup.sh
+#runGenerateAndFtpMainPage.sh
 #/home/bclaise/bin/runGenerateFiguresAndStats.sh
-runWarnTheCatalog.sh
+#runWarnTheCatalog.sh

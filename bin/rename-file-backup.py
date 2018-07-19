@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Copyright (c) 2018 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
@@ -36,13 +36,15 @@ from datetime import datetime
 # ----------------------------------------------------------------------
 
 if __name__ == "__main__":
+    backup_directory = os.environ['BACKUPDIR']
+    web_private = os.environ['WEB_PRIVATE']
     parser = argparse.ArgumentParser(description='Move file to the their creation time')
-    parser.add_argument("--documentpath", default="/media/sf_ubuntu-share/www/",
+    parser.add_argument("--documentpath", default= web_private,
                         help="The optional directory where to find the file to backup. "
-                             "Default is '/media/sf_ubuntu-share/www'")
-    parser.add_argument("--backuppath", default="/media/sf_ubuntu-share/www/backup/",
+                             "Default is '" + web_private + "'")
+    parser.add_argument("--backuppath", default= backup_directory,
                         help="The optional directory where to backup the file. "
-                             "Default is '/media/sf_ubuntu-share/www/backup/'")                                                                            
+                             "Default is '" + backup_directory + "'")                                                                            
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
 
     args = parser.parse_args()
@@ -62,15 +64,15 @@ for file in name_to_backup:
         timestamp = (datetime.fromtimestamp(modifiedTime).strftime("%Y_%m_%d"))
         new_full_path_file = args.backuppath + file_no_extension + "_" + timestamp + "." + file_extension
         if debug_level > 0:
-            print "file full path: " + full_path_file
-            print "file without extension: " + file_no_extension
-            print "file extension: " + file_extension
-            print "full path: " + full_path_file
-            print "last modified: %s" % time.ctime(os.path.getmtime(full_path_file))
-            print "timestamp: " + str(timestamp) 
-            print "new file name: " + new_full_path_file
+            print("file full path: " + full_path_file)
+            print("file without extension: " + file_no_extension)
+            print("file extension: " + file_extension)
+            print("full path: " + full_path_file)
+            print("last modified: %s" % time.ctime(os.path.getmtime(full_path_file)))
+            print("timestamp: " + str(timestamp))
+            print("new file name: " + new_full_path_file)
 #        os.rename(full_path_file, new_full_path_file)
         shutil.copy2(full_path_file, new_full_path_file)
     else:
         if debug_level > 0:
-            print "file " + full_path_file + " not present"
+            print("file " + full_path_file + " not present")

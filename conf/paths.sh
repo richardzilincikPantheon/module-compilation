@@ -13,6 +13,7 @@ export YANG=/home/yang
 export YANGVAR=/var/yang
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
+export BACKUPDIR=$YANGVAR/backup
 export CONFD_DIR=/opt/confd
 export PYANG=/usr/local/bin/pyang
 
