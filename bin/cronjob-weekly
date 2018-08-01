@@ -18,6 +18,8 @@ source activate
 #rundownloadgithub.sh
 runYANGgenericstats-weekly.sh
 runODLfullstats.sh
+cd $WEB_PRIVATE
+ls *.json > json_links
 #/home/bclaise/bin/runMEFstats.sh
 #runIETFstats.sh
 #runRenameFileBackup.sh

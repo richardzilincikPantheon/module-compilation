@@ -21,5 +21,7 @@ runIETFstats.sh
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
 runGenerateAndFtpMainPage.sh
 runGenerateFiguresAndStats.sh
+cd $WEB_PRIVATE
+ls *.json > json_links
 # No need to execute a GET https://yangcatalog.org/api/ietf as we run on the server
 # runWarnTheCatalog.sh

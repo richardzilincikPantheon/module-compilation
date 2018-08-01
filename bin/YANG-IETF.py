@@ -264,19 +264,6 @@ def run_confd_version(debug_level=0):
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
     
-def run_yanger(model, yangpath, debug_level):
-    """
-    Run confdc on the YANG model
-    :param model: The file name for the model
-    :param yangpath: 
-    :return: the outcome of the PYANG compilationf
-    """
-    os.chdir(yangpath)
-    bash_command = "/home/bclaise/yanger/bin/yanger -p $MODULES -p $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ -p $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ -p $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in run_yanger: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
-
 def run_yumadumppro(model, yangpath, debug_level):
     """
     Run run_yumadump-pro on the YANG model
@@ -345,7 +332,7 @@ def generate_html_table(l, h, htmlpath, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Benoit Claise"]
+    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise"]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.table(l, header_row=h)
     f = open(htmlpath + file_name, 'w')
@@ -911,8 +898,6 @@ if __name__ == "__main__":
         
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary, args.htmlpath, "IETFYANGDraft.json")
-    # dictionary2 = {}
-    # dictionary2 = read_dictionary_file_in_json(args.htmlpath, "IETFYANG.json")
     # YANG modules from drafts: : make a list out of the dictionary
     my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
@@ -923,7 +908,7 @@ if __name__ == "__main__":
     print
     print("HTML page generation")
     header=['YANG Model', 'Draft Name', 'Email', 'Download the YANG model', 'Compilation', 'Compilation Result (pyang --ietf). ' + run_pyang_version(0), 'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(0), 'Compilation Results (confdc) Note: also generates errors for imported files. ' + run_confd_version(0), 'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + run_yumadumppro_version(0), 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + run_yanglint_version(0)]
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGPageCompilation.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraft.html")
     
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary_example = {}
@@ -969,7 +954,7 @@ if __name__ == "__main__":
     print
     print("HTML page generation for Example YANG Models")
     header=['YANG Model', 'Draft Name', 'Email', 'Compilation', 'Compilation Result (pyang --ietf)', 'Compilation Result (pyang). Note: also generates errors for imported files.']
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGExamplePageCompilation.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraftExample.html")
     
     
     # YANG modules from RFCs: dictionary2 generation, dictionary2 inversion, and page generation
@@ -1003,7 +988,7 @@ if __name__ == "__main__":
     
     # YANG modules from RFCs: HTML page generation for yang models
     header=['YANG Model (and Submodel)', 'RFC']
-    generate_html_table(my_yang_in_rfc, header, args.htmlpath, "IETFYANGOutOfRFC.html")
+    generate_html_table(my_yang_in_rfc, header, args.htmlpath, "IETFYANGRFC.html")
     # HTML page generation for statistics
 #    line1 = ""
     line2 = "<H3>IETF YANG MODELS</H3>"
