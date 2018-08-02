@@ -33,12 +33,11 @@ echo "Generating the JSON files with --days 5" >> $LOG
 YANG-get-stats.py --days 5 >> $LOG 2>&1
 
 echo "Generating the pictures" >> $LOG
+mkdir -p $WEB_PRIVATE/figures
 YANG-figures.py >> $LOG 2>&1
 
-exit
 
 # part 1: Generate the dependency figures
-mkdir -p $WEB_PRIVATE/figures
 cd $WEB_PRIVATE/figures
 symd.py --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
 mv modules.png modules-ietf.png

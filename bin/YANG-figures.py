@@ -14,7 +14,7 @@
 
 import datetime
 import matplotlib as mpl
-mpl.use('Agg')
+mpl.use('Agg') # To prevent using a X-Windows server
 import matplotlib.pyplot as plt
 from pylab import *
 from matplotlib.dates import MONDAY
