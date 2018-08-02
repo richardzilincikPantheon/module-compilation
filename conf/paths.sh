@@ -34,3 +34,4 @@ export TMP=$YANGVAR/tmp
 #
 export WEB=/var/www/html
 export WEB_PRIVATE=/var/www/html/private
+export WEB_URL=https://new.yangcatalog.org

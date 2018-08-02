@@ -12,12 +12,9 @@
 # either express or implied.
 
 source configure.sh
-LOG=$LOGS/IETFstats.log
+LOG=$LOGS/YANGIETFstats.log
 echo "Starting" > $LOG
 date >> $LOG
-
-# Test the Internet connectivity. Exit if no connectivity
-source testI.sh
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
 # TODO probably to be moved inside the confd caller
@@ -37,13 +34,13 @@ rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt"
 YANG-exclude-bad-drafts.py >> $LOG 2>&1
 
 #copy the current content to the old files and ftp them
-if [ -f $WEB_PRIVATE/IETFYANGPageCompilation.html ]
+if [ -f $WEB_PRIVATE/IETFYANGDraftPageCompilation.html ]
 then
-	cp $WEB_PRIVATE/IETFYANGPageCompilation.html $WEB_PRIVATE/IETFYANGPageCompilation-old.html
+	cp $WEB_PRIVATE/IETFYANGDraftPageCompilation.html $WEB_PRIVATE/IETFYANGDraftPageCompilation-old.html
 fi
-if [ -f $WEB_PRIVATE/IETFYANGPageCompilationCiscoAuthors.html ]
+if [ -f $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation.html ]
 then
-	cp $WEB_PRIVATE/IETFYANGPageCompilationCiscoAuthors.html $WEB_PRIVATE/IETFYANGPageCompilationCiscoAuthors-old.html
+	cp $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation.html $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation-old.html
 fi
 
 # Some directory and symbolic links may need to be created
@@ -75,23 +72,15 @@ YANG-IETF.py >> $LOG 2>&1
 
 # move all IETF YANG to the web part
 mkdir -p $WEB/YANG-modules
+rm -f $WEB/YANG-modules/*
 cp $IETFDIR/YANG/*.yang $WEB/YANG-modules
-
-# ftp all the stats JSON files
-# TODO unsure where the stats .json are and where to put them
-# /home/bclaise/bin/ftpmfilejson.sh 
-
-# FTP the generated files
-# No need to do as they are already in $WEB_PRIVATE/
-#/home/bclaise/bin/ftpfile.sh IETFYANGOutOfRFC.html
-#/home/bclaise/bin/ftpfile.sh IETFYANGExamplePageCompilation.html
 
 # Generate the report for RFC-ed YANG modules, and ftp the files.
 YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed pyang version 1.7 with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
 
 #Generate the diff files and ftp them
-diff $WEB_PRIVATE/IETFYANGPageCompilation.html $WEB_PRIVATE/IETFYANGPageCompilation-old.html > $WEB_PRIVATE/IETFYANGPageCompilation-diff.txt
-diff $WEB_PRIVATE/IETFYANGPageCompilationCiscoAuthors.html $WEB_PRIVATE/IETFYANGPageCompilationCiscoAuthors-old.html > $WEB_PRIVATE/IETFYANGPageCompilationCiscoAuthors-diff.txt
+diff $WEB_PRIVATE/IETFYANGDraftPageCompilation.html $WEB_PRIVATE/IETFYANGDraftPageCompilation-old.html > $WEB_PRIVATE/IETFYANGDraftPageCompilation-diff.txt
+diff $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation.html $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation-old.html > $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation-diff.txt
 
 # create and ftp the tar files
 cd $IETFDIR/YANG-rfc

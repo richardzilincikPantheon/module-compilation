@@ -51,7 +51,7 @@ if __name__ == "__main__":
     debug_level = args.debug
     
 name_to_backup = ['IETFYANGPageMain.html', 'HydrogenODLPageCompilation.html', 'HeliumODLPageCompilation.html', 'LithiumODLPageCompilation.html',
-                 'IETFYANGPageCompilationCiscoAuthors.html', 'IETFYANGOutOfRFC.html', 'IETFYANGPageCompilation.html',
+                 'IETFYANGCiscoAuthorsPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFYANGPageCompilation.html',
                  'IEEEStandardYANGPageCompilation.html','IEEEExperimentalYANGPageCompilation.html', 'YANGPageMain.html']
 # name_to_backup = ['temp.html']
 for file in name_to_backup:
@@ -60,7 +60,6 @@ for file in name_to_backup:
     full_path_file = args.documentpath + file
     if os.path.isfile(full_path_file): 
         modifiedTime = os.path.getmtime(full_path_file) 
-    #    timestamp = datetime.fromtimestamp(modifiedTime).strftime("%b-%d-%Y_%H.%M.%S")
         timestamp = (datetime.fromtimestamp(modifiedTime).strftime("%Y_%m_%d"))
         new_full_path_file = args.backuppath + file_no_extension + "_" + timestamp + "." + file_extension
         if debug_level > 0:
@@ -71,7 +70,6 @@ for file in name_to_backup:
             print("last modified: %s" % time.ctime(os.path.getmtime(full_path_file)))
             print("timestamp: " + str(timestamp))
             print("new file name: " + new_full_path_file)
-#        os.rename(full_path_file, new_full_path_file)
         shutil.copy2(full_path_file, new_full_path_file)
     else:
         if debug_level > 0:

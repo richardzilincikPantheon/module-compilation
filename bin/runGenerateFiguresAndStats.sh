@@ -13,17 +13,26 @@
 
 source configure.sh
 
+echo "Starting $0"
+date
+
 LOG=$LOGS/GenerateFiguresAndStats.log
 echo "Starting" > $LOG
 date >> $LOG
 
 # Generate the statistics since the beginning and ftp the files
-# the YANG-get-stats.py (without arguements) generates the full stats in json in /media/sf_ubuntu-share/www/stats/ :
+# the YANG-get-stats.py (without arguements) generates the full stats in json in $WEB_PRIVATE/stats/ :
 # this is necessary so that the figures are up to date with today stats, and YANG-figures can pick those latest stats up
 # the YANG-get-stats.py --days 5 doesn't generate the json file.
 mkdir -p $WEB_PRIVATE/stats
+
+echo "Generating the JSON files in $WEB_PRIVATE/stats" >> $LOG
 YANG-get-stats.py >> $LOG  2>&1
+
+echo "Generating the JSON files with --days 5" >> $LOG
 YANG-get-stats.py --days 5 >> $LOG 2>&1
+
+echo "Generating the pictures" >> $LOG
 YANG-figures.py >> $LOG 2>&1
 
 exit
@@ -43,3 +52,5 @@ symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-gr
 echo "End of the script!" >> $LOG
 date >> $LOG
 
+echo "End of $0"
+date

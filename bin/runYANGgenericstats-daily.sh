@@ -12,7 +12,7 @@
 # either express or implied.
 
 source configure.sh
-LOG=$LOGS/YANGgenericstats.log
+LOG=$LOGS/YANGgenericstats-daily.log
 echo "Starting" > $LOG
 date >> $LOG
 

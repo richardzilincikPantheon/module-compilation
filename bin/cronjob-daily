@@ -15,13 +15,14 @@ BIN=$HOME/sdo_analysis/bin
 BIN=/home/yang/sdo_analysis/bin
 cd $BIN
 source activate
+source configure.sh
 rundownloadgithub.sh
 runYANGgenericstats-daily.sh
 runIETFstats.sh
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
-runGenerateAndFtpMainPage.sh
+runGenerateMainPage.sh
 runGenerateFiguresAndStats.sh
+
+# This simple files for other Yang Catalog to know which files have been created
 cd $WEB_PRIVATE
 ls *.json > json_links
-# No need to execute a GET https://yangcatalog.org/api/ietf as we run on the server
-# runWarnTheCatalog.sh

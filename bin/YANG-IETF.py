@@ -623,6 +623,7 @@ if __name__ == "__main__":
     home = os.path.expanduser('~')
     ietf_directory = os.environ['IETFDIR']
     web_private = os.environ['WEB_PRIVATE']
+    web_url = os.environ['WEB_URL']
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",
                         help="The optional directory where to find the source drafts. "
@@ -640,7 +641,7 @@ if __name__ == "__main__":
                                                                                "all extracted models (including bad ones). "
                                                                                " Default is '" + ietf_directory + "/YANG-all/'")
     parser.add_argument("--allyangexamplepath", default= ietf_directory  + "/YANG-example/", help="The optional directory where to store "
-                                                                               "all extracted example models (starging with example- and not with CODE BEGINS/END). "
+                                                                               "all extracted example models (starting with example- and not with CODE BEGINS/END). "
                                                                                " Default is '" + ietf_directory + "/YANG-example/'")
     parser.add_argument("--yangexampleoldrfcpath", default= ietf_directory  + "/YANG-example-old-rfc/", help="The optional directory where to store "
                                                                                "the hardcoded YANG module example models from old RFCs (not starting with example-). "
@@ -672,6 +673,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     debug_level = args.debug
     # note: args.strict is not used
+
     
     # empty the yangpath, allyangpath, and rfcyangpath directory content
     remove_directory_content(args.yangpath, debug_level)
@@ -698,7 +700,6 @@ if __name__ == "__main__":
     for rfc_file in ietf_rfcs:
         # Extract the correctly formatted YANG Models in args.rfcyangpath
         yang_models_in_rfc = xym.xym(rfc_file, args.rfcpath, args.rfcyangpath, strict=True, strict_examples=False, debug_level=args.debug, add_line_refs=False, force_revision_pyang=False, force_revision_regexp=True)
-#        yang_models_in_rfc = xym(rfc_file, args.rfcpath, args.rfcyangpath, True, False, debug_level, False, False)
         if yang_models_in_rfc:
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from RFC:")
@@ -756,61 +757,7 @@ if __name__ == "__main__":
                     if debug_level > 0:
                        print("DEBUG: " + " extracting the grouping containing a draft YANG model:  error " + temp_result)        
                        
-                # Add the @revision if not present
-                # When I'll have the new xym option to force the @revision
-                # I won't need this 35 lines code below 
-#                if "@" in y:
-#                    yang_models_in_draft_with_revision.append(y)                   
-#                else:
-#                    # execute "/usr/local/bin/pyang/pyang -f name-revision <YANG-module-name>", 
-#                    # which returns out = <YANG-module-name>@<revision>
-#                    command_string = "/usr/local/bin/pyang -f name-revision " + args.yangpath + y
-#                    proc = Popen(shlex.split(command_string), stdout=PIPE, stderr=PIPE)
-#                    out, err = proc.communicate()
-#                    if err:
-#                        print("ERROR extracting revision from file with: pyang -f name-revision " + args.yangpath + y)
-#                        print("  Error: " + err)
-#                        print()
-#                    if args.debug > 0:
-#                        print("DEBUG: Adding the revision to YANG module because xym can't get revision (missing from the YANG module): " + y)
-#                        print("DEBUG:  command_string: " + command_string)
-#                        print("DEBUG:  out: " + new_yang_file_with_revision)
-#                        print("DEBUG:  err: " + err)
-#                    if out.rstrip():
-#                        new_yang_file_with_revision = out.rstrip() + ".yang"
-#                        # copy the file without revision into the YANG module with revision, in the appropriate directory
-#                        # it might have been better to move the files, instead of copy, but it breaks the functionality later on
-#                        # when I see two YANG modules in /home/bclaise/ietf/YANG, one with revision, one without, then I know 
-#                        # that the revision is not added in the file.
-#                        command_string = "cp " + args.yangpath + "/" + y + " " + args.yangpath + "/" + new_yang_file_with_revision
-#                        proc = Popen(shlex.split(command_string), stdout=PIPE, stderr=PIPE)
-#                        if args.debug > 0:
-#                            print("DEBUG: cp " + args.yangpath + "/" + y + " " + args.yangpath + "/" + new_yang_file_with_revision)
-#                            print()
-#                        out, err = proc.communicate()
-#                        if err:
-#                            print("Error moving file")
-#                            print("  Bash command: " + command_string)
-#                            print("  Error: " + err)    
-#                        if args.debug > 0:
-#                            print("DEBUG: moving the YANG module without revision to YANG module with revision: " + y)
-#                            print("DEBUG:  command_string: " + command_string)
-#                            print("DEBUG:  out: " + out.rstrip())
-#                            print("DEBUG:  err: " + err)
-#                        yang_models_in_draft_with_revision.append(new_yang_file_with_revision)                        
-#                    else:
-#                        print("ERROR: pyang -f name name-revision ... doesn't work for " + y + " no output")
-
-            
-#            # New yang_models_in_draft_with_revision list is the one with all YANG modules containing the @revision statement
-#            if debug_level > 0:
-#                print("DEBUG: in main: extracted YANG models from draft, after the @revision addition:")
-#                print("DEBUG: "+ yang_models_in_draft_with_revision)
-#                print        
-                         
-#            draft_yang_dict[draft_file] = yang_models_in_draft_with_revision   
             draft_yang_dict[draft_file] = yang_models_in_draft   
-            
             
             # copy the draft in a specific directory for strict = True
             bash_command = "cp " + args.draftpath + draft_file + " " + args.allyangdraftpathstrict
@@ -885,12 +832,11 @@ if __name__ == "__main__":
         url = "http://datatracker.ietf.org/doc/" + url
         draft_url = '<a href="' + url + '">' + draft_name + '</a>'
         email = '<a href="mailto:' + mailto + '">Email Authors</a>'
-        url2 = "http://www.claise.be/YANG-modules/" + yang_file
+        url2 = web_url + "/YANG-modules/" + yang_file
         yang_url = '<a href="' + url2 + '">Download the YANG model</a>'
         
         compilation = combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)  
         
-#        dictionary[yang_file] = (draft_url, email, compilation, yang_url, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)
         dictionary[yang_file] = (draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)
         if module_or_submodule(args.yangpath + yang_file) == 'module':
             dictionary_no_submodules[yang_file] = (draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)
@@ -908,7 +854,7 @@ if __name__ == "__main__":
     print
     print("HTML page generation")
     header=['YANG Model', 'Draft Name', 'Email', 'Download the YANG model', 'Compilation', 'Compilation Result (pyang --ietf). ' + run_pyang_version(0), 'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(0), 'Compilation Results (confdc) Note: also generates errors for imported files. ' + run_confd_version(0), 'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + run_yumadumppro_version(0), 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + run_yanglint_version(0)]
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraft.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraftPageCompilation.html")
     
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary_example = {}
@@ -916,7 +862,6 @@ if __name__ == "__main__":
     for yang_file in yang_example_draft_dict:
         draft_name, email, compilation = "", "", ""
         result_pyang, result_no_ietf_flag = "", ""
-        # print("PYANG compilation of " + yang_file)
         ietf_flag = True
         result_pyang = run_pyang(yang_file, ietf_flag, args.allyangexamplepath, debug_level)
         ietf_flag = False
@@ -954,7 +899,7 @@ if __name__ == "__main__":
     print
     print("HTML page generation for Example YANG Models")
     header=['YANG Model', 'Draft Name', 'Email', 'Compilation', 'Compilation Result (pyang --ietf)', 'Compilation Result (pyang). Note: also generates errors for imported files.']
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraftExample.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraftExamplePageCompilation.html")
     
     
     # YANG modules from RFCs: dictionary2 generation, dictionary2 inversion, and page generation
@@ -992,24 +937,17 @@ if __name__ == "__main__":
     # HTML page generation for statistics
 #    line1 = ""
     line2 = "<H3>IETF YANG MODELS</H3>"
-#    line3 = "Number of drafts with netmod in the draft name: " + str(len(ietf_draft_name_containing_keyword(ietf_drafts, "netmod", debug_level)))
-#    line4 = "Number of drafts containing NETMOD: " + str(len(list_of_ietf_draft_containing_keyword(ietf_drafts, "netmod", args.draftpath)))
     line5 = "Number of correctly extracted YANG models from IETF drafts: " + str(number_of_modules_YANG_models_from_ietf_drafts)
     line6 = "Number of YANG models in IETF drafts that passed compilation without warnings: " + str(number_of_modules_YANG_models_from_ietf_drafts_passed_compilation_without_warnings) + "/" + str(number_of_modules_YANG_models_from_ietf_drafts)
     line7 = "Number of YANG models in IETF drafts that passed compilation with warnings: " + str(number_of_modules_YANG_models_from_ietf_drafts_passed_compilation_wit_warnings) + "/" + str(number_of_modules_YANG_models_from_ietf_drafts)
     line8 = "Number of all YANG models in IETF drafts (example, badly formatted, etc. ): " + str(number_of_all_modules)
     line9 = "Number of correctly extracted example YANG models from IETF drafts: " + str(number_of_example_modules_YANG_models_from_ietf_drafts)
-#    my_list2 = [line2, line3, line4, line5, line6, line7, line8, line9]
     my_list2 = [line2, line5, line6, line7, line8, line9]
 
     generate_html_list(my_list2, args.htmlpath, "IETFYANGPageMain.html")
 
     # Stats generation for the standard output 
     print("--------------------------")
-#    print("Number of drafts with netmod in the draft name: " + \
-#          str(len(ietf_draft_name_containing_keyword(ietf_drafts, "netmod", debug_level))))
-#    print("Number of drafts containing NETMOD: " + \
-#          str(len(list_of_ietf_draft_containing_keyword(ietf_drafts, "netmod", args.draftpath))))
     print("Number of correctly extracted YANG models from IETF drafts: " + str(number_of_modules_YANG_models_from_ietf_drafts))
     print("Number of YANG models in IETF drafts that passed compilation without warnings: " + str(number_of_modules_YANG_models_from_ietf_drafts_passed_compilation_without_warnings) + "/" + str(number_of_modules_YANG_models_from_ietf_drafts))
     print("Number of YANG models in IETF drafts that passed compilation with warnings: " + str(number_of_modules_YANG_models_from_ietf_drafts_passed_compilation_wit_warnings) + "/" + str(number_of_modules_YANG_models_from_ietf_drafts))
@@ -1048,7 +986,7 @@ if __name__ == "__main__":
             draft_url = '<a href="' + url + '">' + draft_name + '</a>'
             email = '<a href="mailto:' + mailto + '">Email All Authors</a>'
             cisco_email = '<a href="mailto:' + cisco_email + '">Email Cisco Authors Only</a>'                   
-            url2 = "http://www.claise.be/YANG-modules/" + yang_file
+            url2 = web_url + "/YANG-modules/" + yang_file
             yang_url = '<a href="' + url2 + '">Download the YANG model</a>'
             
             compilation = combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)  
@@ -1080,6 +1018,6 @@ if __name__ == "__main__":
     print
     print("Cisco HTML page generation")
     header=['YANG Model', 'Draft Name', 'All Authors Email', 'Only Cisco Email','Download the YANG model','Compilation', 'Compilation Results (pyang --ietf)', 'Compilation Results (pyang). Note: also generates errors for imported files.', 'Compilation Results (confdc) Note: also generates errors for imported files', 'Compilation Results (yumadump-pro). Note: also generates errors for imported files.', 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGPageCompilationCiscoAuthors.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGCiscoAuthorsPageCompilation.html")
     print(output_email_string_unique)
 

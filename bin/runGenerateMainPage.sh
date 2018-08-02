@@ -13,21 +13,8 @@
 
 source configure.sh
 
+# Main page compilation out of existing created page for the different SDOs/projects
+
 cd $WEB_PRIVATE
 rm -f YANGPageMain.html
-cp IETFYANGPageMain.html YANGPageMain.html
-
-# Main page compilation out of existing created page for the different SDOs/projects
-cat MEFStandardYANGPageMain.html  >> YANGPageMain.html
-cat MEFExperimentalYANGPageMain.html  >> YANGPageMain.html
-cat IEEEStandardYANGPageMain.html  >> YANGPageMain.html
-cat IEEEExperimentalYANGPageMain.html  >> YANGPageMain.html
-cat BBFYANGPageMain.html  >> YANGPageMain.html
-cat OpenconfigYANGPageMain.html  >> YANGPageMain.html
-# No OpenDaylight data for now
-#cat OpenDaylightPageMain.html  >> YANGPageMain.html
-cat ONFOpenTransportYANGPageMain.html  >> YANGPageMain.html
-cat SysrepoInternalYANGPageMain.html  >> YANGPageMain.html
-cat SysrepoApplicationYANGPageMain.html  >> YANGPageMain.html
-cat OpenROADM20YANGPageMain.html  >> YANGPageMain.html
-
+cat *PageMain.html > YANGPageMain.html

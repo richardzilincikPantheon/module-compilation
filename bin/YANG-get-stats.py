@@ -132,12 +132,8 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-#    f = open(path + file_name, 'w')
-#    f.write(json.dumps(in_dict))
     with open(path + file_name, 'w') as outfile:
-#        json.dump(in_dict, outfile, sort_keys = True, indent = 4, ensure_ascii=True)
-        json.dump(in_dict, outfile, indent = 4, ensure_ascii=True)
-    outfile.close()
+        json.dump(in_dict, outfile, indent = 4, ensure_ascii = True)
     
 def read_dictionary_file_in_json(path, file_name):
     """
@@ -194,14 +190,13 @@ if int(args.days) > 0:
 else:
     files = all_files
 
-prefix = "IETFYANGPageCompilationCiscoAuthors" 
+prefix = "IETFYANGCiscoAuthorsPageCompilation" 
 selected_files = file_name_containing_keyword(files, prefix, debug_level)
-#print(selected_files
 
-IETFYANGPageCompilationCiscoAuthors = {}
+IETFYANGCiscoAuthorsPageCompilation = {}
 IETFYANGPageCompilation = {}
     
-for prefix in ["IETFYANGPageCompilationCiscoAuthors_", "IETFYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+for prefix in ["IETFYANGCiscoAuthorsPageCompilation_", "IETFYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix)
     print("FILENAME: NUMBER OF DAYS SINCE EPOCH, TOTAL YANG MODULES, PASSED, PASSEDWITHWARNINGS, FAILED")
@@ -230,19 +225,17 @@ for prefix in ["IETFYANGPageCompilationCiscoAuthors_", "IETFYANGPageCompilation_
         month = f.split("_")[2]
         day = f.split("_")[3] 
         extracted_date = datetime.date(int(year), int(month), int(day))
-        print(f + ": " + str(date2num(extracted_date)) + " " + total_result + " " + passed_result + " " + passed_with_warning_result + " " + failed_result)
-        if prefix == "IETFYANGPageCompilationCiscoAuthors_":
-            IETFYANGPageCompilationCiscoAuthors[str(date2num(extracted_date))] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
+        matplot_date = date2num(extracted_date)
+#        print(f + ": " + str(matplot_date)  + " " + total_result + " " + passed_result + " " + passed_with_warning_result + " " + failed_result)
+        if prefix == "IETFYANGCiscoAuthorsPageCompilation_":
+            IETFYANGCiscoAuthorsPageCompilation[matplot_date] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
         elif prefix == "IETFYANGPageCompilation_":
-            IETFYANGPageCompilation[str(date2num(extracted_date))] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
+            IETFYANGPageCompilation[matplot_date] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
 
-# write IETFYANGPageCompilationCiscoAuthors to a json file
+# write IETFYANGCiscoAuthorsPageCompilation to a json file
 if int(args.days) == -1:
-    write_dictionary_file_in_json(IETFYANGPageCompilationCiscoAuthors, args.statspath, "IETFYANGPageCompilationCiscoAuthorsStats.json")
+    write_dictionary_file_in_json(IETFYANGCiscoAuthorsPageCompilation, args.statspath, "IETFYANGCiscoAuthorsPageCompilationStats.json")
     write_dictionary_file_in_json(IETFYANGPageCompilation, args.statspath, "IETFYANGPageCompilationStats.json")
-#print(IETFYANGPageCompilation
-#print
-#print(read_dictionary_file_in_json(args.statspath, "IETFYANGPageCompilationCiscoAuthors")
 
 #Print the number of RFCs per date, and store the info into a json file            
 IETFYANGOutOfRFC = {}
@@ -259,7 +252,7 @@ for f in file_name_containing_keyword(files, prefix, debug_level):
     month = f.split("_")[2]
     day = f.split("_")[3]  
     extracted_date = datetime.date(int(year), int(month), int(day))   
-    print(f + " : " + str(date2num(extracted_date)) +" " + rfc_result)
+#    print(f + " : " + str(date2num(extracted_date)) +" " + rfc_result)
     IETFYANGOutOfRFC[str(date2num(extracted_date))] = {"total":rfc_result}
 # write IETFYANGOutOfRFC to a json file
 if int(args.days) == -1:
@@ -269,7 +262,7 @@ if int(args.days) == -1:
  # IETF: total number of 
  # ODL: total number in Lithium
  # 
-for prefix in ["IEEEYANGPageCompilation_", "IETFYANGPageCompilationCiscoAuthors_", "IETFYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+for prefix in ["IEEEYANGPageCompilation_", "IETFYANGCiscoAuthorsPageCompilation_", "IETFYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix + " for the newest file")
     # next line returns the newest file
@@ -368,8 +361,6 @@ print("Qosmos: " + str(len(list_of_ietf_draft_containing_keyword(files, "@qosmos
  
                      
 # diff between files and files_no_strict lists
-#files = [f for f in os.listdir(args.draftpathstrict) if os.path.isfile(os.path.join(args.draftpathstrict, f))]
-#files_no_strict = [f for f in os.listdir(args.draftpathnostrict) if os.path.isfile(os.path.join(args.draftpathnostrict, f))] 
 files_diff = []
 for f in files_no_strict:
     if f not in files:
