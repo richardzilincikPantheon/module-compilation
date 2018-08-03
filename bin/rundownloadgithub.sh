@@ -15,9 +15,6 @@
 # TODO avoid git init / pull when not needed
 # TODO fix the flattening
 
-# Test the Internet connectivity. Exit if no connectivity
-source testI.sh
-
 # Get the local configuration
 source configure.sh
 LOG=$LOGS/downloadGitHub.log

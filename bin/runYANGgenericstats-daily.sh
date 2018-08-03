@@ -16,9 +16,6 @@ LOG=$LOGS/YANGgenericstats-daily.log
 echo "Starting" > $LOG
 date >> $LOG
 
-# Test the Internet connectivity. Exit if no connectivity
-source testI.sh
-
 # Need to set some ENV variables for subsequent calls in .PY to confd...
 source $CONFD_DIR/confdrc
 

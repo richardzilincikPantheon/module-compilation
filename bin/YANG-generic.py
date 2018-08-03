@@ -238,7 +238,7 @@ def generate_html_list(l, htmlpath, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Benoit Claise"]
+    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise"]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.list(l)
     f = open(htmlpath + file_name, 'w')

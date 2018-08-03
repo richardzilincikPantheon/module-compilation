@@ -12,15 +12,10 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
-#TODO http://blog.dbotelho.com/2009/01/multithreading-with-bash-script/
-
 source configure.sh
 LOG=$LOGS/YANGgenericstats-weekly.log
 echo "Starting" > $LOG
 date >> $LOG
-
-# Test the Internet connectivity. Exit if no connectivity
-source testI.sh
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
 source $CONFD_DIR/confdrc
