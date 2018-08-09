@@ -34,13 +34,13 @@ rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt"
 YANG-exclude-bad-drafts.py >> $LOG 2>&1
 
 #copy the current content to the old files and ftp them
-if [ -f $WEB_PRIVATE/IETFYANGDraftPageCompilation.html ]
+if [ -f $WEB_PRIVATE/IETFDraftYANGPageCompilation.html ]
 then
-	cp $WEB_PRIVATE/IETFYANGDraftPageCompilation.html $WEB_PRIVATE/IETFYANGDraftPageCompilation-old.html
+	cp $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html
 fi
-if [ -f $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation.html ]
+if [ -f $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html ]
 then
-	cp $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation.html $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation-old.html
+	cp $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-old.html
 fi
 
 # Some directory and symbolic links may need to be created
@@ -79,8 +79,8 @@ cp $IETFDIR/YANG/*.yang $WEB/YANG-modules
 YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed pyang version 1.7 with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
 
 #Generate the diff files and ftp them
-diff $WEB_PRIVATE/IETFYANGDraftPageCompilation.html $WEB_PRIVATE/IETFYANGDraftPageCompilation-old.html > $WEB_PRIVATE/IETFYANGDraftPageCompilation-diff.txt
-diff $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation.html $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation-old.html > $WEB_PRIVATE/IETFYANGCiscoAuthorsPageCompilation-diff.txt
+diff $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html > $WEB_PRIVATE/IETFDraftYANGPageCompilation-diff.txt
+diff $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-old.html > $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-diff.txt
 
 # create and ftp the tar files
 cd $IETFDIR/YANG-rfc

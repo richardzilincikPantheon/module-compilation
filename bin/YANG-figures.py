@@ -65,10 +65,10 @@ monthsFmt = DateFormatter("%b '%y")
 web_directory = os.environ['WEB_PRIVATE']
 
 # generate stats for Cisco
-yangmoduleCisco_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFYANGCiscoAuthorsPageCompilationStats.json")
+yangmoduleCisco_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFCiscoAuthorsYANGPageCompilationStats.json")
 print("Found " + str(len(yangmoduleCisco_history)) + " entries for the graph")
 if len(yangmoduleCisco_history) == 0:
-    print ('Found no data in IETFYANGCiscoAuthorsPageCompilation.json')
+    print ('Found no data in IETFCiscoAuthorsYANGPageCompilation.json')
     raise SystemExit
 yangmoduledates = []
 yangmodulesuccess = []
@@ -95,7 +95,7 @@ ax.autoscale_view()
 ax.grid(True)
 fig.autofmt_xdate()
 ax.xaxis_date()
-savefig(web_directory + '/figures/IETFYANGCiscoAuthorsPageCompilation.png', bbox_inches='tight')
+savefig(web_directory + '/figures/IETFCiscoAuthorsYANGPageCompilation.png', bbox_inches='tight')
 
 # generate stats for the IETF
 yangmodule_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFYANGPageCompilationStats.json")

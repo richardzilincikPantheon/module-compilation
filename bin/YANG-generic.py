@@ -189,7 +189,7 @@ def run_yanglint(p, model, allinclu, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     directory = os.path.dirname(model)
-    filename = model.split("/")[-1]
+#    filename = model.split("/")[-1]
     os.chdir(directory)
     if allinclu:
         bash_command = "yanglint -V -i -p " + p + " " + model + " 2>&1"
@@ -326,18 +326,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     else:
         compilation_pyang = "NOT SURE"
 
-#    # logic for pyang compilation result:
-#    if "error" in result_no_ietf_flag:
-#        compilation_pyang_no_ietf = "FAILED"
-#    elif  "warning" in result_no_ietf_flag:
-#        compilation_pyang_no_ietf = "PASSED WITH WARNINGS"
-#    elif result_no_ietf_flag == "":
-#        compilation_pyang_no_ietf = "PASSED"
-#    else:
-#        compilation_pyang_no_ietf = "NOT SURE"
-
     # logic for confdc compilation result:
-#    if "error" in result_confd and yang_file in result_confd:
     if "error" in result_confd:
         compilation_confd = "FAILED"
     #   The following doesn't work. For example, ietf-diffserv@2016-06-15.yang, now PASSED (TBC):
@@ -401,10 +390,9 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     else:
         compilation = "NOT SURE"
 
-    # Next three lines to be removed after troubleshooting
+    # Next two lines to be removed after troubleshooting
     #compilation_list = [compilation_pyang, compilation_confd, compilation_yuma, compilation_yanglint, compilation]
-    #print yang_file + " " + str(compilation_list) + " "+ result_pyang + " " + result_no_ietf_flag + " "+ result_confd + " "+ result_yuma + " "+ result_yanglint
-    #return compilation_list
+    #print(yang_file + ": " + str(compilation_list) + "/"+ result_pyang + "/" + result_confd + "/"+ result_yuma + "/"+ result_yanglint + "/\n----")
 
     return compilation
 

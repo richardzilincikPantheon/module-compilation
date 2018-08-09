@@ -190,13 +190,13 @@ if int(args.days) > 0:
 else:
     files = all_files
 
-prefix = "IETFYANGCiscoAuthorsPageCompilation" 
+prefix = "IETFCiscoAuthorsYANGPageCompilation" 
 selected_files = file_name_containing_keyword(files, prefix, debug_level)
 
 IETFYANGCiscoAuthorsPageCompilation = {}
 IETFYANGPageCompilation = {}
     
-for prefix in ["IETFYANGCiscoAuthorsPageCompilation_", "IETFYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+for prefix in ["IETFCiscoAuthorsYANGPageCompilation_", "IETFYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix)
     print("FILENAME: NUMBER OF DAYS SINCE EPOCH, TOTAL YANG MODULES, PASSED, PASSEDWITHWARNINGS, FAILED")
@@ -227,14 +227,14 @@ for prefix in ["IETFYANGCiscoAuthorsPageCompilation_", "IETFYANGPageCompilation_
         extracted_date = datetime.date(int(year), int(month), int(day))
         matplot_date = date2num(extracted_date)
 #        print(f + ": " + str(matplot_date)  + " " + total_result + " " + passed_result + " " + passed_with_warning_result + " " + failed_result)
-        if prefix == "IETFYANGCiscoAuthorsPageCompilation_":
+        if prefix == "IETFCiscoAuthorsYANGPageCompilation_":
             IETFYANGCiscoAuthorsPageCompilation[matplot_date] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
         elif prefix == "IETFYANGPageCompilation_":
             IETFYANGPageCompilation[matplot_date] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
 
 # write IETFYANGCiscoAuthorsPageCompilation to a json file
 if int(args.days) == -1:
-    write_dictionary_file_in_json(IETFYANGCiscoAuthorsPageCompilation, args.statspath, "IETFYANGCiscoAuthorsPageCompilationStats.json")
+    write_dictionary_file_in_json(IETFYANGCiscoAuthorsPageCompilation, args.statspath, "IETFCiscoAuthorsYANGPageCompilationStats.json")
     write_dictionary_file_in_json(IETFYANGPageCompilation, args.statspath, "IETFYANGPageCompilationStats.json")
 
 #Print the number of RFCs per date, and store the info into a json file            
@@ -262,7 +262,7 @@ if int(args.days) == -1:
  # IETF: total number of 
  # ODL: total number in Lithium
  # 
-for prefix in ["IEEEYANGPageCompilation_", "IETFYANGCiscoAuthorsPageCompilation_", "IETFYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+for prefix in ["IEEEYANGPageCompilation_", "IETFCiscoAuthorsYANGPageCompilation_", "IETFYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix + " for the newest file")
     # next line returns the newest file

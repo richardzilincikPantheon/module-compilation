@@ -51,7 +51,7 @@ if __name__ == "__main__":
     debug_level = args.debug
     
 name_to_backup = ['IETFYANGPageMain.html', 'HydrogenODLPageCompilation.html', 'HeliumODLPageCompilation.html', 'LithiumODLPageCompilation.html',
-                 'IETFYANGCiscoAuthorsPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFYANGPageCompilation.html',
+                 'IETFCiscoAuthorsYANGPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFYANGPageCompilation.html',
                  'IEEEStandardYANGPageCompilation.html','IEEEExperimentalYANGPageCompilation.html', 'YANGPageMain.html']
 # name_to_backup = ['temp.html']
 for file in name_to_backup:

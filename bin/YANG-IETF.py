@@ -843,7 +843,7 @@ if __name__ == "__main__":
 
         
     # Dictionary serialization
-    write_dictionary_file_in_json(dictionary, args.htmlpath, "IETFYANGDraft.json")
+    write_dictionary_file_in_json(dictionary, args.htmlpath, "IETFDraft.json")
     # YANG modules from drafts: : make a list out of the dictionary
     my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
@@ -854,7 +854,7 @@ if __name__ == "__main__":
     print
     print("HTML page generation")
     header=['YANG Model', 'Draft Name', 'Email', 'Download the YANG model', 'Compilation', 'Compilation Result (pyang --ietf). ' + run_pyang_version(0), 'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(0), 'Compilation Results (confdc) Note: also generates errors for imported files. ' + run_confd_version(0), 'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + run_yumadumppro_version(0), 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + run_yanglint_version(0)]
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraftPageCompilation.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftYANGPageCompilation.html")
     
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary_example = {}
@@ -886,7 +886,7 @@ if __name__ == "__main__":
             dictionary_no_submodules_example[yang_file] = (draft_url, email, compilation, result_pyang, result_no_ietf_flag)
 
     # Dictionary serialization
-    write_dictionary_file_in_json(dictionary_example, args.htmlpath, "IETFYANGDraftExample.json")
+    write_dictionary_file_in_json(dictionary_example, args.htmlpath, "IETFDraftExample.json")
     # dictionary2 = {}
     # dictionary2 = read_dictionary_file_in_json(args.htmlpath, "IETFYANG.json")
     # YANG modules from drafts: : make a list out of the dictionary
@@ -899,7 +899,7 @@ if __name__ == "__main__":
     print
     print("HTML page generation for Example YANG Models")
     header=['YANG Model', 'Draft Name', 'Email', 'Compilation', 'Compilation Result (pyang --ietf)', 'Compilation Result (pyang). Note: also generates errors for imported files.']
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGDraftExamplePageCompilation.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftExampleYANGPageCompilation.html")
     
     
     # YANG modules from RFCs: dictionary2 generation, dictionary2 inversion, and page generation
@@ -1018,6 +1018,6 @@ if __name__ == "__main__":
     print
     print("Cisco HTML page generation")
     header=['YANG Model', 'Draft Name', 'All Authors Email', 'Only Cisco Email','Download the YANG model','Compilation', 'Compilation Results (pyang --ietf)', 'Compilation Results (pyang). Note: also generates errors for imported files.', 'Compilation Results (confdc) Note: also generates errors for imported files', 'Compilation Results (yumadump-pro). Note: also generates errors for imported files.', 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
-    generate_html_table(my_new_list, header, args.htmlpath, "IETFYANGCiscoAuthorsPageCompilation.html")
+    generate_html_table(my_new_list, header, args.htmlpath, "IETFCiscoAuthorsYANGPageCompilation.html")
     print(output_email_string_unique)
 

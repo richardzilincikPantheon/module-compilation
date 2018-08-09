@@ -36,6 +36,8 @@ echo "Generating the pictures" >> $LOG
 mkdir -p $WEB_PRIVATE/figures
 YANG-figures.py >> $LOG 2>&1
 
+# Matplot seems to create temporary files
+rm -f $TMP/matplot*
 
 # part 1: Generate the dependency figures
 cd $WEB_PRIVATE/figures
