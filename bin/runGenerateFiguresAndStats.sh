@@ -13,12 +13,10 @@
 
 source configure.sh
 
-echo "Starting $0"
-date
+date +"%c start of $0"
 
 LOG=$LOGS/GenerateFiguresAndStats.log
-echo "Starting" > $LOG
-date >> $LOG
+date +"%c starting" > $LOG
 
 # Generate the statistics since the beginning and ftp the files
 # the YANG-get-stats.py (without arguements) generates the full stats in json in $WEB_PRIVATE/stats/ :
@@ -36,9 +34,6 @@ echo "Generating the pictures" >> $LOG
 mkdir -p $WEB_PRIVATE/figures
 YANG-figures.py >> $LOG 2>&1
 
-# Matplot seems to create temporary files
-rm -f $TMP/matplot*
-
 # part 1: Generate the dependency figures
 cd $WEB_PRIVATE/figures
 symd.py --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
@@ -50,8 +45,9 @@ mv ietf-interfaces.png ietf-interfaces-all.png
 symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-interfaces >>$LOG 2>&1
 symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-routing >>$LOG 2>&1
 
-echo "End of the script!" >> $LOG
-date >> $LOG
+# Matplot seems to create temporary directories
+rm -rf $TMP/matplot*
 
-echo "End of $0"
-date
+date +"%c end of the script" >> $LOG
+
+date +"%c End of $0"

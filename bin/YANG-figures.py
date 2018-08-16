@@ -30,7 +30,7 @@ def historical_yangmodule_compiled_readJSON(jsonfile):
     yangmodule_history_json_file = jsonfile
     with open(yangmodule_history_json_file, 'r') as f:
         yangmodule_history = json.load(f)
-    # print yangmodule_history
+    print(" Found " + str(len(yangmodule_history)) + " entrie(s) from " + jsonfile) 
 
     return yangmodule_history
 
@@ -66,7 +66,6 @@ web_directory = os.environ['WEB_PRIVATE']
 
 # generate stats for Cisco
 yangmoduleCisco_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFCiscoAuthorsYANGPageCompilationStats.json")
-print("Found " + str(len(yangmoduleCisco_history)) + " entries for the graph")
 if len(yangmoduleCisco_history) == 0:
     print ('Found no data in IETFCiscoAuthorsYANGPageCompilation.json')
     raise SystemExit
@@ -100,7 +99,7 @@ savefig(web_directory + '/figures/IETFCiscoAuthorsYANGPageCompilation.png', bbox
 # generate stats for the IETF
 yangmodule_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFYANGPageCompilationStats.json")
 if len(yangmodule_history) == 0:
-    print ('Found no data in IETFYANGPageCompilation.json')
+    print ('Found no data in IETFYANGPageCompilationStats.json')
     raise SystemExit
 yangmoduledates = []
 yangmodulesuccess = []

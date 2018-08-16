@@ -196,7 +196,7 @@ selected_files = file_name_containing_keyword(files, prefix, debug_level)
 IETFYANGCiscoAuthorsPageCompilation = {}
 IETFYANGPageCompilation = {}
     
-for prefix in ["IETFCiscoAuthorsYANGPageCompilation_", "IETFYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+for prefix in ["IETFCiscoAuthorsYANGPageCompilation_", "IETFDraftYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix)
     print("FILENAME: NUMBER OF DAYS SINCE EPOCH, TOTAL YANG MODULES, PASSED, PASSEDWITHWARNINGS, FAILED")
@@ -229,7 +229,7 @@ for prefix in ["IETFCiscoAuthorsYANGPageCompilation_", "IETFYANGPageCompilation_
 #        print(f + ": " + str(matplot_date)  + " " + total_result + " " + passed_result + " " + passed_with_warning_result + " " + failed_result)
         if prefix == "IETFCiscoAuthorsYANGPageCompilation_":
             IETFYANGCiscoAuthorsPageCompilation[matplot_date] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
-        elif prefix == "IETFYANGPageCompilation_":
+        elif prefix == "IETFDraftYANGPageCompilation_":
             IETFYANGPageCompilation[matplot_date] = {"total":total_result, "warning":passed_with_warning_result, "success":passed_result}
 
 # write IETFYANGCiscoAuthorsPageCompilation to a json file

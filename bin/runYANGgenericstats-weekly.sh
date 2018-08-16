@@ -86,8 +86,12 @@ PIDS+=("$!")
 (YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.3.2 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/632/" --lint True --prefix CiscoXR632 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/632/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
-# IOS-XR 6.4.1
+# IOS-XR 6.4.1 obsoleted by 6.4.2
 (YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.4.1 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/641/" --lint True --prefix CiscoXR641 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/641/" >> $LOG 2>&1) &
+PIDS+=("$!")
+
+# IOS-XR 6.4.2
+(YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.4.2 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/642/" --lint True --prefix CiscoXR642 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/642/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 
@@ -144,8 +148,7 @@ PIDS+=("$!")
 (YANG-generic.py --allinclusive True --metadata "Cisco NX OS F.0-3-F3-1 from https://github.com/YangModels/yang/tree/master/vendor/cisco/nx/7.0-3-F3.1" --lint True --prefix CiscoNX703F31 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/nx/7.0-3-F3-1/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
-
-# NX-OS 7.0-3-I5-1 ) &
+# NX-OS 7.0-3-I5-1
 (YANG-generic.py --allinclusive True --metadata "Cisco NX OS F.0-3-I5-1 from https://github.com/YangModels/yang/tree/master/vendor/cisco/nx/7.0-3-I5-1" --lint True --prefix CiscoNX703I51 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/nx/7.0-3-I5-1/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
@@ -195,7 +198,7 @@ YANG-generic.py --allinclusive True --metadata "HUAWEI ROUTER 8.9.10 https://git
 YANG-generic.py --allinclusive True --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint True --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena" >> $LOG 2>&1
 
 #clean up of the .fxs files created by confdc
-find $NONIETFDIR/yangmodels -name *.fxs -print | xargs rm
+find $NONIETFDIR/yangmodels -name *.fxs -print | xargs rm >> $LOG 2>&1
 
 echo "End of the script!" >> $LOG 
 date >> $LOG

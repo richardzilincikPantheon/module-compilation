@@ -51,7 +51,7 @@ if __name__ == "__main__":
     debug_level = args.debug
     
 name_to_backup = ['IETFYANGPageMain.html', 'HydrogenODLPageCompilation.html', 'HeliumODLPageCompilation.html', 'LithiumODLPageCompilation.html',
-                 'IETFCiscoAuthorsYANGPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFYANGPageCompilation.html',
+                 'IETFCiscoAuthorsYANGPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFDraftYANGPageCompilation.html',
                  'IEEEStandardYANGPageCompilation.html','IEEEExperimentalYANGPageCompilation.html', 'YANGPageMain.html']
 # name_to_backup = ['temp.html']
 for file in name_to_backup:
@@ -72,5 +72,4 @@ for file in name_to_backup:
             print("new file name: " + new_full_path_file)
         shutil.copy2(full_path_file, new_full_path_file)
     else:
-        if debug_level > 0:
-            print("file " + full_path_file + " not present")
+        print("*** file " + full_path_file + " not present!")
