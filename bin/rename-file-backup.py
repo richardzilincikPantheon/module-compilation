@@ -20,6 +20,7 @@ import os
 import shutil
 import time
 import argparse
+import configparser
 from datetime import datetime
 
 
@@ -36,8 +37,11 @@ from datetime import datetime
 # ----------------------------------------------------------------------
 
 if __name__ == "__main__":
-    backup_directory = os.environ['BACKUPDIR']
-    web_private = os.environ['WEB_PRIVATE']
+    config = configparser.ConfigParser()
+    config._interpolation = configparser.ExtendedInterpolation()
+    config.read('/etc/yangcatalog.cong')
+    web_private = config.get('Web-Section', 'private_directory')
+    backup_dirrectory = os.environ['BACKUPDIR']
     parser = argparse.ArgumentParser(description='Move file to the their creation time')
     parser.add_argument("--documentpath", default= web_private,
                         help="The optional directory where to find the file to backup. "

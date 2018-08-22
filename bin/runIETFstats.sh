@@ -13,8 +13,7 @@
 
 source configure.sh
 LOG=$LOGS/YANGIETFstats.log
-echo "Starting" > $LOG
-date >> $LOG
+date +"%c: Starting" > $LOG
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
 # TODO probably to be moved inside the confd caller
@@ -33,7 +32,7 @@ rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt"
 #remove the drafts with xym.py error, but that don't contain YANG data modules
 YANG-exclude-bad-drafts.py >> $LOG 2>&1
 
-#copy the current content to the old files and ftp them
+#copy the current content to the -old files 
 if [ -f $WEB_PRIVATE/IETFDraftYANGPageCompilation.html ]
 then
 	cp $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html
@@ -52,6 +51,7 @@ mkdir -p $IETFDIR/YANG-extraction
 mkdir -p $IETFDIR/YANG-rfc
 mkdir -p $IETFDIR/YANG-rfc-extraction
 mkdir -p $IETFDIR/YANG-example-old-rfc
+mkdir -p $IETFDIR/YANG-v11
 mkdir -p $IETFDIR/draft-with-YANG-strict
 mkdir -p $IETFDIR/draft-with-YANG-no-strict
 mkdir -p $IETFDIR/draft-with-YANG-example
@@ -73,30 +73,35 @@ YANG-IETF.py >> $LOG 2>&1
 # move all IETF YANG to the web part
 mkdir -p $WEB/YANG-modules
 rm -f $WEB/YANG-modules/*
-cp $IETFDIR/YANG/*.yang $WEB/YANG-modules
+cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules
 
 # Generate the report for RFC-ed YANG modules, and ftp the files.
 YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed pyang version 1.7 with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
+date +"%c: All RFC processed" >> $LOG
 
-#Generate the diff files and ftp them
+#Generate the diff files 
 diff $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html > $WEB_PRIVATE/IETFDraftYANGPageCompilation-diff.txt
 diff $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-old.html > $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-diff.txt
+date +"%c: Diff files generated" >> $LOG
 
-# create and ftp the tar files
+# create the tar files
 cd $IETFDIR/YANG-rfc
-tar cvfz $WEB_PRIVATE/YANG-RFC.tgz *yang
+tar cfz $WEB_PRIVATE/YANG-RFC.tgz *yang
 cd $IETFDIR/YANG
-tar cvfz $WEB_PRIVATE/YANG.tgz *yang
+tar cfz $WEB_PRIVATE/YANG.tgz *yang
 cd $IETFDIR/YANG-all
-tar cvfz $WEB_PRIVATE/All-YANG-drafts.tgz *yang
+tar cfz $WEB_PRIVATE/All-YANG-drafts.tgz *yang
+date +"%c: YANG v1.0 tarball files generated" >> $LOG
 
 # copy the YANG 1.1 data models in $IETF_DIR/YANG-v11
-YANGversion11.py
+YANGversion11.py >> $LOG 2>&1
+
+
 cd $IETFDIR/YANG-v11
 tar cvfz $WEB_PRIVATE/YANG-v11.tgz *yang
+date +"%c: YANG v1.1 tarball files generated" >> $LOG
 
 #clean up of the .fxs files created by confdc
 rm -f $IETFDIR/YANG/*.fxs
 
-echo "End of the script!" >> $LOG
-date >> $LOG
+date +"%c: End of the script!" >> $LOG

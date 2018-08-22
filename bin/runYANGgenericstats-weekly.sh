@@ -86,12 +86,16 @@ PIDS+=("$!")
 (YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.3.2 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/632/" --lint True --prefix CiscoXR632 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/632/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
-# IOS-XR 6.4.1 obsoleted by 6.4.2
+# IOS-XR 6.4.1
 (YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.4.1 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/641/" --lint True --prefix CiscoXR641 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/641/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 # IOS-XR 6.4.2
 (YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.4.2 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/642/" --lint True --prefix CiscoXR642 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/642/" >> $LOG 2>&1) &
+PIDS+=("$!")
+
+# IOS-XR 6.5.1
+(YANG-generic.py --allinclusive True --metadata "Cisco IOS XR 6.5.1 from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/651/" --lint True --prefix CiscoXR651 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/xr/651/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 

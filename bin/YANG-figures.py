@@ -25,6 +25,7 @@ from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 from random import randint
 import json
 import os
+import configparser
 
 def historical_yangmodule_compiled_readJSON(jsonfile):
     yangmodule_history_json_file = jsonfile
@@ -62,7 +63,11 @@ months = MonthLocator(range(1, 13), bymonthday=1, interval=1)
 monthsFmt = DateFormatter("%b '%y")
 
 # Get some directory values where to store files
-web_directory = os.environ['WEB_PRIVATE']
+config = configparser.ConfigParser()
+config._interpolation = configparser.ExtendedInterpolation()
+config.read('/etc/yangcatalog.cong')
+web_directory = config.get('Web-Section', 'private_directory')
+
 
 # generate stats for Cisco
 yangmoduleCisco_history = historical_yangmodule_compiled_readJSON(web_directory + "/stats/IETFCiscoAuthorsYANGPageCompilationStats.json")

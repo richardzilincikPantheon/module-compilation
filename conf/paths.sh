@@ -10,7 +10,7 @@
 # either express or implied.
 
 export YANG=/home/yang
-export YANGVAR=/var/yang
+export YANGVAR=`get_config.py --section Directory-Section --key var`
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
 export BACKUPDIR=$YANGVAR/backup
@@ -26,12 +26,11 @@ export MODULES=$YANGVAR/yang/modules
 
 #
 # Working directories
-export LOGS=$YANGVAR/logs
-export TMP=$YANGVAR/tmp
+export LOGS=`get_config.py --section Directory-Section --key logs`
+export TMP=`get_config.py --section Directory-Section --key temp`
 
 #
 # Where the HTML pages lie
 #
-export WEB=/var/www/html
-export WEB_PRIVATE=/var/www/html/private
-export WEB_URL=https://new.yangcatalog.org
+export WEB_PRIVATE=`get_config.py --section Web-Section --key private_directory`
+export WEB=`get_config.py --section Web-Section --key public_directory`

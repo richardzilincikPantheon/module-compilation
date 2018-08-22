@@ -11,6 +11,7 @@
 # either express or implied.
 
 import argparse
+import configparser
 import os
 import HTML
 import time
@@ -497,8 +498,10 @@ def module_or_submodule(input_file):
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
     home = os.path.expanduser('~')
-    web_private = os.environ['WEB_PRIVATE'] or die("Cannot get WEB_PRIVATE from environment")
-    web_private = web_private + "/"
+    config = configparser.ConfigParser()
+    config._interpolation = configparser.ExtendedInterpolation()
+    config.read('/etc/yangcatalog.cong')
+    web_private = config.get('Web-Section', 'private_directory') + '/'
     non_ietf_directory = os.environ['NONIETFDIR'] or die("Cannot get NONIETFDIR from environment")
     ietf_directory = os.environ['IETFDIR'] or die("Cannot get IETFDIR from environment")
     parser = argparse.ArgumentParser(description='YANG Dcoument Processor: generate tables with compilation errors/warnings')

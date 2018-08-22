@@ -7,6 +7,7 @@ __email__ = "bclaise@cisco.com"
 
 
 import argparse
+import configparser
 import os
 import HTML
 import json
@@ -157,8 +158,12 @@ def read_dictionary_file_in_json(path, file_name):
 if __name__ == "__main__":
     bin_directory = os.environ['BIN']
     ietf_directory = os.environ['IETFDIR']
-    web_private = os.environ['WEB_PRIVATE']
     backup_directory = os.environ['BACKUPDIR']
+    config = configparser.ConfigParser()
+    config._interpolation = configparser.ExtendedInterpolation()
+    config.read('/etc/yangcatalog.cong')
+    web_private = config.get('Web-Section', 'private_directory')
+
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
     parser.add_argument("--htmlpath", default= backup_directory + '/',
                         help="The path to get the HTML file (optional). Default is '" + backup_directory + "/'")

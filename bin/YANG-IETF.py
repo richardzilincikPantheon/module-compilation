@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-# Copyright (c) 2018 Cisco and/or its affiliates.
+# Copyright (c) 2015-2018 Cisco and/or its affiliates.
+
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
 # The code, technical concepts, and all information contained herein, are the property of Cisco Technology, Inc.
@@ -13,14 +14,15 @@
 
 # TODO, only check files more recent than a date
 
-__author__ = 'Benoit Claise'
+__author__ = 'Benoit Claise, Eric Vyncke'
 __copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc."
-__email__ = "bclaise@cisco.com"
+__email__ = "bclaise@cisco.com, evyncke@cisco.com"
 
 from xym import xym
 from remove_directory_content import remove_directory_content
 from extract_emails import extract_email_string
 import argparse
+import configparser
 import os
 import HTML
 import json
@@ -622,8 +624,12 @@ def module_or_submodule(input_file):
 if __name__ == "__main__":
     home = os.path.expanduser('~')
     ietf_directory = os.environ['IETFDIR']
-    web_private = os.environ['WEB_PRIVATE']
-    web_url = os.environ['WEB_URL']
+    config = configparser.ConfigParser()
+    config._interpolation = configparser.ExtendedInterpolation()
+    config.read('/etc/yangcatalog.cong')
+    web_url = config.get('Web-Section', 'public_uri')
+    web_private = config.get('Web-Section', 'private_directory')
+
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",
                         help="The optional directory where to find the source drafts. "
