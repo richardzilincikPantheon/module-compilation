@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 __author__ = 'Benoit Claise'
 __copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc."
@@ -158,11 +158,11 @@ def read_dictionary_file_in_json(path, file_name):
 if __name__ == "__main__":
     bin_directory = os.environ['BIN']
     ietf_directory = os.environ['IETFDIR']
-    backup_directory = os.environ['BACKUPDIR']
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.cong')
+    config.read('/etc/yangcatalog.conf')
     web_private = config.get('Web-Section', 'private_directory')
+    backup_directory = config.get('Directory-Section', 'backup')
 
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
     parser.add_argument("--htmlpath", default= backup_directory + '/',

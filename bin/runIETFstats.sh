@@ -80,8 +80,9 @@ YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them c
 date +"%c: All RFC processed" >> $LOG
 
 #Generate the diff files 
-diff $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html > $WEB_PRIVATE/IETFDraftYANGPageCompilation-diff.txt
-diff $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-old.html > $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-diff.txt
+# Need to add || true as diff returns 1 in case of different files...
+diff $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html > $WEB_PRIVATE/IETFDraftYANGPageCompilation-diff.txt || true
+diff $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-old.html > $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-diff.txt || true
 date +"%c: Diff files generated" >> $LOG
 
 # create the tar files

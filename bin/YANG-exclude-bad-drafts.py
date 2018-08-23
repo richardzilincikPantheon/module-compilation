@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (c) 2018 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
@@ -11,7 +11,6 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
-#from __future__ import print_function  # Must be at the beginning of the file
 import argparse
 from collections import Counter
 import os
@@ -33,15 +32,15 @@ def list_lines_from_file(f, debug_level):
         for line in ff:
             line = line.replace("\n", "")
             if debug_level > 1:
-               print "  line: " + line
+               print("  line: " + line)
             list_of_line.append(line)
 #            if 'str' in line:
 #                break
     if debug_level > 1:
-        print " List of lines from the list_lines_from_file function" + str(list_of_line)
+        print(" List of lines from the list_lines_from_file function" + str(list_of_line))
     if not list_of_line:
         if debug_level > 1:
-            print " List empty from the list_lines_from_file function"
+            print(" List empty from the list_lines_from_file function")
     return list_of_line
  
 def remove_files(ll, d, debug_level):
@@ -55,12 +54,11 @@ def remove_files(ll, d, debug_level):
     list_of_line = []
     for l in ll:
         bash_command = "rm " + d + l
-        print bash_command
         if debug_level > 1:
-            print "bash_command: " + bash_command
+            print("bash_command: " + bash_command)
         temp_result = os.popen(bash_command).readlines()
         if debug_level > 0:
-            print temp_result
+            print(temp_result)
     return 
 
 def replace_draft_version_by_asterix(ll, debug_level):
@@ -75,10 +73,10 @@ def replace_draft_version_by_asterix(ll, debug_level):
         head, sep, tail = l.partition('.')
         l = head.rstrip('-0123456789') + "*"
         if debug_level > 0:
-            print "replace_draft_version_by_asterix: new file " + l
+            print("replace_draft_version_by_asterix: new file " + l)
         newll.append(l)
     if debug_level > 0:
-        print "replace_draft_version_by_asterix: new list " + str(newll)   
+        print("replace_draft_version_by_asterix: new list " + str(newll))
     return newll
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 # Copyright (c) 2018 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
@@ -65,7 +65,7 @@ monthsFmt = DateFormatter("%b '%y")
 # Get some directory values where to store files
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
-config.read('/etc/yangcatalog.cong')
+config.read('/etc/yangcatalog.conf')
 web_directory = config.get('Web-Section', 'private_directory')
 
 

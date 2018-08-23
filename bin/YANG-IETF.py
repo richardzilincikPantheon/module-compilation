@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 # Copyright (c) 2015-2018 Cisco and/or its affiliates.
 
@@ -626,8 +626,8 @@ if __name__ == "__main__":
     ietf_directory = os.environ['IETFDIR']
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.cong')
-    web_url = config.get('Web-Section', 'public_uri')
+    config.read('/etc/yangcatalog.conf')
+    web_url = config.get('Web-Section', 'my_uri')
     web_private = config.get('Web-Section', 'private_directory')
 
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')

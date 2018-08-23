@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 
 # Copyright 2015-2018, Cisco Systems
@@ -41,29 +41,29 @@ def YANGversion11(srcpath, rfcpath, YANGmodel, yangpath, test, debug):
     """ 
     # test action
     if debug > 0:
-        print "Should I do the test?: " + str(test)
+        print("Should I do the test?: " + str(test))
     # bug: whatever I enter in 'script --test' results in True
     if test is True:
         if YANGmodel == "":
-            print "   --test MUST be used with the -- YANGmodel filename option."
+            print("   --test MUST be used with the -- YANGmodel filename option.")
             return False
         else:
-            print "we're good"
+            print("we're good")
             bash_command = "grep yang-version " + srcpath  + YANGmodel + " | grep 1.1"
             temp_result = os.popen(bash_command).read()
             if debug > 0:
-                print "bash command: " + bash_command
+                print("bash command: " + bash_command)
             if "1.1" in temp_result :
                 if debug > 0:
-                    print "DEBUG: " + YANGmodel + " is version 1.1 "
+                    print("DEBUG: " + YANGmodel + " is version 1.1 ")
                 return True
             else:
                 if debug > 0:
-                    print "DEBUG: " + YANGmodel + " is NOT version 1.1 "
+                    print("DEBUG: " + YANGmodel + " is NOT version 1.1 ")
                 return False
 
     if debug > 0:
-        print "No test condition"
+        print("No test condition")
     
     remove_directory_content(yangpath, debug)
     yang_model_list = [f for f in os.listdir(srcpath) if os.path.isfile(os.path.join(srcpath, f))]
@@ -72,21 +72,21 @@ def YANGversion11(srcpath, rfcpath, YANGmodel, yangpath, test, debug):
     for yang_model in yang_model_list:      
         bash_command = "grep yang-version " + srcpath  + yang_model + " | grep 1.1"
         if debug > 0:
-            print "bash command: " + bash_command
+            print("bash command: " + bash_command)
         temp_result = os.popen(bash_command).read()
         if "1.1" in temp_result:
             if debug > 0:
-                print "DEBUG: " + yang_model + " is version 1.1 "
+                print("DEBUG: " + yang_model + " is version 1.1 ")
             yang_model_list_v11.append(yang_model)
             # copy function below could be improved with python command, as opposed to a bash
             bash_command = "cp  " + srcpath + "/" + yang_model + " " + yangpath + "/" + yang_model
             temp_result = os.popen(bash_command).read()
     if debug > 0:
-        print "DEBUG: YANG Model list with YANG version 1.1: " 
+        print("DEBUG: YANG Model list with YANG version 1.1: " )
         if yang_model_list_v11:
-            print yang_model_list_v11
+            print(yang_model_list_v11)
         else:
-            print "  No YANG modules version 1.1"
+            print("  No YANG modules version 1.1")
 
  
 # ----------------------------------------------------------------------
@@ -115,7 +115,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
         
     YANGversion11(args.srcpath, args.rfcpath, args.YANGmodule, args.yangpath, args.test, args.debug)
-    
-
-
-    

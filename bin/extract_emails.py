@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (c) 2018 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").

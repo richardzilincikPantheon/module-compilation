@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Copyright (c) 2018 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
@@ -23,7 +23,7 @@ import shlex
 
 __author__ = 'Benoit Claise'
 __copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc."
-__license__ = "New-style BSD"
+__license__ = "Apache 2.0"
 __email__ = "bclaise@cisco.com"
 
 
@@ -45,10 +45,10 @@ def list_of_yang_modules_in_dir(srcdir, debug_level):
         if f.endswith(".yang"):
             yang_files.append(f)
             if debug_level > 0:
-                print "DEBUG: " + f + " in list_of_yang_modules_in_dir: is a YANG model"
+                print("DEBUG: " + f + " in list_of_yang_modules_in_dir: is a YANG model")
         else:
             if debug_level > 0:
-                print "DEBUG: " + f + " in list_of_yang_modules_in_dir: is not a YANG model"
+                print("DEBUG: " + f + " in list_of_yang_modules_in_dir: is not a YANG model")
     return yang_files
 
 
@@ -98,7 +98,7 @@ def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=Tru
     else:
         bash_command = "$PYANG -p " + args.rootdir + " " + filename + " 2>&1"
     if debug_level:
-        print "DEBUG: " + " in run_pyang: bash_command contains " + bash_command
+        print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
 def run_pyang_version(debug_level=0):
@@ -109,7 +109,7 @@ def run_pyang_version(debug_level=0):
     """
     bash_command = "$PYANG -v 2>&1"
     if debug_level:
-        print "DEBUG: " + " in run_pyang: bash_command contains " + bash_command
+        print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
 def run_confd(p, model, allinclu, debug_level):
@@ -131,7 +131,7 @@ def run_confd(p, model, allinclu, debug_level):
     else:
         bash_command = "confdc --yangpath $MODULES --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/802.1/draft/ --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
         if debug_level:
-            print "DEBUG: " + " in run_confd: bash_command contains " + bash_command
+            print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
 def run_confd_version(debug_level=0):
@@ -141,7 +141,7 @@ def run_confd_version(debug_level=0):
     """
     bash_command = "confdc --version 2>&1"
     if debug_level:
-        print "DEBUG: " + " in run_confd: bash_command contains " + bash_command
+        print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
 
 def run_yumadumppro(p, model, allinclu, debug_level):
@@ -161,7 +161,7 @@ def run_yumadumppro(p, model, allinclu, debug_level):
     else:
         bash_command = "yangdump-pro --quiet-mode --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
     if debug_level:
-        print "DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command
+        print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
     result = os.popen(bash_command).read()
     result = result.rstrip()
     result = result.lstrip()
@@ -178,7 +178,7 @@ def run_yumadumppro_version(debug_level=0):
     """
     bash_command = "yangdump-pro --version 2>&1"
     if debug_level:
-        print "DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command
+        print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
 def run_yanglint(p, model, allinclu, debug_level):
@@ -197,7 +197,7 @@ def run_yanglint(p, model, allinclu, debug_level):
     else:
         bash_command = "yanglint -V -i -p $MODULES/ " + model + " 2>&1"
     if debug_level:
-        print "DEBUG: " + " in run_yanglint: bash_command contains " + bash_command
+        print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
 def run_yanglint_version(debug_level=0):
@@ -208,7 +208,7 @@ def run_yanglint_version(debug_level=0):
     """
     bash_command = "yanglint -v 2>&1"
     if debug_level:
-        print "DEBUG: " + " in run_yanglint: bash_command contains " + bash_command
+        print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
 def generate_html_table(l, h, htmlpath, file_name, txt=""):
@@ -255,7 +255,7 @@ def dict_to_list(in_dict):
     :return: List
     """
     dictlist = []
-    for key, value in in_dict.iteritems():
+    for key, value in in_dict.items():
         temp_list = [key]
         for i in range(len(value)):
             temp_list.append(value[i])
@@ -270,7 +270,7 @@ def dict_to_list_rfc(in_dict):
     :return: List
     """
     dictlist = []
-    for key, value in in_dict.iteritems():
+    for key, value in in_dict.items():
         dictlist.append((key, str(value)))
     return dictlist
 
@@ -434,7 +434,7 @@ def get_mod_rev(module):
     mrev = ''
     #bt = ''
 
-    with open(module, 'r') as ym:
+    with open(module, 'r', encoding='latin-1', errors='ignore') as ym:
         for line in ym:
             if mname != '' and mrev != '':# and bt != '':
                 return mname + '@' + mrev# + ' (belongs-to {})'.format(bt)
@@ -466,7 +466,7 @@ def get_mod_rev(module):
 
 def module_or_submodule(input_file):
     if input_file:
-        file_input = open(input_file, "r")
+        file_input = open(input_file, "r", encoding='latin-1', errors='ignore')
         all_lines = file_input.readlines()
         file_input.close()
         commented_out = False
@@ -487,7 +487,7 @@ def module_or_submodule(input_file):
                 return 'submodule'
             if module_position >= 0 and (module_position < cpos or cpos == -1) and not commented_out:
                 return 'module'
-        print ('File ' + input_file + ' not yang file or not well formated')
+        print('File ' + input_file + ' not yang file or not well formated')
         return 'wrong file'
     else:
         return None
@@ -500,7 +500,7 @@ if __name__ == "__main__":
     home = os.path.expanduser('~')
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.cong')
+    config.read('/etc/yangcatalog.conf')
     web_private = config.get('Web-Section', 'private_directory') + '/'
     non_ietf_directory = os.environ['NONIETFDIR'] or die("Cannot get NONIETFDIR from environment")
     ietf_directory = os.environ['IETFDIR'] or die("Cannot get IETFDIR from environment")
@@ -536,7 +536,7 @@ if __name__ == "__main__":
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
         print("yang_list content: ")
-        print yang_list
+        print(yang_list)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
@@ -625,9 +625,9 @@ if __name__ == "__main__":
     my_new_list = list_br_html_addition(my_list)
 
     # YANG modules from drafts: HTML page generation for yang models
-    print
-    print args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath
-    print args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath
+    print()
+    print(args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath)
+    print(args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath)
     # if want to populate the document location from github, must uncomment the following line
     # if want to populate the document location from github, must change all occurences from
     # number_of_yang_modules_that_passed_compilation(dictionary, 1, ...
@@ -657,8 +657,8 @@ if __name__ == "__main__":
     my_list2 = [line2, line6, line7, line8]
     generate_html_list(my_list2, args.htmlpath, args.prefix + "YANGPageMain.html")
 
-    print "--------------------------"
-    print "Number of YANG data models from " + args.prefix + ": " + str(len(yang_list))
-    print "Number of YANG data models from " + args.prefix + " that passed compilation: " + str(passed_without_warnings) + "/" + str(total_number)
-    print "Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(passed_with_warnings) + "/" + str(total_number)
-    print "Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(total_number)
+    print("--------------------------")
+    print("Number of YANG data models from " + args.prefix + ": " + str(len(yang_list)))
+    print("Number of YANG data models from " + args.prefix + " that passed compilation: " + str(passed_without_warnings) + "/" + str(total_number))
+    print("Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(passed_with_warnings) + "/" + str(total_number))
+    print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(total_number))
