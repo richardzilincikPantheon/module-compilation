@@ -14,8 +14,8 @@ export YANGVAR=`get_config.py --section Directory-Section --key var`
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
 export BACKUPDIR=$YANGVAR/backup
-export CONFD_DIR=/opt/confd
-export PYANG=/usr/local/bin/pyang
+export CONFD_DIR=`get_config.py --section Tool-Section --key confd_dir`
+export PYANG=`get_config.py --section Tool-Section --key pyang_exec`
 
 #
 # Repositories
