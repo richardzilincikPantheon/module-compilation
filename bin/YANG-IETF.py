@@ -623,12 +623,12 @@ def module_or_submodule(input_file):
 # ----------------------------------------------------------------------
 if __name__ == "__main__":
     home = os.path.expanduser('~')
-    ietf_directory = os.environ['IETFDIR']
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog.conf')
     web_url = config.get('Web-Section', 'my_uri')
     web_private = config.get('Web-Section', 'private_directory')
+    ietf_directory = config.get('Directory-Section', 'ietf_directory')
 
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",

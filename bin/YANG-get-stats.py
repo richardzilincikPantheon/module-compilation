@@ -157,12 +157,12 @@ def read_dictionary_file_in_json(path, file_name):
 
 if __name__ == "__main__":
     bin_directory = os.environ['BIN']
-    ietf_directory = os.environ['IETFDIR']
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog.conf')
     web_private = config.get('Web-Section', 'private_directory')
     backup_directory = config.get('Directory-Section', 'backup')
+    ietf_directory = config.get('Directory-Section', 'ietf_directory')
 
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
     parser.add_argument("--htmlpath", default= backup_directory + '/',

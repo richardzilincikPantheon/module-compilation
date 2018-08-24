@@ -13,16 +13,16 @@ export YANG=/home/yang
 export YANGVAR=`get_config.py --section Directory-Section --key var`
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
-export BACKUPDIR=$YANGVAR/backup
+export BACKUPDIR=`get_config.py --section Directory-Section --key backup`
 export CONFD_DIR=`get_config.py --section Tool-Section --key confd_dir`
 export PYANG=`get_config.py --section Tool-Section --key pyang_exec`
 
 #
 # Repositories
 #
-export NONIETFDIR=$YANGVAR/nonietf
-export IETFDIR=$YANGVAR/ietf
-export MODULES=$YANGVAR/yang/modules
+export NONIETFDIR=`get_config.py --section Directory-Section --key non_ietf_directory`
+export IETFDIR=`get_config.py --section Directory-Section --key ietf_directory`
+export MODULES=`get_config.py --section Directory-Section --key modules_directory`
 
 #
 # Working directories

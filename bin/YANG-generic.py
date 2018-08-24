@@ -502,8 +502,9 @@ if __name__ == "__main__":
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog.conf')
     web_private = config.get('Web-Section', 'private_directory') + '/'
-    non_ietf_directory = os.environ['NONIETFDIR'] or die("Cannot get NONIETFDIR from environment")
-    ietf_directory = os.environ['IETFDIR'] or die("Cannot get IETFDIR from environment")
+    non_ietf_directory = config.get('Directory-Section', 'non_ietf_directory') 
+    ietf_directory = config.get('Directory-Section', 'ietf_directory') 
+    modules_directory = config.get('Directory-Section', 'modules_directory') 
     parser = argparse.ArgumentParser(description='YANG Dcoument Processor: generate tables with compilation errors/warnings')
     parser.add_argument("--rootdir", default=".",
                         help="The root directory where to find the source YANG models. "
@@ -525,7 +526,7 @@ if __name__ == "__main__":
     parser.add_argument("--allinclusive", type=bool, default=False,
                         help="Optional flag that determines whether the rootdir directory contains all imported YANG modules; "
                              "If set to 'True', the YANG validators only look in the rootdir directory. "
-                             "Otherwise, the YANG validators look in " + os.environ['MODULES'] + ". "
+                             "Otherwise, the YANG validators look in " + modules_directory + ". "
                              "Default is False")
     parser.add_argument("--prefix", default="", help="Prefix for generating HTML file name"
                                                      "Example: MEF, IEEEStandards, IEEEExperimental"
