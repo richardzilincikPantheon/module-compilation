@@ -625,7 +625,7 @@ if __name__ == "__main__":
     home = os.path.expanduser('~')
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.conf')
+    config.read('/etc/yangcatalog/yangcatalog.conf')
     web_url = config.get('Web-Section', 'my_uri')
     web_private = config.get('Web-Section', 'private_directory')
     ietf_directory = config.get('Directory-Section', 'ietf_directory')

@@ -98,7 +98,7 @@ def YANGversion11(srcpath, rfcpath, YANGmodel, yangpath, test, debug):
 if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.conf')
+    config.read('/etc/yangcatalog/yangcatalog.conf')
     ietf_directory = config.get('Directory-Section', 'ietf_directory')
 
     parser = argparse.ArgumentParser(description='YANG 1.1 Processing Tool. Either test if a YANG module is YANG 1.1 (test option), or copy all YANG 1.1 modules to yangpath')

@@ -65,7 +65,7 @@ monthsFmt = DateFormatter("%b '%y")
 # Get some directory values where to store files
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
-config.read('/etc/yangcatalog.conf')
+config.read('/etc/yangcatalog/yangcatalog.conf')
 web_directory = config.get('Web-Section', 'private_directory')
 
 

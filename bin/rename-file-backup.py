@@ -39,7 +39,7 @@ from datetime import datetime
 if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.conf')
+    config.read('/etc/yangcatalog/yangcatalog.conf')
     web_private = config.get('Web-Section', 'private_directory')
     backup_directory = config.get('Directory-Section', 'backup')
     parser = argparse.ArgumentParser(description='Move file to the their creation time')

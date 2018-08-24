@@ -87,7 +87,7 @@ if __name__ == "__main__":
     conf_dir = os.environ['CONF']
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.conf')
+    config.read('/etc/yangcatalog/yangcatalog.conf')
     ietf_directory = config.get('Directory-Section', 'ietf_directory')
 
     parser = argparse.ArgumentParser(description='Remove drafts known as having xym errors, '

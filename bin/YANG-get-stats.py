@@ -159,7 +159,7 @@ if __name__ == "__main__":
     bin_directory = os.environ['BIN']
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
-    config.read('/etc/yangcatalog.conf')
+    config.read('/etc/yangcatalog/yangcatalog.conf')
     web_private = config.get('Web-Section', 'private_directory')
     backup_directory = config.get('Directory-Section', 'backup')
     ietf_directory = config.get('Directory-Section', 'ietf_directory')
