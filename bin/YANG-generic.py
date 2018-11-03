@@ -69,7 +69,7 @@ def list_of_yang_modules_in_subdir(srcdir, debug_level):
     return ll
 
 
-def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=True, debug_level=0):
+def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=True, debug_level=True):
     """
     Run PYANG on the YANG model, with or without the --lint flag
     :p: the path where to look for the models  
@@ -82,23 +82,33 @@ def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=Tru
     :param debug_level: If > 0 print some debug statements to the console
     :return: the outcome of the PYANG compilation
     """
+# PYANG search path is indicated by the -p parameter which can occur multiple times
+#    The following directories are always added to the search path:
+#        1. current directory
+#        2. $YANG_MODPATH
+#        3. $HOME/yang/modules
+#        4. $YANG_INSTALL/yang/modules OR if $YANG_INSTALL is unset <the default installation directory>/yang/modules (on Unix systems: /usr/share/yang/modules)
+
+
     directory = os.path.dirname(model)
     filename = model.split("/")[-1]
     os.chdir(directory)
     if pyang_param and take_pyang_param_into_account and allinclu:
-        bash_command = "$PYANG --lint -p " + p + " " + filename + " 2>&1"
+        bash_command = " --lint -p " + p + " " + filename + " 2>&1"
     elif pyang_param and take_pyang_param_into_account and not allinclu:
-        bash_command = "$PYANG --lint -p "  + args.rootdir + " " + filename + " 2>&1"
+        bash_command = " --lint -p "  + modules_directory + " " + filename + " 2>&1"
     elif not pyang_param and take_pyang_param_into_account and allinclu:
-        bash_command = "$PYANG --ietf -p " + p + " " + filename + " 2>&1"
+        bash_command = " --ietf -p " + p + " " + filename + " 2>&1"
     elif not pyang_param and take_pyang_param_into_account and not allinclu:
-        bash_command = "$PYANG --ietf -p "  + args.rootdir + " " + filename + " 2>&1"
+        bash_command = " --ietf -p "  + modules_directory + " " + filename + " 2>&1"
     elif allinclu:
-        bash_command = "$PYANG -p " + p + " " + filename + " 2>&1"
+        bash_command = " -p " + p + " " + filename + " 2>&1"
     else:
-        bash_command = "$PYANG -p " + args.rootdir + " " + filename + " 2>&1"
+        bash_command = " -p " + modules_directory + " " + filename + " 2>&1"
+    bash_command = pyang_exec + bash_command
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
+    print("DEBUG: " + " in run_pyang: model: " + model + ", bash_command: " + bash_command)
     return os.popen(bash_command).read()
 
 def run_pyang_version(debug_level=0):
@@ -107,7 +117,7 @@ def run_pyang_version(debug_level=0):
     :param debug_level
     :return: a string composed of the pyang version
     """
-    bash_command = "$PYANG -v 2>&1"
+    bash_command = pyang_exec + " -v 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -127,9 +137,9 @@ def run_confd(p, model, allinclu, debug_level):
     filename = model.split("/")[-1]
     os.chdir(directory)
     if allinclu:
-        bash_command = "confdc --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+        bash_command = confdc_exec + " --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     else:
-        bash_command = "confdc --yangpath $MODULES --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/802.1/draft/ --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+        bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/802.1/draft/ --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
         if debug_level:
             print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -139,7 +149,7 @@ def run_confd_version(debug_level=0):
     Return the confd version
     :return: a string composed of the confd version
     """
-    bash_command = "confdc --version 2>&1"
+    bash_command = confdc_exec + " --version 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
@@ -195,7 +205,7 @@ def run_yanglint(p, model, allinclu, debug_level):
     if allinclu:
         bash_command = "yanglint -V -i -p " + p + " " + model + " 2>&1"
     else:
-        bash_command = "yanglint -V -i -p $MODULES/ " + model + " 2>&1"
+        bash_command = "yanglint -V -i -p " + modules_directory + "/ " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -505,6 +515,8 @@ if __name__ == "__main__":
     non_ietf_directory = config.get('Directory-Section', 'non_ietf_directory') 
     ietf_directory = config.get('Directory-Section', 'ietf_directory') 
     modules_directory = config.get('Directory-Section', 'modules_directory') 
+    pyang_exec = config.get('Tool-Section', 'pyang_exec') 
+    confdc_exec = config.get('Tool-Section', 'confdc_exec') 
     parser = argparse.ArgumentParser(description='YANG Dcoument Processor: generate tables with compilation errors/warnings')
     parser.add_argument("--rootdir", default=".",
                         help="The root directory where to find the source YANG models. "

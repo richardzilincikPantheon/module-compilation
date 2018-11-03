@@ -4,7 +4,9 @@
 # DJANGO_SETTINGS_MODULE=yangsuite.settings.develop
 
 from ysfilemanager import YSYangRepository, YSMutableYangSet
+from yangsuite.paths import set_base_path
 import re
+import os
 
 def delete_yangset(ysname):
     try:
@@ -57,6 +59,9 @@ def create_yangset(pattern, reponame, ysname):
     print("All modules are added, now saving")
     ys.write()
 
+# Some initialization code
+set_base_path(os.environ['MEDIA_ROOT'])
+
 # First need to delete previous yangsets
 delete_yangset('RFC and drafts')
 delete_yangset('IETF examples')
@@ -77,5 +82,5 @@ create_yangset('ietf.*', 'IETF', 'RFC and drafts')
 create_yangset('example.*', 'IETF', 'IETF examples')
 create_yangset('.*', 'Repo of all known modules', 'Set of all known modules')
 create_yangset('bbf-.*', 'BBF', 'BBF')
-create_yangset('ieee-.*', 'IEEE', 'IEEE')
+create_yangset('ieee.*', 'IEEE', 'IEEE')  # Names are ieee802-*
 create_yangset('mef-.*', 'MEF', 'MEF')

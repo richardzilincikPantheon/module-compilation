@@ -33,4 +33,5 @@ export TMP=`get_config.py --section Directory-Section --key temp`
 # Where the HTML pages lie
 #
 export WEB_PRIVATE=`get_config.py --section Web-Section --key private_directory`
+export WEB_DOWNLOADABLES=`get_config.py --section Web-Section --key downloadables_directory`
 export WEB=`get_config.py --section Web-Section --key public_directory`

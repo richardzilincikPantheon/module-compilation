@@ -61,7 +61,7 @@ ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ $MODULES/ieee.draft
 rm $MODULES/ieee.802.1.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ $MODULES/ieee.802.1.draft
 rm $MODULES/ieee.802.3.draft
-ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ $MODULES/ieee.802.3.draft
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ $MODULES/ieee.802.3.draft
 rm $MODULES/mef
 ln -f -s $NONIETFDIR/mef/YANG-public/src/model/standard/ $MODULES/mef
 ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
@@ -87,11 +87,11 @@ date +"%c: Diff files generated" >> $LOG
 
 # create the tar files
 cd $IETFDIR/YANG-rfc
-tar cfz $WEB_PRIVATE/YANG-RFC.tgz *yang
+tar cfz $WEB_DOWNLOADABLES/YANG-RFC.tgz *yang
 cd $IETFDIR/YANG
-tar cfz $WEB_PRIVATE/YANG.tgz *yang
+tar cfz $WEB_DOWNLOADABLES/YANG.tgz *yang
 cd $IETFDIR/YANG-all
-tar cfz $WEB_PRIVATE/All-YANG-drafts.tgz *yang
+tar cfz $WEB_DOWNLOADABLES/All-YANG-drafts.tgz *yang
 date +"%c: YANG v1.0 tarball files generated" >> $LOG
 
 # copy the YANG 1.1 data models in $IETF_DIR/YANG-v11
@@ -99,7 +99,7 @@ YANGversion11.py >> $LOG 2>&1
 
 
 cd $IETFDIR/YANG-v11
-tar cvfz $WEB_PRIVATE/YANG-v11.tgz *yang
+tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang
 date +"%c: YANG v1.1 tarball files generated" >> $LOG
 
 #clean up of the .fxs files created by confdc

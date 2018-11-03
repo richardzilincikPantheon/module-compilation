@@ -225,9 +225,9 @@ def run_pyang(model, ietf, yangpath, debug_level):
     """
     os.chdir(yangpath)
     if ietf:
-        bash_command = "$PYANG --path=\"$MODULES\" --ietf " + model + " 2>&1"
+        bash_command = pyang_exec + " --path=\"$MODULES\" --ietf " + model + " 2>&1"
     else:
-        bash_command = "$PYANG --path=\"$MODULES\" " + model + " 2>&1"        
+        bash_command = pyang_exec + " --path=\"$MODULES\" " + model + " 2>&1"        
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -238,7 +238,7 @@ def run_pyang_version(debug_level=0):
     :param debug_level
     :return: a string composed of the pyang version
     """
-    bash_command = "$PYANG -v 2>&1"
+    bash_command = pyang_exec + " -v 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -251,7 +251,7 @@ def run_confd(model, yangpath, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     os.chdir(yangpath)
-    bash_command = "confdc --yangpath $MODULES --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+    bash_command = confdc_exec + " --yangpath $MODULES --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -261,7 +261,7 @@ def run_confd_version(debug_level=0):
     Return the confd version
     :return: a string composed of the confd version
     """
-    bash_command = "confdc --version 2>&1"
+    bash_command = confdc + " --version 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
@@ -629,6 +629,8 @@ if __name__ == "__main__":
     web_url = config.get('Web-Section', 'my_uri')
     web_private = config.get('Web-Section', 'private_directory')
     ietf_directory = config.get('Directory-Section', 'ietf_directory')
+    pyang_exec = config.get('Tool-Section', 'pyang_exec')
+    confdc_exec = config.get('Tool-Section', 'confdc_exec')
 
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",
