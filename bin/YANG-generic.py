@@ -108,7 +108,6 @@ def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=Tru
     bash_command = pyang_exec + bash_command
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
-    print("DEBUG: " + " in run_pyang: model: " + model + ", bash_command: " + bash_command)
     return os.popen(bash_command).read()
 
 def run_pyang_version(debug_level=0):
@@ -175,7 +174,7 @@ def run_yumadumppro(p, model, allinclu, debug_level):
     result = os.popen(bash_command).read()
     result = result.rstrip()
     result = result.lstrip()
-    result = re.sub(r'/home/bclaise/.+yang','',result)
+    result = result.replace(model, '') 
     if "*** 0 Errors, 0 Warnings" in result:
         result = ""
     return result
@@ -570,7 +569,6 @@ if __name__ == "__main__":
         #
         # determine the status, based on the different compilers
         # remove the draft name from result_yuma
-        result_yuma_temp = re.sub(r'/home/bclaise/.+yang','',result_yuma)
         result_yanglint = run_yanglint(args.rootdir, yang_file, args.allinclusive, args.debug)
 
         # if want to populate the document location from github, must uncomment the following line

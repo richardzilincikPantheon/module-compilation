@@ -283,7 +283,7 @@ def run_yumadumppro(model, yangpath, debug_level):
     result = os.popen(bash_command).read()
     result = result.rstrip()
     result = result.lstrip()
-    result = re.sub(r'/home/bclaise/.+yang','',result)
+    result = result.replace(model, '')
     if "*** 0 Errors, 0 Warnings" in result:
          result = ""
     return result
