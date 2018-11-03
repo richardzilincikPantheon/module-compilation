@@ -183,8 +183,10 @@ def get_module_dependencies():
     modules)
     :return: None
     """
+    # TODO should probably avoid calling this function in all functions...
+    attr_dict = nx.get_node_attributes(G, IMPORT_ATTR)
     for node_name in G.nodes():
-        for imp in G.node[node_name]['attr_dict'][IMPORT_ATTR]:
+        for imp in attr_dict[node_name]:
             if imp in G.node:
                 G.add_edge(node_name, imp)
             else:
@@ -193,9 +195,10 @@ def get_module_dependencies():
 
 def get_unknown_modules():
     unknown_nodes = []
+    # Next line is added
+    attr_dict = nx.get_node_attributes(G, IMPORT_ATTR)
     for node_name in G.nodes():
-        # TODO use get_node_attributes(G, IMPORT_ATTR) for latest networkx package
-        for imp in G.node[node_name]['attr_dict'][IMPORT_ATTR]:
+        for imp in attr_dict[node_name]:
             if imp not in G.node:
                 unknown_nodes.append(imp)
                 warning("Module '%s': imports module '%s' that was not scanned" % (node_name, imp))
