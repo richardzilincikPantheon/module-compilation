@@ -69,6 +69,8 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 # Extract all YANG models from RFC/I-D
 # TODO only process new I-D/RFC
 YANG-IETF.py >> $LOG 2>&1
+#clean up of the .fxs files created by confdc
+rm -f $IETFDIR/YANG/*.fxs
 
 # move all IETF YANG to the web part
 mkdir -p $WEB/YANG-modules
@@ -97,12 +99,8 @@ date +"%c: YANG v1.0 tarball files generated" >> $LOG
 # copy the YANG 1.1 data models in $IETF_DIR/YANG-v11
 YANGversion11.py >> $LOG 2>&1
 
-
 cd $IETFDIR/YANG-v11
 tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang
 date +"%c: YANG v1.1 tarball files generated" >> $LOG
-
-#clean up of the .fxs files created by confdc
-rm -f $IETFDIR/YANG/*.fxs
 
 date +"%c: End of the script!" >> $LOG

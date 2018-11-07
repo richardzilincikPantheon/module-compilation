@@ -18,9 +18,17 @@ source activate
 source configure.sh
 rundownloadgithub.sh
 runYANGgenericstats-daily.sh
+echo Starting runIETFstats.sh
+ls -l /var/yang/ietf/YANG/
 runIETFstats.sh
+echo Starting rename-file-backup.py
+ls -l /var/yang/ietf/YANG/
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
+echo Starting runGenerateMainPage.sh
+ls -l /var/yang/ietf/YANG/
 runGenerateMainPage.sh
+echo Starting runGenerateFiguresAndStats.sh
+ls -l /var/yang/ietf/YANG/
 runGenerateFiguresAndStats.sh
 
 # This simple files for other Yang Catalog to know which files have been created

@@ -261,7 +261,7 @@ def run_confd_version(debug_level=0):
     Return the confd version
     :return: a string composed of the confd version
     """
-    bash_command = confdc + " --version 2>&1"
+    bash_command = confdc_exec + " --version 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
