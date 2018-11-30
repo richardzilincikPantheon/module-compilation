@@ -18,21 +18,22 @@ It is strongly advised to use virtualenv to ensure a clean Python3 environment
 virtualenv -p /usr/bin/python3  --system-site-packages
 ```
 
-Thge `/etc/yangcatalog/yangcatalog.conf` file be installed. See [https://github.com/YangCatalog/doc].
+The `/etc/yangcatalog/yangcatalog.conf` file be installed. Se https://github.com/YangCatalog/doc
 
 ### Other packages
-install libyang (apt-get or from [https://github.com/CESNET/libyang])
+install libyang (apt-get or from https://github.com/CESNET/libyang)
 
 install confd from https://developer.cisco.com/site/confD/downloads/
 
 install yangdump-pro from https://www.yumaworks.com/support/download-yumapro-client/ (free but registration is required)
-	- xopy `/etc/yumapro/yangdump-pro-sample.conf` into `/etc/yumapro/yangdump-pro.conf`
+
+	- copy `/etc/yumapro/yangdump-pro-sample.conf` into `/etc/yumapro/yangdump-pro.conf`
 	- copy `/etc/yumapro/yangdump-pro-sample.conf`into `/etc/yumapro/yangdump-pro-allinclusive.conf` and modify the `modpath`option to be like `modpath ".:/var/yang/yang/modules:/var/yang/nonietf/yangmodels/yang/standard/ieee/draft:/var/yang/nonietf/yangmodels/yang/standard/ieee/802.1/draft:/var/yang/nonietf/yangmodels/yang/standard/ieee/802.3/draft:/var/yang/ietf/YANG-all"`(of course updated to reflext your YANG subtree)
 
 Python package https://www.decalage.info/files/HTML.py-0.04.zip (needs to be ported to python3 first...)
 
 `pip3 install pyang`
 
-`pip3 install xym` with line 593 modified as with open(os.path.join(srcdir, source_id), encoding='latin-1', errors='ignore') as sf:
+`pip3 install xym` with line 571 (may depend on the xym version) modified as `with open(os.path.join(srcdir, source_id), encoding='latin-1', errors='ignore') as sf:`
 
 `pip3 install matplotlib`
