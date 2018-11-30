@@ -15,6 +15,7 @@
 __author__ = 'bclaise'
 
 import argparse
+import configparser
 import os
 
 # ----------------------------------------------------------------------
@@ -80,16 +81,16 @@ def extract_email_string(d, email_domain, debug_level):
 # ----------------------------------------------------------------------
 
 if __name__ == "__main__":
+    config = configparser.ConfigParser()
+    config._interpolation = configparser.ExtendedInterpolation()
+    config.read('/etc/yangcatalog/yangcatalog.conf')
+    ietf_directory = config.get('Directory-Section', 'ietf_directory')
+
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
 
     # Host Config
-    parser.add_argument("--draftpath", default="/home/bclaise/ietf/my-id-mirror/",
-                        help="The path to the draft directory).")
-    parser.add_argument("--binpath", default="/home/bclaise/bin/", help="The path to script executables (optional).")
-    parser.add_argument("--htmlpath", default="/media/sf_ubuntu-share/",
-                        help="The path to create the HTML file (optional).")
-    parser.add_argument("--yangpath", default="/home/bclaise/ietf/YANG/", help="The path where to store "
-                                                                               "extracted models")
+    parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/", help="The path to the draft directory).")
+    parser.add_argument("--yangpath", default= ietf_directory + "/YANG/", help="The path where to store extracted models")
     parser.add_argument("--debug", type=int, default=0, help="Debug level")
     args = parser.parse_args()
 
