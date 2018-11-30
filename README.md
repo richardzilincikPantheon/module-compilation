@@ -8,3 +8,5 @@ Once all those modules are retrieved they are validated by several tools.
 Most of the code is in the bin/ directory and uses bash and Python3 scripts.
 
 Some configuration files are in the conf/ directory including paths.sh which defines all paths used by the scripts.
+
+*Some pre-requisistes are defined int he README.md in bin directory*
