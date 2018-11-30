@@ -196,7 +196,7 @@ YANG-generic.py --allinclusive True --metadata "JUNIPER 18.1R1 from https://gith
 YANG-generic.py --allinclusive True --metadata "JUNIPER 18.2R1 from https://github.com/YangModels/yang/tree/master/vendor/juniper/18.2/" --lint True --prefix Juniper182R1 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/juniper/18.2/18.2R1/" >> $LOG 2>&1
 
 # Huawei
-YANG-generic.py --allinclusive True --metadata "HUAWEI ROUTER 8.9.10 https://github.com/Huawei/yang/tree/master/network-router/8.9.10" --lint True --prefix NETWORKROUTER8910 --rootdir "/home/bclaise/yanggithub/huawei/yang/network-router/8.9.10" >> $LOG 2>&1
+YANG-generic.py --allinclusive True --metadata "HUAWEI ROUTER 8.9.10 https://github.com/Huawei/yang/tree/master/network-router/8.9.10" --lint True --prefix NETWORKROUTER8910 --rootdir "$NONIETFDIR/nonietf/yangmodels/yang/vendor/huawei/yang/network-router/8.9.10" >> $LOG 2>&1
 
 # Ciena
 YANG-generic.py --allinclusive True --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint True --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena" >> $LOG 2>&1

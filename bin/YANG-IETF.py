@@ -146,8 +146,6 @@ def error_extracting_yang_models_from_an_ietf_draft(f, draftpath, binpath):
 def extract_yang_models_from_ietf_draft(f, draftpath, yangpath, binpath, debug_level):
     """
     extract YANG model from IETF drafts with rfcstrip
-    typical command to execute:
-        bashCommand = "/home/bclaise/bin/rfcstrip -i /home/bclaise/ietf/my-id-mirror/ -d /home/bclaise/ietf/YANG "
     status: 
        1. what if there are multiple YANG models in the IETF draft
        2. need to return the dictionary key: yang model, value = ietf draft name
@@ -459,8 +457,6 @@ def read_dictionary_file_in_json(path, file_name):
     """
     Read a file, in json, with my directory data
     For testing purposes.
-    # status: THERE IS A BUG, a couple of u' added
-    # , u'ietf-opt-if-g698-2.yang': [u'draft-name TBD', u'email address TBD', u'another TBD', u'/home/bclaise/ietf/YANG/ietf-opt-if-g698-2.yang:196: error: premature end of file\n']}
 
     :param path: The directory where the json file with be created
     :param file_name: The file name to be created

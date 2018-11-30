@@ -427,8 +427,6 @@ def read_dictionary_file_in_json(path, file_name):
     """
     Read a file, in json, with my directory data
     For testing purposes.
-    # status: THERE IS A BUG, a couple of u' added
-    # , u'ietf-opt-if-g698-2.yang': [u'draft-name TBD', u'email address TBD', u'another TBD', u'/home/bclaise/ietf/YANG/ietf-opt-if-g698-2.yang:196: error: premature end of file\n']}
 
     :param path: The directory where the json file with be created
     :param file_name: The file name to be created
