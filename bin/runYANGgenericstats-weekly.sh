@@ -20,6 +20,8 @@ date >> $LOG
 # Need to set some ENV variables for subsequent calls in .PY to confd...
 source $CONFD_DIR/confdrc
 
+mkdir -p $MODULES
+
 # Generate the weekly reports
 
 #TODO dynamic discovery of those models
