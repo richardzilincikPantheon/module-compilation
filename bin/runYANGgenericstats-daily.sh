@@ -27,6 +27,8 @@ mkdir -p $TMP/bbf
 rm -f $TMP/bbf/*
 find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec ln -s {} $TMP/bbf/ \;
 
+mkdir -p $MODULES
+
 declare -a PIDS
 ($BIN/YANG-generic.py --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/bbf@7abc8b9" --lint True --prefix BBF --rootdir "$TMP/bbf/" >> $LOG 2>&1) &
 PIDS+=("$!")
