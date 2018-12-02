@@ -21,6 +21,7 @@ runYANGgenericstats-daily.sh
 echo Starting runIETFstats.sh
 runIETFstats.sh
 echo Starting rename-file-backup.py
+mkdir -p $BACKUPDIR
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
 echo Starting runGenerateMainPage.sh
 runGenerateMainPage.sh

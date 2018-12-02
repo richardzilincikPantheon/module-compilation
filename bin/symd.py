@@ -17,10 +17,10 @@ import sys
 import os
 import re
 
-__author__ = "Jan Medved"
+__author__ = "Jan Medved, Eric Vyncke"
 __copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
 __license__ = "Eclipse Public License v1.0"
-__email__ = "jmedved@cisco.com"
+__email__ = "jmedved@cisco.com, evyncke@cisco.com"
 
 G = nx.DiGraph()
 
@@ -32,6 +32,7 @@ INCLUDE_STATEMENT = re.compile('''^[ \t]*include[\s]*([-A-Za-z0-9]*)?[\s]*\{.*$'
 REVISION_STATEMENT = re.compile('''^[ \t]*revision[\s]*(['"])?([-0-9]*)?(['"])?[\s]*\{.*$''')
 
 # Node Attribute Types
+# All those attributes do not fare well in network 2.*
 TAG_ATTR = 'tag'
 IMPORT_ATTR = 'imports'
 TYPE_ATTR = 'type'
@@ -138,22 +139,23 @@ def get_yang_modules(yfiles, tag):
                 else:
                     error("No revision specified for module '%s', file '%s'" % (name, yf))
                     rev = None
-                attr = {TYPE_ATTR: mod_type, TAG_ATTR: tag, IMPORT_ATTR: imports, REV_ATTR: rev}
                 # IF we already have a module with a lower revision, replace it now
                 try:
                     en = G.node[name]
-                    en_rev = en[REV_ATTR]
+                    en_rev = en['revision']
                     if en_rev:
                         if rev:
                             if rev > en_rev:
                                 warning("Replacing revision for module '%s' ('%s' -> '%s')" % (name, en_rev, rev))
-                                G.node[name]['attr_dict'] = attr
+                                G.node[name]['revision'] = rev
+                                G.node[name]['imports'] = imports
                     else:
                         if rev:
                             warning("Replacing revision for module '%s' ('%s' -> '%s')" % (name, en_rev, rev))
-                            G.node[name]['attr_dict'] = attr
+                            G.node[name]['revision'] = rev
+                            G.node[name]['imports'] = imports
                 except KeyError:
-                    G.add_node(name, attr_dict=attr)
+                    G.add_node(name, type=mod_type, tag=tag, imports=imports, revision=rev)
         except IOError as ioe:
             print(ioe)
 
@@ -168,7 +170,8 @@ def prune_graph_nodes(graph, tag):
     node_list = []
     for node_name in graph.nodes():
         try:
-            if graph.node[node_name]['attr_dict'][TAG_ATTR] == tag:
+            if graph.node[node_name]['tag'] == tag:
+#            if graph.node[node_name]['attr_dict'][TAG_ATTR] == tag:
                 node_list.append(node_name)
         except KeyError:
             pass
@@ -184,10 +187,11 @@ def get_module_dependencies():
     :return: None
     """
     # TODO should probably avoid calling this function in all functions...
-    attr_dict = nx.get_node_attributes(G, IMPORT_ATTR)
+    attr_dict = nx.get_node_attributes(G, 'imports')
     for node_name in G.nodes():
         for imp in attr_dict[node_name]:
-            if imp in G.node:
+#            if imp in G.node:
+            if imp in G:
                 G.add_edge(node_name, imp)
             else:
                 error("Module '%s': imports unknown module '%s'" % (node_name, imp))
@@ -196,15 +200,15 @@ def get_module_dependencies():
 def get_unknown_modules():
     unknown_nodes = []
     # Next line is added
-    attr_dict = nx.get_node_attributes(G, IMPORT_ATTR)
+    attr_dict = nx.get_node_attributes(G, 'imports')
     for node_name in G.nodes():
         for imp in attr_dict[node_name]:
-            if imp not in G.node:
+#            if imp not in G.node:
+            if imp not in G:
                 unknown_nodes.append(imp)
                 warning("Module '%s': imports module '%s' that was not scanned" % (node_name, imp))
     for un in unknown_nodes:
-        attr = {TYPE_ATTR: 'module', TAG_ATTR: UNKNOWN_TAG, IMPORT_ATTR: [], REV_ATTR: None}
-        G.add_node(un, attr_dict=attr)
+        G.add_node(un, type='module', tag=UNKNOWN_TAG, imports=[], revision=None)
 
 
 def print_impacting_modules(single_node=None):
@@ -234,7 +238,8 @@ def augment_format_string(node_name, fmts):
     :param fmts: format string to augment
     :return: Augmented format string
     """
-    module_tag = G.node[node_name]['attr_dict'][TAG_ATTR]
+    module_tag = G.node[node_name]['tag']
+#    module_tag = G.node[node_name]['attr_dict'][TAG_ATTR]
     if module_tag == RFC_TAG:
         return fmts + ' *'
     if module_tag == UNKNOWN_TAG:
@@ -316,7 +321,8 @@ def print_dependency_tree():
     """
     print('\n=== Module Dependency Trees ===')
     for node_name in G.nodes():
-        if G.node[node_name]['attr_dict'][TAG_ATTR] != UNKNOWN_TAG:
+        if G.node[node_name]['tag'] != UNKNOWN_TAG:
+#        if G.node[node_name]['attr_dict'][TAG_ATTR] != UNKNOWN_TAG:
             dg = nx.dfs_successors(G, node_name)
             plist = []
             print(augment_format_string(node_name, '\n%s:') % node_name)
@@ -456,22 +462,24 @@ if __name__ == "__main__":
         print_impacting_modules(single_node=args.single_impact_analysis)
         print_impacted_modules(single_node=args.single_impact_analysis)
 
+    plot_num = 1
+
     if args.graph:
         # Set matplotlib into non-interactive mode
         plt.interactive(False)
         ng = prune_standalone_nodes()
-        plt.figure(1, figsize=(40, 40))
+        plt.figure(plot_num, figsize=(40, 40))
+        plot_num += 1
         print('Plotting the overall dependency graph...')
         plot_module_dependency_graph(ng)
         plt.savefig("modules.png")
         print('    Done.')
 
-    plot_num = 2
-
     for node in args.sub_graphs:
         # Set matplotlib into non-interactive mode
         plt.interactive(False)
         plt.figure(plot_num, figsize=(20, 20))
+#        plt.figure(plot_num, figsize=(40, 40))
         plot_num += 1
         print("Plotting graph for module '%s'..." % node)
         try:

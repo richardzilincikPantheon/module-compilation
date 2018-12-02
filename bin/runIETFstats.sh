@@ -65,15 +65,18 @@ rm -f $MODULES/ieee.802.3.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ $MODULES/ieee.802.3.draft
 rm -f $MODULES/mef
 ln -f -s $NONIETFDIR/mef/YANG-public/src/model/standard/ $MODULES/mef
+rm -f $MODULES/open-config-main
 ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 
-# Extract all YANG models from RFC/I-D
+# Extract all YANG models from RFC and I-D
 # TODO only process new I-D/RFC
 YANG-IETF.py >> $LOG 2>&1
 #clean up of the .fxs files created by confdc
 rm -f $IETFDIR/YANG/*.fxs
+rm -f $IETFDIR/YANG-rfc/*.fxs
 
-# move all IETF YANG to the web part
+# move all IETF YANG modules to the web part
+# TODO better using a symbolic link ?
 mkdir -p $WEB/YANG-modules
 rm -f $WEB/YANG-modules/*
 cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules

@@ -18,7 +18,7 @@ mpl.use('Agg') # To prevent using a X-Windows server
 import matplotlib.pyplot as plt
 from pylab import *
 from matplotlib.dates import date2num,datestr2num,num2date,num2epoch,strpdate2num # mio - converting date to days since epoch
-import matplotlib.finance
+import mpl_finance
 from matplotlib.dates import MonthLocator, WeekdayLocator, DateFormatter
 from random import randint
 import json

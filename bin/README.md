@@ -20,6 +20,11 @@ virtualenv -p /usr/bin/python3  --system-site-packages
 
 The `/etc/yangcatalog/yangcatalog.conf` file be installed. Se https://github.com/YangCatalog/doc
 
+History
+-------
+
+By default, /var/yang/backup contains all the main pages and is used to build graphics. It is advised to copy the content of this directory from a old server in order to have access to the history.
+
 ### Other packages
 install libyang (apt-get or from https://github.com/CESNET/libyang)
 
@@ -37,3 +42,5 @@ Python package https://www.decalage.info/files/HTML.py-0.04.zip (needs to be por
 `pip3 install xym` with line 571 (may depend on the xym version) modified as `with open(os.path.join(srcdir, source_id), encoding='latin-1', errors='ignore') as sf:`
 
 `pip3 install matplotlib`
+`pip3 install mpl_finance` (if required)
+`pip3 install networkx`
