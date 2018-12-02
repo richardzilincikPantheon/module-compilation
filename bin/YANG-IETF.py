@@ -668,7 +668,7 @@ if __name__ == "__main__":
                                                                                "Default is '" + ietf_directory  + "/YANG-rfc/'")
     parser.add_argument("--draftextractionyangpath", default= ietf_directory  + "/YANG-extraction/", help="The optional directory where to store "
                                                                                "the typedef, grouping, identity from data models correctely extracted from drafts"
-                                                                               "Default is '" + home + "/ietf/YANG-rfc/'")
+                                                                               "Default is '" + home + "/ietf/YANG-extraction/'")
     parser.add_argument("--strict", type=bool, default=False, help='Optional flag that determines syntax enforcement; '
                                                                    "'If set to 'True' <CODE BEGINS> / <CODE ENDS> are "
                                                                    "required; default is 'False'")                                                                                 

@@ -21,7 +21,7 @@ source $CONFD_DIR/confdrc
 
 # rsynch the IETF drafts and RFCs
 mkdir -p $IETFDIR/my-id-mirror
-rm -f $IETFDIR/my-id-mirror/*.yang
+mkdir -p $IETFDIR/rfc
 
 cd $IETFDIR
 
@@ -45,10 +45,13 @@ fi
 # Some directory and symbolic links may need to be created
 # TODO have a script to create those
 mkdir -p $IETFDIR/YANG
+echo "All YANG modules extracted correctly from IETF drafts" > $IETFDIR/YANG/README.md
 mkdir -p $IETFDIR/YANG-all
+echo "All YANG modules extracted (bad or good) from IETF drafts" > $IETFDIR/YANG-all/README.md
 mkdir -p $IETFDIR/YANG-example
 mkdir -p $IETFDIR/YANG-extraction
 mkdir -p $IETFDIR/YANG-rfc
+echo "All YANG modules extracted correctly from RFCs" > $IETFDIR/YANG-rfc/README.md
 mkdir -p $IETFDIR/YANG-rfc-extraction
 mkdir -p $IETFDIR/YANG-example-old-rfc
 mkdir -p $IETFDIR/YANG-v11
@@ -57,6 +60,12 @@ mkdir -p $IETFDIR/draft-with-YANG-no-strict
 mkdir -p $IETFDIR/draft-with-YANG-example
 mkdir -p $IETFDIR/draft-with-YANG-diff
 mkdir -p $MODULES
+echo "Set of all YANG modules known" > $MODULES/README.md
+rm -f $MODULES/YANG
+ln -f -s $IETFDIR/YANG $MODULES/YANG
+rm -f $MODULES/YANG-rfc
+ln -f -s $IETFDIR/YANG-rfc $MODULES/YANG-rfc
+
 rm -f $MODULES/ieee.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ $MODULES/ieee.draft
 rm -f $MODULES/ieee.802.1.draft
@@ -71,6 +80,7 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 # Extract all YANG models from RFC and I-D
 # TODO only process new I-D/RFC
 YANG-IETF.py >> $LOG 2>&1
+
 #clean up of the .fxs files created by confdc
 rm -f $IETFDIR/YANG/*.fxs
 rm -f $IETFDIR/YANG-rfc/*.fxs
@@ -82,7 +92,7 @@ rm -f $WEB/YANG-modules/*
 cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules
 
 # Generate the report for RFC-ed YANG modules, and ftp the files.
-YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed pyang version 1.7 with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
+YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed `$PYANG -v` with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
 date +"%c: All RFC processed" >> $LOG
 
 #Generate the diff files 
