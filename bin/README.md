@@ -33,7 +33,7 @@ install confd from https://developer.cisco.com/site/confD/downloads/
 install yangdump-pro from https://www.yumaworks.com/support/download-yumapro-client/ (free but registration is required)
 
 	- copy `/etc/yumapro/yangdump-pro-sample.conf` into `/etc/yumapro/yangdump-pro.conf`
-	- copy `/etc/yumapro/yangdump-pro-sample.conf`into `/etc/yumapro/yangdump-pro-allinclusive.conf` and modify the `modpath`option to be like `modpath ".:/var/yang/yang/modules:/var/yang/nonietf/yangmodels/yang/standard/ieee/draft:/var/yang/nonietf/yangmodels/yang/standard/ieee/802.1/draft:/var/yang/nonietf/yangmodels/yang/standard/ieee/802.3/draft:/var/yang/ietf/YANG-all"`(of course updated to reflext your YANG subtree)
+	- copy `/etc/yumapro/yangdump-pro-sample.conf`into `/etc/yumapro/yangdump-pro-allinclusive.conf` and modify the `modpath`option to be like `modpath ".:/var/yang/yang/modules:/var/yang/nonietf/yangmodels/yang/standard/ieee/draft:/var/yang/nonietf/yangmodels/yang/standard/ieee/draft/802.1:/var/yang/nonietf/yangmodels/yang/standard/ieee/draft/802.3:/var/yang/ietf/YANG-all"`(of course updated to reflext your YANG subtree)
 
 Python package https://www.decalage.info/files/HTML.py-0.04.zip (needs to be ported to python3 first...)
 
@@ -42,5 +42,5 @@ Python package https://www.decalage.info/files/HTML.py-0.04.zip (needs to be por
 `pip3 install xym` with line 571 (may depend on the xym version) modified as `with open(os.path.join(srcdir, source_id), encoding='latin-1', errors='ignore') as sf:`
 
 `pip3 install matplotlib`
-`pip3 install mpl_finance` (if required)
+`pip3 install mpl_finance`
 `pip3 install networkx`

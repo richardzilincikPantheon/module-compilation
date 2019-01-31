@@ -26,6 +26,7 @@ mkdir -p $IETFDIR/rfc
 cd $IETFDIR
 
 rsync -avz --include 'draft-*.txt' --exclude '*' --delete rsync.ietf.org::internet-drafts my-id-mirror  >> $LOG 2>&1
+rsync -avz --include 'draft-*.txt' --exclude '*' --delete rsync.ietf.org::id-archive my-id-archive-mirror  >> $LOG 2>&1
 rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt" --exclude="bcp-*.txt" --exclude="rfc-retrieval.txt" --exclude="rfc-index*.txt" --exclude="RFCs_for_errata.txt" --exclude="rfc-ref.txt" --exclude="rfcxx00.txt" --exclude="*index*" --include="*.txt"  --exclude="*" ftp.rfc-editor.org::rfcs rfc  >> $LOG 2>&1
 
 
@@ -69,9 +70,9 @@ ln -f -s $IETFDIR/YANG-rfc $MODULES/YANG-rfc
 rm -f $MODULES/ieee.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ $MODULES/ieee.draft
 rm -f $MODULES/ieee.802.1.draft
-ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ $MODULES/ieee.802.1.draft
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.1/ $MODULES/ieee.802.1.draft
 rm -f $MODULES/ieee.802.3.draft
-ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ $MODULES/ieee.802.3.draft
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.3/ $MODULES/ieee.802.3.draft
 rm -f $MODULES/mef
 ln -f -s $NONIETFDIR/mef/YANG-public/src/model/standard/ $MODULES/mef
 rm -f $MODULES/open-config-main
@@ -79,7 +80,9 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 
 # Extract all YANG models from RFC and I-D
 # TODO only process new I-D/RFC
+date +"%c: Starting to extract all YANG modules from IETF documents" >> $LOG
 YANG-IETF.py >> $LOG 2>&1
+date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 
 #clean up of the .fxs files created by confdc
 rm -f $IETFDIR/YANG/*.fxs
@@ -90,6 +93,7 @@ rm -f $IETFDIR/YANG-rfc/*.fxs
 mkdir -p $WEB/YANG-modules
 rm -f $WEB/YANG-modules/*
 cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules
+date +"%c: IETF YANG modules copied to $WEB/YANG-modules" >> $LOG
 
 # Generate the report for RFC-ed YANG modules, and ftp the files.
 YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed `$PYANG -v` with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1

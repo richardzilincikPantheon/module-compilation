@@ -249,7 +249,7 @@ def run_confd(model, yangpath, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     os.chdir(yangpath)
-    bash_command = confdc_exec + " --yangpath $MODULES --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/802.3/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/802.1/draft/ -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+    bash_command = confdc_exec + " --yangpath $MODULES/mef --yangpath $MODULES/open-config-main --yangpath $MODULES/ieee.draft  --yangpath $MODULES/YANG-rfc --yangpath $MODULES/ieee.802.1.draft --yangpath $MODULES/ieee.802.3.draft --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.3 --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.1 -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -275,7 +275,7 @@ def run_yumadumppro(model, yangpath, debug_level):
     """
     os.chdir(yangpath)
 #    bash_command = "yangdump-pro --warn-off=1022 --warn-off=1023 --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
-    bash_command = "yangdump-pro --quiet-mode --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
+    bash_command = "yangdump-pro --modpath /var/yang/yang/modules --quiet-mode --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
     result = os.popen(bash_command).read()
@@ -711,6 +711,8 @@ if __name__ == "__main__":
                 print
             # typedef, grouping, and identity extraction from RFCs
             for y in yang_models_in_rfc:
+                if (y == 'ietf-subscribed-notifications@2019-01-16.yang')
+                    print("Loop1 found 'ietf-subscribed-notifications@2019-01-16.yang'")
                 if not y.startswith("example-"):
                     print("Extraction for " + y)
                     bash_command = "extractor.py --srcdir " + args.rfcyangpath + " --dstdir " + args.rfcextractionyangpath + " --type typedef " + y
@@ -744,6 +746,8 @@ if __name__ == "__main__":
 #            yang_models_in_draft_with_revision = []
             for y in yang_models_in_draft: 
                 # typedef, grouping, and identity extraction from drafts            
+                if (y == 'ietf-subscribed-notifications@2019-01-16.yang')
+                    print("Loop2 found 'ietf-subscribed-notifications@2019-01-16.yang'")
                 if not y.startswith("example-"):
                     print("extraction for " + y)
                     bash_command = "extractor.py --srcdir " + args.yangpath + " --dstdir " + args.draftextractionyangpath + " --type typedef " + y
