@@ -449,7 +449,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :return: None
     """
     f = open(path + file_name, 'w')
-    f.write(json.dumps(in_dict))
+    f.write(json.dumps(in_dict, ident=2, sort_keys=True, separators=(',', ': ')))
     f.close()
 
 
@@ -711,7 +711,7 @@ if __name__ == "__main__":
                 print
             # typedef, grouping, and identity extraction from RFCs
             for y in yang_models_in_rfc:
-                if (y == 'ietf-subscribed-notifications@2019-01-16.yang')
+                if (y == 'ietf-subscribed-notifications@2019-01-16.yang'):
                     print("Loop1 found 'ietf-subscribed-notifications@2019-01-16.yang'")
                 if not y.startswith("example-"):
                     print("Extraction for " + y)
@@ -746,7 +746,7 @@ if __name__ == "__main__":
 #            yang_models_in_draft_with_revision = []
             for y in yang_models_in_draft: 
                 # typedef, grouping, and identity extraction from drafts            
-                if (y == 'ietf-subscribed-notifications@2019-01-16.yang')
+                if (y == 'ietf-subscribed-notifications@2019-01-16.yang'):
                     print("Loop2 found 'ietf-subscribed-notifications@2019-01-16.yang'")
                 if not y.startswith("example-"):
                     print("extraction for " + y)

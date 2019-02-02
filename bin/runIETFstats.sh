@@ -25,12 +25,14 @@ mkdir -p $IETFDIR/rfc
 
 cd $IETFDIR
 
+date +"%c: Retrieving IETF drafts and RFCs" >> $LOG
 rsync -avz --include 'draft-*.txt' --exclude '*' --delete rsync.ietf.org::internet-drafts my-id-mirror  >> $LOG 2>&1
 rsync -avz --include 'draft-*.txt' --exclude '*' --delete rsync.ietf.org::id-archive my-id-archive-mirror  >> $LOG 2>&1
 rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt" --exclude="bcp-*.txt" --exclude="rfc-retrieval.txt" --exclude="rfc-index*.txt" --exclude="RFCs_for_errata.txt" --exclude="rfc-ref.txt" --exclude="rfcxx00.txt" --exclude="*index*" --include="*.txt"  --exclude="*" ftp.rfc-editor.org::rfcs rfc  >> $LOG 2>&1
 
 
 #remove the drafts with xym.py error, but that don't contain YANG data modules
+date +"%c: Removing bad IETF drafts" >> $LOG
 YANG-exclude-bad-drafts.py >> $LOG 2>&1
 
 #copy the current content to the -old files 
@@ -45,6 +47,7 @@ fi
 
 # Some directory and symbolic links may need to be created
 # TODO have a script to create those
+date +"%c: Creating required directories and symbolic links" >> $LOG
 mkdir -p $IETFDIR/YANG
 echo "All YANG modules extracted correctly from IETF drafts" > $IETFDIR/YANG/README.md
 mkdir -p $IETFDIR/YANG-all
