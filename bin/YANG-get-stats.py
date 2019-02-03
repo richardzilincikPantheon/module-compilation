@@ -134,7 +134,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :return: None
     """
     with open(path + file_name, 'w') as outfile:
-        json.dump(in_dict, outfile, ident=2, sort_keys=True, separators=(',', ': '), ensure_ascii = True)
+        json.dump(in_dict, outfile, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii = True)
     
 def read_dictionary_file_in_json(path, file_name):
     """

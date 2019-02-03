@@ -419,7 +419,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :return: None
     """
     f = open(path + file_name, 'w')
-    f.write(json.dumps(in_dict, ident=2, sort_keys=True, separators=(',', ': ')))
+    f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
     f.close()
 
 
