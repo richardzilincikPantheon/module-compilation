@@ -15,7 +15,7 @@
 # TODO, only check files more recent than a date
 
 __author__ = 'Benoit Claise, Eric Vyncke'
-__copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2015-2019, Cisco Systems, Inc."
 __email__ = "bclaise@cisco.com, evyncke@cisco.com"
 
 from xym import xym
@@ -837,7 +837,7 @@ if __name__ == "__main__":
         url = draft_name.split(".")[0]
         url = url.rstrip('-0123456789')
         mailto = url + "@ietf.org"
-        url = "http://datatracker.ietf.org/doc/" + url
+        url = "https://datatracker.ietf.org/doc/" + url
         draft_url = '<a href="' + url + '">' + draft_name + '</a>'
         email = '<a href="mailto:' + mailto + '">Email Authors</a>'
         url2 = web_url + "/YANG-modules/" + yang_file
@@ -878,7 +878,7 @@ if __name__ == "__main__":
         url = draft_name.split(".")[0]
         url = url.rstrip('-0123456789')
         mailto = url + "@ietf.org"
-        url = "http://datatracker.ietf.org/doc/" + url
+        url = "https://datatracker.ietf.org/doc/" + url
         draft_url = '<a href="' + url + '">' + draft_name + '</a>'
         email = '<a href="mailto:' + mailto + '">Email Authors</a>'
         if "error" in result_pyang:
@@ -990,7 +990,7 @@ if __name__ == "__main__":
             url = draft_name.split(".")[0]
             url = url.rstrip('-0123456789')
             mailto = url + "@ietf.org"
-            url = "http://datatracker.ietf.org/doc/" + url
+            url = "https://datatracker.ietf.org/doc/" + url
             draft_url = '<a href="' + url + '">' + draft_name + '</a>'
             email = '<a href="mailto:' + mailto + '">Email All Authors</a>'
             cisco_email = '<a href="mailto:' + cisco_email + '">Email Cisco Authors Only</a>'                   
