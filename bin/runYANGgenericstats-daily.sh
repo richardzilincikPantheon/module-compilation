@@ -12,22 +12,23 @@
 # either express or implied.
 
 source configure.sh
-LOG=$LOGS/YANGgenericstats-daily.log
-echo "Starting" > $LOG
-date >> $LOG
+export LOG=$LOGS/YANGgenericstats-daily.log
+date +"%c: Starting" > $LOG
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
-source $CONFD_DIR/confdrc
+source $CONFD_DIR/confdrc >> $LOG 2>&1
 
 # Generate the daily reports
 
 # BBF, we need to flatten the directory structure
 # TODO modify the YANG-generic.py file to handle a directory tree ?
-mkdir -p $TMP/bbf
-rm -f $TMP/bbf/*
-find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec ln -s {} $TMP/bbf/ \;
+mkdir -p $TMP/bbf >> $LOG 2>&1
+rm -f $TMP/bbf/* >> $LOG 2>&1
+find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec ln -s {} $TMP/bbf/ \; >> $LOG 2>&1
 
-mkdir -p $MODULES
+mkdir -p $MODULES >> $LOG 2>&1
+
+date +"%c: forking all sub-processes" >> $LOG
 
 declare -a PIDS
 ($BIN/YANG-generic.py --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/bbf@7abc8b9" --lint True --prefix BBF --rootdir "$TMP/bbf/" >> $LOG 2>&1) &
@@ -68,12 +69,14 @@ PIDS+=("$!")
 # openroadm public
 # openROADM, we need to flatten the directory structure
 # TODO modify the YANG-generic.py file to handle a directory tree ?
-mkdir -p $TMP/openroadm-public
-rm -f $TMP/openroadm-public/*
+mkdir -p $TMP/openroadm-public >> $LOG 2>&1
+rm -f $TMP/openroadm-public/* >> $LOG 2>&1
 find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \;
 
 ($BIN/YANG-generic.py --metadata "OpenRoadm 2.0.1: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM20 --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) &
 PIDS+=("$!")
+
+date +"%c: waiting for all sub-processes" >> $LOG
 
 # Wait for all child-processes
 for PID in $PIDS
@@ -81,11 +84,16 @@ do
 	wait $PID || exit 1
 done
 
-rm -f $TMP/bbf/*.fxs
-rm -f $TMP/openroadm-public/*.fxs
+date +"%c: all sub-process have ended" >> $LOG
+
+rm -f $TMP/bbf/*.fxs >> $LOG 2>&1
+rm -f $TMP/openroadm-public/*.fxs >> $LOG 2>&1
 
 # Removed openROADM private handling
 
-#clean up of the .fxs files created by confdc
-find $NONIETFDIR/ -name *.fxs -print | xargs rm
+date +"%c: cleaning up the now useless .fxs files" >> $LOG
 
+#clean up of the .fxs files created by confdc
+find $NONIETFDIR/ -name *.fxs -print | xargs rm >> $LOG 2>&1
+
+date +"%c: end of job" >> $LOG
