@@ -31,186 +31,11 @@ import re
 from operator import itemgetter
 from subprocess import Popen, PIPE
 import shlex
-
+import datetime
 
 # ----------------------------------------------------------------------
 # Functions
 # ----------------------------------------------------------------------
-
-
-def list_of_yang_modules_in_dir(srcdir, debug_level):
-    """
-    Returns the list of YANG Modules (.yang) in a directory   
-    :param srcdir: directory to search for yang files
-    :param debug_level: If > 0 print some debug statements to the console
-    :return: list of YANG files
-    """
-    files = [f for f in os.listdir(srcdir) if os.path.isfile(os.path.join(srcdir, f))]
-    yang_files = []
-    for f in files:
-        if f.endswith(".yang"):
-            yang_files.append(f)
-            if debug_level > 0:
-                print("DEBUG: " + f + " in list_of_yang_modules_in_dir: is a YANG model")
-        else:
-            if debug_level > 0:
-                print("DEBUG: " + f + " in list_of_yang_modules_in_dir: is not a YANG model")
-    return yang_files
-
-
-def ietf_draft_name_containing_keyword(drafts, keyword, debug_level):
-    """
-    Return the list of IETF drafts whose name contains a specific keyword
-    # status: troubleshooting done
-
-    :param drafts: list of ietf drafts
-    :param keyword: keyword for which to search
-    :return: list of drafts containing the keyword
-    """
-    keyword = keyword.lower()
-    drafts_with_keyword = []
-    for f in drafts:
-        if keyword in f.lower():
-            if debug_level > 0:
-                print("DEBUG: " + f + " in ietf_draft_name_containing_keyword: contains " + keyword)
-            drafts_with_keyword.append(f)
-    if debug_level > 0:
-        print("DEBUG: " + " in ietf_draft_name_containing_keyword: drafts_with_keyword contains " + \
-              str(drafts_with_keyword))
-    return drafts_with_keyword
-
-
-def list_of_ietf_draft_containing_keyword(drafts, keyword, draftpath):
-    """
-    Returns the IETF drafts that contains a specific keyword
-    # status: troubleshooting done
-
-    :param drafts: List of ietf drafts to search for the keyword
-    :param keyword: Keyword to search for
-    :return: List of ietf drafts containing the keyword
-    """
-    keyword = keyword.lower()
-    list_of_ietf_draft_with_keyword = []
-    for f in drafts:
-        file_included = False
-        for line in open(draftpath + f, 'r'):
-            if keyword in line.lower():
-                file_included = True
-                if debug_level > 0:
-                    print("DEBUG: " + f + " in list_of_ietf_draft_containing_keyword: contains " + keyword)
-        if file_included:
-            list_of_ietf_draft_with_keyword.append(f)
-    if debug_level > 0:
-        print("DEBUG: " + " in list_of_ietf_draft_containing_keyword: list_of_ietf_draft_with_keyword contains " \
-              + str(list_of_ietf_draft_with_keyword))
-    return list_of_ietf_draft_with_keyword
-
-
-def draft_containing_keyword(draft, keyword, draftpath):
-    """
-    Returns the IETF drafts that contains a specific keyword
-    # status: troubleshooting done
-
-    :param draft: One IETF draft to search for the keyword
-    :param keyword: Keyword to search for
-    :return: Boolean, True if the draft contains the keyword
-    """
-    for line in open(draftpath + draft, 'r'):
-        if keyword in line:
-            return True
-    return False
-
-
-def error_extracting_yang_models_from_an_ietf_draft(f, draftpath, binpath):
-    """
-    Detect drafts that produce an error when extracting a YANG model
-    # status: 
-    
-    :param f: draft file name
-    :param draftpath: Path to the draft directory
-    :param binpath: Path for scripts
-    :return: Boolean, True if it produces an error
-
-    """
-    # test first if there is an error extracting the YANG models
-    # bash_command = binpath + "rfcstrip -i " + draftpath + " -d " + yangpath + " " + f + " 2>&1"
-    bash_command = binpath + "rfcstrip -n -i " + draftpath + " " + f + " 2>&1"
-    temp_result = os.popen(bash_command).read()
-    if "WARNING" in temp_result and draft_containing_keyword(f, "<CODE BEGINS>", draftpath):
-        if debug_level > 0:
-            print("DEBUG: " + " in error_extracting_yang_models_from_an_ietf_draft: ERROR in extracting YANG model in " + f)
-        return True
-    return False
-
-
-def extract_yang_models_from_ietf_draft(f, draftpath, yangpath, binpath, debug_level):
-    """
-    extract YANG model from IETF drafts with rfcstrip
-    status: 
-       1. what if there are multiple YANG models in the IETF draft
-       2. need to return the dictionary key: yang model, value = ietf draft name
-
-    :param f: draft file name
-    :param draftpath: Path to the draft directory
-    :param yangpath: Path where to put resulting yang files
-    :param binpath: Path for scripts
-    :return: True if a YANG model is extracted. False otherwise
-
-    """
-    os.chdir(yangpath)
-    bash_command = binpath + "rfcstrip -i " + draftpath + " " + f
-    if debug_level > 0:
-        print("DEBUG: " + " in extract_yang_models_from_ietf_draft: bash_command contains " + bash_command)
-    temp_result = os.popen(bash_command).read()
-    if temp_result == "":
-        return False
-    else:
-        return True
-
-
-def list_yang_models_from_ietf_draft(f, draftpath):
-    """
-    return the list of YANG models in an IETF draft
-
-    :param f: draft file name
-    :param draftpath: Path to the draft directory
-    :return: list of YANG models within the draft
-
-    """
-    first_line_set = False
-    first_line = ""
-    list_of_yang_modules = []
-    if debug_level > 0:
-        print("DEBUG: " + " in list_yang_models_from_ietf_draft: extracting YANG models from " + f)
-    for line in open(draftpath + f, 'r'):
-        if first_line_set:
-            combined_line = first_line + line
-            if ".yang" in combined_line:
-                combined_line = combined_line.strip("\r")
-                combined_line = combined_line.strip("\n")
-                combined_line = combined_line.replace("<CODE BEGINS>", "")
-                combined_line = combined_line.replace("file ", "")
-                combined_line = combined_line.replace("\"", "")
-                combined_line = combined_line.replace("\n", "")
-                combined_line = combined_line.replace("\t", "")
-                combined_line = combined_line.replace("\r", "")
-                combined_line = combined_line.replace("{", "")
-                temp_var = combined_line.split("module")
-                combined_line = temp_var[0]
-                combined_line = combined_line.lstrip()
-                yang_module = combined_line.rstrip()
-                list_of_yang_modules.append(yang_module)
-            first_line_set = False
-            first_line_set = False
-            first_line = ""
-        if "<CODE BEGINS>" in line:
-            if not first_line_set:
-                first_line = line
-                first_line_set = True
-    if debug_level > 0:
-        print("DEBUG: " + " in list_yang_models_from_ietf_draft: the list of YANG Models is ")
-        print("DEBUG: " + list_of_yang_modules)
-    return list_of_yang_modules
 
 def run_pyang(model, ietf, yangpath, debug_level):
     """
@@ -631,7 +456,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",
                         help="The optional directory where to find the source drafts. "
-                             "Default is " + ietf_directory + "'/my-id-mirror/'")
+                             "Default is '" + ietf_directory + "/my-id-mirror/' but could also be '" + ietf_directory + "/my-id-archive-mirror/' to get expired drafts as well")
     parser.add_argument("--rfcpath", default= ietf_directory + "/rfc/",
                         help="The optional directory where to find the source RFCs. Default is '" + ietf_directory + "/rfc/'")
     parser.add_argument("--binpath", default=home + "/bin/", help="Optional directory where to find the "
@@ -677,8 +502,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     debug_level = args.debug
     # note: args.strict is not used
+    print(str(datetime.datetime.now().time()) + ': Starting')
 
-    
     # empty the yangpath, allyangpath, and rfcyangpath directory content
     remove_directory_content(args.yangpath, debug_level)
     remove_directory_content(args.allyangpath, debug_level)
@@ -692,9 +517,19 @@ if __name__ == "__main__":
     remove_directory_content(args.draftextractionyangpath, debug_level)
 
     # must run the rsync-clean-up.py script 
-    ietf_drafts = [f for f in os.listdir(args.draftpath) if os.path.isfile(os.path.join(args.draftpath, f))]
+#    ietf_drafts = [f for f in os.listdir(args.draftpath) if os.path.isfile(os.path.join(args.draftpath, f))]
+    ietf_drafts = []
+    for fname in os.listdir(args.draftpath):
+        ffname = os.path.join(args.draftpath, fname)
+        if os.path.isfile(ffname):
+            with open(ffname, 'r', encoding='latin-1', errors='ignore') as f:
+                for line in f:
+                    if '<CODE BEGINS>' in line:
+                        ietf_drafts.append(fname)
+                        break
     ietf_rfcs = [f for f in os.listdir(args.rfcpath) if os.path.isfile(os.path.join(args.rfcpath, f))]
         
+    print(str(datetime.datetime.now().time()) + ': file list generated')
     # Extracting YANG Modules from IETF drafts
     draft_yang_dict = {}
     draft_yang_all_dict = {}
@@ -711,8 +546,6 @@ if __name__ == "__main__":
                 print
             # typedef, grouping, and identity extraction from RFCs
             for y in yang_models_in_rfc:
-                if (y == 'ietf-subscribed-notifications@2019-01-16.yang'):
-                    print("Loop1 found 'ietf-subscribed-notifications@2019-01-16.yang'")
                 if not y.startswith("example-"):
                     print("Extraction for " + y)
                     bash_command = "extractor.py --srcdir " + args.rfcyangpath + " --dstdir " + args.rfcextractionyangpath + " --type typedef " + y
@@ -732,7 +565,8 @@ if __name__ == "__main__":
                     #if not y.startswith("iana-"):
 					    # this is where I add the check
             rfc_yang_dict[rfc_file] = yang_models_in_rfc
-    
+    print(str(datetime.datetime.now().time()) + ': all RFC processed')
+
     for draft_file in ietf_drafts:
         # Extract the correctly formatted YANG Models in args.yangpath
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.yangpath, strict=True, strict_examples=False, debug_level=args.debug, add_line_refs=False, force_revision_pyang=False, force_revision_regexp=True)
@@ -746,8 +580,6 @@ if __name__ == "__main__":
 #            yang_models_in_draft_with_revision = []
             for y in yang_models_in_draft: 
                 # typedef, grouping, and identity extraction from drafts            
-                if (y == 'ietf-subscribed-notifications@2019-01-16.yang'):
-                    print("Loop2 found 'ietf-subscribed-notifications@2019-01-16.yang'")
                 if not y.startswith("example-"):
                     print("extraction for " + y)
                     bash_command = "extractor.py --srcdir " + args.yangpath + " --dstdir " + args.draftextractionyangpath + " --type typedef " + y
@@ -803,11 +635,13 @@ if __name__ == "__main__":
             if debug_level > 0:
                 print("DEBUG: " + " copy the IETF draft containing a YANG model:  error " + temp_result)
             
+    print(str(datetime.datetime.now().time()) + ': all IETF drafts processed')
     # invert the key, value in the dictionary. Should be key: yang model, value: draft-file
     yang_draft_dict = invert_yang_modules_dict(draft_yang_dict, debug_level)
     yang_example_draft_dict = invert_yang_modules_dict(draft_yang_example_dict, debug_level)
     yang_draft_all_dict = invert_yang_modules_dict(draft_yang_all_dict, debug_level)   
     yang_rfc_dict = invert_yang_modules_dict(rfc_yang_dict, debug_level)
+    print(str(datetime.datetime.now().time()) + ': Python dict inverted')
     # Remove the YANG modules (the key in the inverted rfc_dict dictionary dictionary)
     # which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html: 
 	# and the example-ospf-topology.yang, which is bug in xym
@@ -818,6 +652,7 @@ if __name__ == "__main__":
 	# and the example-ospf-topology.yang, which is bug in xym
     # Those YANG modules, from old RFCs, don't follow the example- conventions
     move_old_examples_YANG_modules_from_RFC(args.rfcyangpath, args.yangexampleoldrfcpath, debug_level)
+    print(str(datetime.datetime.now().time()) + ': YANG modules moved')
     
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
@@ -848,10 +683,12 @@ if __name__ == "__main__":
         dictionary[yang_file] = (draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)
         if module_or_submodule(args.yangpath + yang_file) == 'module':
             dictionary_no_submodules[yang_file] = (draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint)
+    print(str(datetime.datetime.now().time()) + ': IETF drafts validated/compiled')
 
         
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary, args.htmlpath, "IETFDraft.json")
+    print(str(datetime.datetime.now().time()) + ': IETFDraft.json generated')
     # YANG modules from drafts: : make a list out of the dictionary
     my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
@@ -892,9 +729,11 @@ if __name__ == "__main__":
         dictionary_example[yang_file] = (draft_url, email, compilation, result_pyang, result_no_ietf_flag)
         if module_or_submodule(args.allyangexamplepath + yang_file) == 'module':
             dictionary_no_submodules_example[yang_file] = (draft_url, email, compilation, result_pyang, result_no_ietf_flag)
+    print(str(datetime.datetime.now().time()) + ': example YANG modules in IETF drafts validated/compiled')
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary_example, args.htmlpath, "IETFDraftExample.json")
+    print(str(datetime.datetime.now().time()) + ': IETFDraftExample.json generated')
     # dictionary2 = {}
     # dictionary2 = read_dictionary_file_in_json(args.htmlpath, "IETFYANG.json")
     # YANG modules from drafts: : make a list out of the dictionary
@@ -927,6 +766,7 @@ if __name__ == "__main__":
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary2, args.htmlpath, "IETFYANGRFC.json")
+    print(str(datetime.datetime.now().time()) + ': IETFYANGRFC.json generated')
 
 # (Un)comment next two lines if I want to remove the submodule from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
     my_yang_in_rfc = sorted(dict_to_list_rfc(dictionary2))
@@ -953,6 +793,7 @@ if __name__ == "__main__":
     my_list2 = [line2, line5, line6, line7, line8, line9]
 
     generate_html_list(my_list2, args.htmlpath, "IETFYANGPageMain.html")
+    print(str(datetime.datetime.now().time()) + ': IETFYANGPageMain.html generated')
 
     # Stats generation for the standard output 
     print("--------------------------")
@@ -1017,8 +858,6 @@ if __name__ == "__main__":
     # make a list out of the dictionary
     my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
-# I believe I can remove the next line    
-#    my_yang_in_rfc = sorted(dict_to_list_rfc(yang_rfc_dict))   
     # replace CR by the BR HTML tag
     my_new_list = []
     my_new_list = list_br_html_addition(my_list)
@@ -1028,4 +867,5 @@ if __name__ == "__main__":
     header=['YANG Model', 'Draft Name', 'All Authors Email', 'Only Cisco Email','Download the YANG model','Compilation', 'Compilation Results (pyang --ietf)', 'Compilation Results (pyang). Note: also generates errors for imported files.', 'Compilation Results (confdc) Note: also generates errors for imported files', 'Compilation Results (yumadump-pro). Note: also generates errors for imported files.', 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
     generate_html_table(my_new_list, header, args.htmlpath, "IETFCiscoAuthorsYANGPageCompilation.html")
     print(output_email_string_unique)
-
+    print(str(datetime.datetime.now().time()) + ': IETFCiscoAuthorsYANGPageCompilation.html generated')
+    print(str(datetime.datetime.now().time()) + ': end of job')

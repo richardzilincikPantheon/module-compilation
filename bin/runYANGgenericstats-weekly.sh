@@ -13,14 +13,13 @@
 # either express or implied.
 
 source configure.sh
-LOG=$LOGS/YANGgenericstats-weekly.log
-echo "Starting" > $LOG
-date >> $LOG
+export LOG=$LOGS/YANGgenericstats-weekly.log
+date +"%c: Starting" > $LOG
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
-source $CONFD_DIR/confdrc
+source $CONFD_DIR/confdrc >> $LOG 2>&1
 
-mkdir -p $MODULES
+mkdir -p $MODULES >> $LOG 2>&1
 
 # Generate the weekly reports
 
@@ -182,12 +181,14 @@ PIDS+=("$!")
 (YANG-generic.py --allinclusive True --metadata "Cisco NX OS F.0-3-I7-3 from https://github.com/YangModels/yang/tree/master/vendor/cisco/nx/7.0-3-I7-3" --lint True --prefix CiscoNX703I73 --rootdir "$NONIETFDIR/yangmodels/yang/vendor/cisco/nx/7.0-3-I7-3/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
+date +"%c: waiting for all forked shell to terminate " >> $LOG 
 # Wait for all child-processes
 for PID in $PIDS
 do
 	wait $PID || exit 1
 done
 
+date +"%c: processing non Cisco modules " >> $LOG 
 # Yumaworks
 YANG-generic.py --allinclusive True --metadata "YUMAWORKS: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/vendor/yumaworks" --lint True --prefix YUMAWORKS --rootdir "$NONIETFDIR/yangmodels/yang/vendor/yumaworks/" >> $LOG 2>&1
 
@@ -203,8 +204,8 @@ YANG-generic.py --allinclusive True --metadata "HUAWEI ROUTER 8.9.10 https://git
 # Ciena
 YANG-generic.py --allinclusive True --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint True --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena" >> $LOG 2>&1
 
+date +"%c: Cleaning up the remaining .fxs " >> $LOG 
 #clean up of the .fxs files created by confdc
 find $NONIETFDIR/yangmodels -name *.fxs -print | xargs rm >> $LOG 2>&1
 
-echo "End of the script!" >> $LOG 
-date >> $LOG
+date +"%c: End of the script!" >> $LOG 

@@ -17,9 +17,18 @@ source configure.sh
 #
 rundownloadgithub.sh
 runYANGgenericstats-weekly.sh
+
+echo Starting runIETFstats.sh
 runIETFstats.sh
+
+echo Starting rename-file-backup.py
+mkdir -p $BACKUPDIR
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
+
+echo Starting runGenerateMainPage.sh
 runGenerateMainPage.sh
+
+echo Starting runGenerateFiguresAndStats.sh
 runGenerateFiguresAndStats.sh
 
 # This simple files for other Yang Catalog to know which files have been created
