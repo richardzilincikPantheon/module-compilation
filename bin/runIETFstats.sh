@@ -70,12 +70,32 @@ ln -f -s $IETFDIR/YANG $MODULES/YANG
 rm -f $MODULES/YANG-rfc
 ln -f -s $IETFDIR/YANG-rfc $MODULES/YANG-rfc
 
+# Try to flatten a little the IETF structure
 rm -f $MODULES/ieee.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ $MODULES/ieee.draft
+rm -f $MODULES/ieee.published
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/ $MODULES/ieee.published
+rm -f $MODULES/ieee.1588.draft
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/1588/ $MODULES/ieee.1588.draft
+rm -f $MODULES/ieee.1588.published
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/1588/ $MODULES/ieee.1588.published
 rm -f $MODULES/ieee.802.1.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.1/ $MODULES/ieee.802.1.draft
+rm -f $MODULES/ieee.802.1.published
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/802.1/ $MODULES/ieee.802.1.published
+rm -f $MODULES/ieee.802.draft
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802/ $MODULES/ieee.802.draft
+rm -f $MODULES/ieee.802.published
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/802/ $MODULES/ieee.802.published
 rm -f $MODULES/ieee.802.3.draft
 ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.3/ $MODULES/ieee.802.3.draft
+rm -f $MODULES/ieee.802.3.published
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/802.3/ $MODULES/ieee.802.3.published
+rm -f $MODULES/ieee.802.11.draft
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.11/ $MODULES/ieee.802.11.draft
+rm -f $MODULES/ieee.802.11.published
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/802.11/ $MODULES/ieee.802.11.published
+
 rm -f $MODULES/mef
 ln -f -s $NONIETFDIR/mef/YANG-public/src/model/standard/ $MODULES/mef
 rm -f $MODULES/open-config-main
@@ -84,7 +104,9 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 # Extract all YANG models from RFC and I-D
 # TODO only process new I-D/RFC
 date +"%c: Starting to extract all YANG modules from IETF documents" >> $LOG
-YANG-IETF.py >> $LOG 2>&1
+# Using --draftpath /var/yang/ietf/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
+# YANG-IETF.py >> $LOG 2>&1
+YANG-IETF.py --draftpath /var/yang/ietf/my-id-archive-mirror/ >> $LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 
 #clean up of the .fxs files created by confdc

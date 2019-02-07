@@ -74,7 +74,8 @@ def run_confd(model, yangpath, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     os.chdir(yangpath)
-    bash_command = confdc_exec + " --yangpath $MODULES/mef --yangpath $MODULES/open-config-main --yangpath $MODULES/ieee.draft  --yangpath $MODULES/YANG-rfc --yangpath $MODULES/ieee.802.1.draft --yangpath $MODULES/ieee.802.3.draft --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.3 --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.1 -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+    # bash_command = confdc_exec + " --yangpath $MODULES/mef --yangpath $MODULES/open-config-main --yangpath $MODULES/ieee.draft  --yangpath $MODULES/YANG-rfc --yangpath $MODULES/ieee.802.1.draft --yangpath $MODULES/ieee.802.3.draft --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.3 --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.1 -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+    bash_command = confdc_exec + " --yangpath " + confdc_yangpath + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -452,6 +453,7 @@ if __name__ == "__main__":
     ietf_directory = config.get('Directory-Section', 'ietf_directory')
     pyang_exec = config.get('Tool-Section', 'pyang_exec')
     confdc_exec = config.get('Tool-Section', 'confdc_exec')
+    confdc_path = config.get('Tool-Section', 'confdc_path')
 
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",

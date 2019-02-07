@@ -138,7 +138,8 @@ def run_confd(p, model, allinclu, debug_level):
     if allinclu:
         bash_command = confdc_exec + " --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     else:
-        bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/802.3 --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/draft/802.1 --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+        # bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/802.3 --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/draft/802.1 --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+        bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + confd_yangpath_ieee + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
         if debug_level:
             print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -514,6 +515,7 @@ if __name__ == "__main__":
     modules_directory = config.get('Directory-Section', 'modules_directory') 
     pyang_exec = config.get('Tool-Section', 'pyang_exec') 
     confdc_exec = config.get('Tool-Section', 'confdc_exec') 
+    confdc_yangpath_ieee = config.get('Tool-Section', 'confdc_yangpath_ieee') 
     parser = argparse.ArgumentParser(description='YANG Dcoument Processor: generate tables with compilation errors/warnings')
     parser.add_argument("--rootdir", default=".",
                         help="The root directory where to find the source YANG models. "
