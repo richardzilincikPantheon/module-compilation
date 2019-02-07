@@ -542,11 +542,13 @@ if __name__ == "__main__":
                                                      "Default is NULL")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
     args = parser.parse_args()
+    print(str(datetime.datetime.now().time()) + ': start of job.')
 
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
         print("yang_list content: ")
         print(yang_list)
+    print(str(datetime.datetime.now().time()) + ': relevant files list built, ' + str(len(yang_list)) + ' modules found.')
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
@@ -593,44 +595,31 @@ if __name__ == "__main__":
             else:
                 print("Unable to get name@revision out of " + yang_file + ' no output')
         else:
-            # execute "/usr/local/bin/pyang/pyang -f name-revision <YANG-module-name>", 
-            # which returns out = <YANG-module-name>@<revision>
-            #command_string = "/usr/local/bin/pyang -f name-revision " + yang_file + " 2> /dev/null"
-            #proc = Popen(shlex.split(command_string), stdout=PIPE, stderr=PIPE)
-            #out, err = proc.communicate()
-            #if err:
-            #    print("ERROR extracting revision from file with: pyang -f name-revision " + yang_file)
-            #    print("  Error: " + err)
-            #    print()
             out = get_mod_rev(yang_file)
             if out.rstrip():
                 new_yang_file_without_path_with_revision = out.rstrip() + ".yang"
                 if args.debug > 0:
                     print("DEBUG: Adding the revision to YANG module because xym can't get revision (missing from the YANG module): " + yang_file)
-                    #print("DEBUG:  command_string: " + command_string)
                     print("DEBUG:  out: " + new_yang_file_without_path_with_revision)
-                    #print("DEBUG:  err: " + err)
                 dictionary[new_yang_file_without_path_with_revision] = (compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
                 if module_or_submodule(yang_file) == 'module':
                     dictionary_no_submodules[new_yang_file_without_path_with_revision] = (
                         compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
             else:
                 print("Unable to get name@revision out of " + yang_file + ' no output')
-                #print("ERROR: pyang -f name name-revision ... doesn't work for " + yang_file + " no output")
 
-#        dictionary[yang_file_without_path] = (compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
+    print(str(datetime.datetime.now().time()) + ': all modules compiled/validated')
 
     # Dictionary serialization
-#    write_dictionary_file_in_json(dictionary, args.htmlpath, args.prefix + ".json")
-#    json_filename = args.prefix + ".json"
     write_dictionary_file_in_json(dictionary, args.htmlpath, args.prefix + ".json")
+    print(str(datetime.datetime.now().time()) + ': ' + args.prefix + '.json file generated')
 
     # YANG modules from drafts: : make a list out of the dictionary
-    my_list = []
+    #my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
 
     # YANG modules from drafts: replace CR by the BR HTML tag
-    my_new_list = []
+    #my_new_list = []
     my_new_list = list_br_html_addition(my_list)
 
     # YANG modules from drafts: HTML page generation for yang models
@@ -645,10 +634,6 @@ if __name__ == "__main__":
         compilation_result_text = "Compilation Result (pyang --lint). "
     else:
         compilation_result_text = "Compilation Result (pyang --ietf). "
-    # if want to populate the document location from github, must uncomment the following line
-    # header=['YANG Model', 'Document Location', 'Compilation', 'Compilation Result (pyang --lint)',
-    # 'Compilation Result (pyang)']
-#    header = ['YANG Model', 'Compilation', compilation_result_text, 'Compilation Result (pyang)', 'Compilation Results (confdc) Note: alo generate errors for errors found in imported files', 'Compilation Results (yangdump-pro). Note: alo generate errors for errors found in imported files.', 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
     header = ['YANG Model', 'Compilation', compilation_result_text + run_pyang_version(0), 'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(0), 'Compilation Results (confdc) Note: also generates errors for imported files. ' + run_confd_version(0), 'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + run_yumadumppro_version(0), 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + run_yanglint_version(0)]
 
     generate_html_table(my_new_list, header, args.htmlpath, args.prefix + "YANGPageCompilation.html", args.metadata)
@@ -671,3 +656,4 @@ if __name__ == "__main__":
     print("Number of YANG data models from " + args.prefix + " that passed compilation: " + str(passed_without_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(passed_with_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(total_number))
+    print(str(datetime.datetime.now().time()) + ': end of job')
