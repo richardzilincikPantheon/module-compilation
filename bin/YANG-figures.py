@@ -12,7 +12,6 @@
 # either express or implied.
 
 
-import datetime
 import matplotlib as mpl
 mpl.use('Agg') # To prevent using a X-Windows server
 import matplotlib.pyplot as plt

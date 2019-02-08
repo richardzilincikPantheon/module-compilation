@@ -175,9 +175,7 @@ if __name__ == "__main__":
                         help="The path to put the ietf drafts containing YANG model(s), diff from flag = True and False. Default is '" + ietf_directory + "/draft-with-YANG-diff/'")
     parser.add_argument("--statspath", default= web_private + "/stats/",
                         help="The optional directory where to put the stats files . Default is '" + web_private + "/stats/'")
-    parser.add_argument("--binpath", default= bin_directory, help="Optional directory where to find the "
-                                                                        "script executables. Default is '" + bin_directory + "'")
- 
+    parser.add_argument("--binpath", default= bin_directory, help="Optional directory where to find the script executables. Default is '" + bin_directory + "'")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
 
     args = parser.parse_args()
@@ -198,21 +196,22 @@ selected_files = file_name_containing_keyword(files, prefix, debug_level)
 
 IETFYANGCiscoAuthorsPageCompilation = {}
 IETFYANGPageCompilation = {}
-    
-for prefix in ["IETFCiscoAuthorsYANGPageCompilation_", "IETFDraftYANGPageCompilation_", "IEEEYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+
+# !!! there are two IEEE IEEEExperimentalYANGPageCompilation and IEEEStandardYANGPageCompilation_
+for prefix in ["IETFCiscoAuthorsYANGPageCompilation_", "IETFDraftYANGPageCompilation_", "IEEEYANGPageCompilation_", "IEEEExperimentalYANGPageCompilation_", "IEEEStandardYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix)
     print("FILENAME: NUMBER OF DAYS SINCE EPOCH, TOTAL YANG MODULES, PASSED, PASSEDWITHWARNINGS, FAILED")
     for f in file_name_containing_keyword(files, prefix, debug_level):   
-        bash_command = "grep" + " " + category_list[0] + " " + args.htmlpath + f + " | wc -l " +" 2>&1"
+        bash_command = "grep FAILED " + args.htmlpath + f + " | wc -l " +" 2>&1"
         failed_result = os.popen(bash_command).read()
         failed_result = failed_result.rstrip("\r\n")
     
-        bash_command = "grep" + " " + "\"PASSED WITH WARNINGS\"" + " " + args.htmlpath + f + " | wc -l " +" 2>&1"
+        bash_command = "grep \"PASSED WITH WARNINGS\" " + args.htmlpath + f + " | wc -l " +" 2>&1"
         passed_with_warning_result = os.popen(bash_command).read()
         passed_with_warning_result = passed_with_warning_result.rstrip("\r\n")
    
-        bash_command = "grep" + " " + category_list[2] + " " + args.htmlpath + f + " | grep -v WARNINGS | wc -l " +" 2>&1"
+        bash_command = "grep PASSED " + args.htmlpath + f + " | grep -v WARNINGS | wc -l " +" 2>&1"
         passed_result = os.popen(bash_command).read()
         passed_result = passed_result.rstrip("\r\n")
 
@@ -265,7 +264,8 @@ if int(args.days) == -1:
  # IETF: total number of 
  # ODL: total number in Lithium
  # 
-for prefix in ["IEEEYANGPageCompilation_", "IETFCiscoAuthorsYANGPageCompilation_", "IETFYANGPageCompilation_", "LithiumODLPageCompilation_"]:
+# !!! there are two IEEE IEEEExperimentalYANGPageCompilation and IEEEStandardYANGPageCompilation_
+for prefix in ["IEEEYANGPageCompilation_", "IEEEExperimentalYANGPageCompilation_" , "IEEEStandardYANGPageCompilation_", "IETFCiscoAuthorsYANGPageCompilation_", "IETFYANGPageCompilation_", "LithiumODLPageCompilation_"]:
     print('')
     print("Looking at the files starting with: " + prefix + " for the newest file")
     # next line returns the newest file
