@@ -388,7 +388,7 @@ def init(rfc_repos, draft_repos, recurse=False):
     print('\nInitialization finished.\n')
 
 
-def plot_module_dependency_graph(graph):
+def plot_module_dependency_graph(graph, node):
     """
     Plot a graph of specified yang modules. this function is used to plot
     both the full dependency graph of all yang modules in the DB, or a
@@ -396,16 +396,22 @@ def plot_module_dependency_graph(graph):
     :param graph: Graph to be plotted
     :return: None
     """
-    pos = nx.spring_layout(graph, iterations=2000)
+    fixed_positions = {node: [0.5, 0.5] }
+    print(fixed_positions)
+    import math
+    k = 1 / math.sqrt(len(graph))
+    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-5, fixed=fixed_positions, k=k, center=[0.5, 0.5])
+#    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-6)
+    print(pos)
     # Draw RFC nodes (yang modules) in red
     nx.draw_networkx_nodes(graph, pos=pos, nodelist=prune_graph_nodes(graph, RFC_TAG), node_size=200,
-                           node_shape='s', node_color='red', alpha=0.5, linewidths=0.25)
+                           node_shape='s', node_color='red', alpha=0.5, linewidths=0.25 ,label='RFC')
     # Draw draft nodes (yang modules) in green
     nx.draw_networkx_nodes(graph, pos=pos, nodelist=prune_graph_nodes(graph, DRAFT_TAG), node_size=150,
-                           node_shape='o', node_color='green', alpha=0.5, linewidths=0.25)
+                           node_shape='o', node_color='green', alpha=0.5, linewidths=0.25, label='Draft')
     # Draw unknown nodes (yang modules) in green
     nx.draw_networkx_nodes(graph, pos=pos, nodelist=prune_graph_nodes(graph, UNKNOWN_TAG), node_size=200,
-                           node_shape='^', node_color='orange', alpha=1.0, linewidths=0.25)
+                           node_shape='^', node_color='orange', alpha=1.0, linewidths=0.25, label='Unknown')
     # Draw edges in light gray (fairly transparent)
     nx.draw_networkx_edges(graph, pos=pos, alpha=0.25, linewidths=0.1, arrows=False)
     # Draw labels on nodes (modules)
@@ -483,7 +489,7 @@ if __name__ == "__main__":
         plot_num += 1
         print("Plotting graph for module '%s'..." % node)
         try:
-            plot_module_dependency_graph(get_subgraph_for_node(node))
+            plot_module_dependency_graph(get_subgraph_for_node(node), node)
             plt.savefig("%s.png" % node)
             print('    Done.')
         except nx.exception.NetworkXError as e:
