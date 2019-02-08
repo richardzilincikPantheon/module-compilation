@@ -11,11 +11,22 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
+function on_exit {
+	local reason=$?
+	# Matplot seems to create temporary directories
+	rm -rf $TMP/matplot*
+	date +"%c abort of the script" >> $LOG
+	date +"%c abort of $0"
+	exit $reason
+}
+
+trap on_exit EXIT ERR
+	
 source configure.sh
 
 date +"%c start of $0"
 
-LOG=$LOGS/GenerateFiguresAndStats.log
+export LOG=$LOGS/GenerateFiguresAndStats.log
 date +"%c starting" > $LOG
 
 # Generate the statistics since the beginning and ftp the files
@@ -45,9 +56,7 @@ mv ietf-interfaces.png ietf-interfaces-all.png
 symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-interfaces >>$LOG 2>&1
 symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-routing >>$LOG 2>&1
 
-# Matplot seems to create temporary directories
-rm -rf $TMP/matplot*
 
+trap - EXIT ERR
 date +"%c end of the script" >> $LOG
-
 date +"%c End of $0"
