@@ -54,7 +54,7 @@ def remove_files(ll, d, debug_level):
     """
     list_of_line = []
     for l in ll:
-        bash_command = "rm " + d + l
+        bash_command = "rm -f " + d + l
         if debug_level > 1:
             print("bash_command: " + bash_command)
         temp_result = os.popen(bash_command).readlines()
