@@ -16,6 +16,7 @@ cd $BIN
 source activate
 source configure.sh
 rundownloadgithub.sh
+echo Starting runYANGGenereicstats-daily.sh
 runYANGgenericstats-daily.sh
 echo Starting runIETFstats.sh
 runIETFstats.sh

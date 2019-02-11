@@ -453,7 +453,7 @@ if __name__ == "__main__":
     ietf_directory = config.get('Directory-Section', 'ietf_directory')
     pyang_exec = config.get('Tool-Section', 'pyang_exec')
     confdc_exec = config.get('Tool-Section', 'confdc_exec')
-    confdc_path = config.get('Tool-Section', 'confdc_path')
+    confdc_yangpath = config.get('Tool-Section', 'confdc_yangpath')
 
     parser = argparse.ArgumentParser(description='Yang RFC/Draft Processor')
     parser.add_argument("--draftpath", default= ietf_directory + "/my-id-mirror/",
@@ -570,10 +570,15 @@ if __name__ == "__main__":
     print(str(datetime.datetime.now().time()) + ': all RFC processed')
 
     for draft_file in ietf_drafts:
-        # Extract the correctly formatted YANG Models in args.yangpath
+        # Extract the correctly formatted YANG Models into args.yangpath
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.yangpath, strict=True, strict_examples=False, debug_level=args.debug, add_line_refs=False, force_revision_pyang=False, force_revision_regexp=True)
        
         if yang_models_in_draft:
+            # Basic sanity check
+            if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
+                continue
+            if any('.yang' == filename for filename in yang_models_in_draft):
+                continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")
                 print("DEBUG: " + yang_models_in_draft)
@@ -610,6 +615,11 @@ if __name__ == "__main__":
     # Extract the correctly formatted example YANG Models in args.allyangexamplepath
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.allyangexamplepath, strict=True, strict_examples=True, debug_level=args.debug)
         if yang_models_in_draft:
+            # Basic sanity check
+            if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
+                continue
+            if any('.yang' == filename for filename in yang_models_in_draft):
+                continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")
                 print("DEBUG: " + yang_models_in_draft)
@@ -625,6 +635,11 @@ if __name__ == "__main__":
         # Extract  all YANG Models, included the wrongly formatted ones, in args.allyangpath
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.allyangpath, strict=False, strict_examples=False, debug_level=args.debug)
         if yang_models_in_draft:
+            # Basic sanity check
+            if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
+                continue
+            if any('.yang' == filename for filename in yang_models_in_draft):
+                continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")
                 print("DEBUG: " + yang_models_in_draft)
@@ -662,7 +677,6 @@ if __name__ == "__main__":
     for yang_file in yang_draft_dict:
         draft_name, email, compilation = "", "", ""
         result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = "", "", "", "", "" 
-        # print("PYANG compilation of " + yang_file)
         ietf_flag = True
         result_pyang = run_pyang(yang_file, ietf_flag, args.yangpath, debug_level)
         ietf_flag = False

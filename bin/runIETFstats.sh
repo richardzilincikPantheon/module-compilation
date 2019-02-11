@@ -25,9 +25,11 @@ mkdir -p $IETFDIR/rfc
 
 cd $IETFDIR
 
-date +"%c: Retrieving IETF drafts and RFCs" >> $LOG
+date +"%c: Retrieving current IETF drafts" >> $LOG
 rsync -avz --include 'draft-*.txt' --exclude '*' --delete rsync.ietf.org::internet-drafts my-id-mirror  >> $LOG 2>&1
+date +"%c: Retrieving archived IETF drafts" >> $LOG
 rsync -avz --include 'draft-*.txt' --exclude '*' --delete rsync.ietf.org::id-archive my-id-archive-mirror  >> $LOG 2>&1
+date +"%c: Retrieving IETF RFCs" >> $LOG
 rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt" --exclude="bcp-*.txt" --exclude="rfc-retrieval.txt" --exclude="rfc-index*.txt" --exclude="RFCs_for_errata.txt" --exclude="rfc-ref.txt" --exclude="rfcxx00.txt" --exclude="*index*" --include="*.txt"  --exclude="*" ftp.rfc-editor.org::rfcs rfc  >> $LOG 2>&1
 
 
