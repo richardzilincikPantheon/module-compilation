@@ -21,6 +21,7 @@ __email__ = "bclaise@cisco.com, evyncke@cisco.com"
 from xym import xym
 from remove_directory_content import remove_directory_content
 from extract_emails import extract_email_string
+from extract_elem import extract_elem
 import argparse
 import configparser
 import os
@@ -545,25 +546,13 @@ if __name__ == "__main__":
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from RFC:")
                 print("DEBUG: " + str(yang_models_in_rfc))
-                print
             # typedef, grouping, and identity extraction from RFCs
             for y in yang_models_in_rfc:
                 if not y.startswith("example-"):
-                    print("Extraction for " + y)
-                    bash_command = "extractor.py --srcdir " + args.rfcyangpath + " --dstdir " + args.rfcextractionyangpath + " --type typedef " + y
-                    temp_result = os.popen(bash_command).read()
-                    if debug_level > 0:
-                        print("DEBUG: " + " extracting the typdefs containing a RFC YANG model:  error " + temp_result)
-                    
-                    bash_command = "extractor.py --srcdir " + args.rfcyangpath + " --dstdir " + args.rfcextractionyangpath + " --type grouping " + y
-                    temp_result = os.popen(bash_command).read()
-                    if debug_level > 0:
-                        print("DEBUG: " + " extracting the grouping containing a RFC YANG model:  error " + temp_result)
-                    
-                    bash_command = "extractor.py --srcdir " + args.rfcyangpath + " --dstdir " + args.rfcextractionyangpath + " --type identity " + y
-                    temp_result = os.popen(bash_command).read()
-                    if debug_level > 0:
-                        print("DEBUG: " + " extracting the grouping containing a RFC YANG model:  error " + temp_result)
+                    print("Identifier definition extraction for " + y)
+                    extract_elem(args.rfcyangpath + '/' + y, args.rfcextractionyangpath, 'typedef')
+                    extract_elem(args.rfcyangpath + '/' + y, args.rfcextractionyangpath, 'grouping')
+                    extract_elem(args.rfcyangpath + '/' + y, args.rfcextractionyangpath, 'identity')
                     #if not y.startswith("iana-"):
 					    # this is where I add the check
             rfc_yang_dict[rfc_file] = yang_models_in_rfc
@@ -575,36 +564,26 @@ if __name__ == "__main__":
        
         if yang_models_in_draft:
             # Basic sanity check
+            if any(' ' in filename for filename in yang_models_in_draft):
+                print("File has invalid module name")
+                continue
             if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
-                print("File " + draft_file + " has invalid module name")
+                print("File has invalid module name")
                 continue
             if any('.yang' == filename for filename in yang_models_in_draft):
-                print("File " + draft_file + " has invalid module name")
+                print("File has invalid module name")
                 continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")
                 print("DEBUG: " + yang_models_in_draft)
-                print
 
-#            yang_models_in_draft_with_revision = []
             for y in yang_models_in_draft: 
                 # typedef, grouping, and identity extraction from drafts            
                 if not y.startswith("example-"):
-                    print("extraction for " + y)
-                    bash_command = "extractor.py --srcdir " + args.yangpath + " --dstdir " + args.draftextractionyangpath + " --type typedef " + y
-                    temp_result = os.popen(bash_command).read()
-                    if debug_level > 0:
-                        print("DEBUG: " + " extracting the typdefs containing a draft YANG model:  error " + temp_result)
-                    
-                    bash_command = "extractor.py --srcdir " + args.yangpath + " --dstdir " + args.draftextractionyangpath + " --type grouping " + y
-                    temp_result = os.popen(bash_command).read()
-                    if debug_level > 0:
-                        print("DEBUG: " + " extracting the grouping containing a draft YANG model:  error " + temp_result)
-                    
-                    bash_command = "extractor.py --srcdir " + args.yangpath + " --dstdir " + args.draftextractionyangpath + " --type identity " + y
-                    temp_result = os.popen(bash_command).read()
-                    if debug_level > 0:
-                       print("DEBUG: " + " extracting the grouping containing a draft YANG model:  error " + temp_result)        
+                    print("Identifier definition extraction for " + y)
+                    extract_elem(args.yangpath + '/' + y, args.draftextractionyangpath, 'typedef')
+                    extract_elem(args.yangpath + '/' + y, args.draftextractionyangpath, 'grouping')
+                    extract_elem(args.yangpath + '/' + y, args.draftextractionyangpath, 'identity')
                        
             draft_yang_dict[draft_file] = yang_models_in_draft   
             
@@ -618,14 +597,19 @@ if __name__ == "__main__":
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.allyangexamplepath, strict=True, strict_examples=True, debug_level=args.debug)
         if yang_models_in_draft:
             # Basic sanity check
+            if any(' ' in filename for filename in yang_models_in_draft):
+                print("File has invalid module name")
+                continue
             if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
+                print("File has invalid module name")
                 continue
             if any('.yang' == filename for filename in yang_models_in_draft):
+                print("File has invalid module name")
                 continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")
                 print("DEBUG: " + yang_models_in_draft)
-                print  
+
             draft_yang_example_dict[draft_file] = yang_models_in_draft
             
             # copy the draft in a specific directory for strict = True
