@@ -576,8 +576,10 @@ if __name__ == "__main__":
         if yang_models_in_draft:
             # Basic sanity check
             if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
+                print("File " + draft_file + " has invalid module name")
                 continue
             if any('.yang' == filename for filename in yang_models_in_draft):
+                print("File " + draft_file + " has invalid module name")
                 continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")
