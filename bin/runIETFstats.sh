@@ -107,9 +107,9 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 # Extract all YANG models from RFC and I-D
 # TODO only process new I-D/RFC
 date +"%c: Starting to extract all YANG modules from IETF documents" >> $LOG
-# Using --draftpath /var/yang/ietf/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
+# Using --draftpath $IETFDIR/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
 # YANG-IETF.py >> $LOG 2>&1
-YANG-IETF.py --draftpath /var/yang/ietf/my-id-archive-mirror/ >> $LOG 2>&1
+YANG-IETF.py --draftpath $IETFDIR/my-id-archive-mirror/ >> $LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 
 #clean up of the .fxs files created by confdc
