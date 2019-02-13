@@ -5,13 +5,28 @@ This part of YangCatalog.org server fetches all YANG modules from different repo
 
 Once all those modules are retrieved they are validated by several tools.
 
-Most of the code is in the `bin/` directory and uses bash and Python3 scripts.
+Most of the code is in the `bin/` directory and uses `bash` and Python3 scripts.
 
 Some configuration files are in the `conf/` directory including `paths.sh` which defines all paths used by the scripts. This script merely reads the global configuration file `/etc/yangcatalog/yangcatalog.conf` and creates the required environement variables required by the shell scripts.
 
-The file `/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt` contains a list of IETF drafts having a `xym`extraction error but containing no actual YANG modules. Those I-D are removed from the local I-D reporsitory.
+The file `/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt` contains a list of IETF drafts having a `xym`extraction error but containing no actual YANG modules. Those I-D are removed from the local I-D repository.
 
 *Some pre-requisistes are defined int he README.md in bin directory*
+
+Overall data flow
+-----------------
+
+There are daily and weekly cronjob as described in the `crontab` file:
+- `cronjob-daily`: fetch all files (IETF and YangModels repo), but, validates only IETF drafts/RFC and SDO (IEEE, BBF, OpenConfig, ...) YANG models;
+- `cronjob-weekly`: fetch all files (IETF and YangModels repo), but, validates only network vendors (Cisco, Juniper, Huawei, ...) YANG models.
+
+After validation by several validators/compilers, the result is presented in several HTML pages (one per set of models: specific vendor OS version, or set of IETF drafts, ...) but also in several .JSON files which are then used by another cronjob of the backend part to populate the YangCatalog main database (that is ConfD database). 
+
+Data source
+-----------
+
+The YANG models are either from `https://github.com/YangModels/yang` repository or from the IETF RFC, current IETF drafts and expired IETF drafts (the package `xym` is then used to extract YANG models from the text of RFC & drafts). In the case of IETF, the extracted YANG models are stored in different places (see below) based on their source (RFC vs. draft), ...
+
 
 Directory structure
 -------------------
