@@ -28,18 +28,40 @@ def extract_elem(module_fname, extract_dir, elem_type):
         for line in ym:
             if not found_keyword: # Still looking for keyword
                 comment_start = line.find('//')
-                if in_comment:
-                    in_comment = (line.find('*/') < 0)
+                if comment_start >= 0:
+                    line = line[:comment_start]    # Get rid of the one-line comment
+                comment_start = line.find('/*')
+                comment_end = line.find('*/')
+                if comment_start >=0 and comment_start < comment_end: # Another one-line comment
+#                    print("Before cut off line:", comment_start, comment_end, line)
+                    line = line[:comment_start] + line[comment_end+2:]
+#                    print("After cut off line:", comment_start, comment_end, line)
                 else:
-                    in_comment = (line.find('/*') >= 0)
-                keyword_start = line.find(elem_type)
-                # Check whether the keyword is outside of comments and not too early on the line (it could appear in description...)
-                if keyword_start > 0 and keyword_start < 5 and (keyword_start < comment_start or comment_start < 0) and not in_comment:
+                    if comment_start >=0:
+                        in_comment = True
+#                        print("Before cut off line:", comment_start, comment_end, line)
+                        line = line[:comment_start]
+#                        print("After cut off line:", comment_start, comment_end, line)
+                    else:
+                        if comment_end >=0:
+                            in_comment = False
+#                            print("Before cut off line:", comment_start, comment_end, line)
+                            line = line[comment_end+2:]
+#                            print("After cut off line:", comment_start, comment_end, line)
+                # If we are in a multiple-line comment, let's skip this line
+                if in_comment:
+                    continue
+                # Search after the keyword which MUST be the first word in the line (no " for example before)
+                #keyword_start = line.lstrip().find(elem_type)
+                match = re.match('^\s*' + elem_type + '\s+([-_\.\w]+)' + '\s*{', line)
+                if match:
                     found_keyword = True
+                    identifier = match.group(1)
+                    # Let's open the output file if not yet done
+                    if file_out == None:
+                        file_out = open(extract_dir + '/' + elem_type + '-' + identifier + '.txt', 'w')
+#                        print("Creating file: " + extract_dir + '/' + elem_type + '-' + identifier + '.txt')
             if found_keyword: # Processing the keyword
-                if file_out == None:
-                    file_out = open(extract_dir + '/' + elem_type + '-' + get_identifier(elem_type, line) + '.txt', 'w')
-#                    print("Creating file: " + extract_dir + '/' + elem_type + '-' + get_identifier(elem_type, line) + '.txt')
                 file_out.write(line)
                 if line.find('{') >= 0:
                     open_bracket_count = open_bracket_count + 1
@@ -47,18 +69,29 @@ def extract_elem(module_fname, extract_dir, elem_type):
                     open_bracket_count = open_bracket_count - 1
                 # Are we out of the outermost brackets?
                 if open_bracket_count == 0:
-#                    file_out.write("\n")
                     file_out.close()
-                    file_out = None
+                    in_comment = False
                     found_keyword = False
+                    file_out = None
 
 def get_identifier(elem_type, line):
-    match = re.match('\s*' + elem_type + '\s+([-_\w]+)' + '\s*{', line)
+    match = re.match('\s*' + elem_type + '\s+([-_\.\w]+)' + '\s*{', line)
     if match:
         return match.group(1)
     else:
-        print("*** Did not find '" + elem_type + "' in line: ' " + line + "'.")
+        print("*** Did not find '" + elem_type + "' in line: '" + line + "'.")
         return None
 
 if __name__ == "__main__":
-	extract_elem('/var/www/html/YANG-modules/ietf-nat@2018-09-27.yang', '/tmp/extract', 'typedef')
+    file = '/var/www/html/YANG-modules/ietf-gen-rpc.yang'
+    extract_elem(file, '/tmp/extract', 'grouping')
+    extract_elem(file, '/tmp/extract', 'typedef')
+    extract_elem(file, '/tmp/extract', 'identity')
+    file = '/var/yang/all_modules/ietf-yang-types@2010-09-24.yang'
+    extract_elem(file, '/tmp/extract', 'grouping')
+    extract_elem(file, '/tmp/extract', 'typedef')
+    extract_elem(file, '/tmp/extract', 'identity')
+    file = '/var/yang/all_modules/ietf-netconf-notifications@2012-02-06.yang'
+    extract_elem(file, '/tmp/extract', 'grouping')
+    extract_elem(file, '/tmp/extract', 'typedef')
+    extract_elem(file, '/tmp/extract', 'identity')

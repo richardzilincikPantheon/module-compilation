@@ -15,22 +15,27 @@ cd $BIN
 source activate
 source configure.sh
 #
+date +"%c:  Starting download from GitHub YangModels"
 rundownloadgithub.sh
+
+date +"%c:  Starting runYANGgenericstats-weekly.sh"
 runYANGgenericstats-weekly.sh
 
-echo Starting runIETFstats.sh
+date +"%c:  Starting runIETFstats.sh"
 runIETFstats.sh
 
-echo Starting rename-file-backup.py
+date +"%c:  Starting rename-file-backup.py"
 mkdir -p $BACKUPDIR
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
 
-echo Starting runGenerateMainPage.sh
+date +"%c:  Starting runGenerateMainPage.sh"
 runGenerateMainPage.sh
 
-echo Starting runGenerateFiguresAndStats.sh
+date +"%c:  Starting runGenerateFiguresAndStats.sh"
 runGenerateFiguresAndStats.sh
 
 # This simple files for other Yang Catalog to know which files have been created
 cd $WEB_PRIVATE
 ls *.json > json_links
+
+date +"%c: End of $0"

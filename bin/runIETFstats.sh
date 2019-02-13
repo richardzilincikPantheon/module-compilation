@@ -108,19 +108,19 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 # TODO only process new I-D/RFC
 date +"%c: Starting to extract all YANG modules from IETF documents" >> $LOG
 # Using --draftpath $IETFDIR/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
-#YANG-IETF.py >> $LOG 2>&1
-YANG-IETF.py --draftpath $IETFDIR/my-id-archive-mirror/ >> $LOG 2>&1
+time YANG-IETF.py >> $LOG 2>&1
+#time YANG-IETF.py --draftpath $IETFDIR/my-id-archive-mirror/ >> $LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 
 #clean up of the .fxs files created by confdc
-rm -f $IETFDIR/YANG/*.fxs
-rm -f $IETFDIR/YANG-rfc/*.fxs
+rm -f $IETFDIR/YANG/*.fxs >> $LOG 2>&1
+rm -f $IETFDIR/YANG-rfc/*.fxs >> $LOG 2>&1
 
 # move all IETF YANG modules to the web part
 # TODO better using a symbolic link ?
-mkdir -p $WEB/YANG-modules
-rm -f $WEB/YANG-modules/*
-cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules
+mkdir -p $WEB/YANG-modules >> $LOG 2>&1
+rm -f $WEB/YANG-modules/* >> $LOG 2>&1
+cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules >> $LOG 2>&1
 date +"%c: IETF YANG modules copied to $WEB/YANG-modules" >> $LOG
 
 # Generate the report for RFC-ed YANG modules, and ftp the files.
@@ -135,18 +135,18 @@ date +"%c: Diff files generated" >> $LOG
 
 # create the tar files
 cd $IETFDIR/YANG-rfc
-tar cfz $WEB_DOWNLOADABLES/YANG-RFC.tgz *yang
+tar cfz $WEB_DOWNLOADABLES/YANG-RFC.tgz *yang >> $LOG 2>&1
 cd $IETFDIR/YANG
-tar cfz $WEB_DOWNLOADABLES/YANG.tgz *yang
+tar cfz $WEB_DOWNLOADABLES/YANG.tgz *yang >> $LOG 2>&1
 cd $IETFDIR/YANG-all
-tar cfz $WEB_DOWNLOADABLES/All-YANG-drafts.tgz *yang
+tar cfz $WEB_DOWNLOADABLES/All-YANG-drafts.tgz *yang >> $LOG 2>&1
 date +"%c: YANG v1.0 tarball files generated" >> $LOG
 
 # copy the YANG 1.1 data models in $IETF_DIR/YANG-v11
 YANGversion11.py >> $LOG 2>&1
 
 cd $IETFDIR/YANG-v11
-tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang
+tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang >> $LOG 2>&1
 date +"%c: YANG v1.1 tarball files generated" >> $LOG
 
 date +"%c: End of the script!" >> $LOG

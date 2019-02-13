@@ -441,12 +441,11 @@ def read_dictionary_file_in_json(path, file_name):
 def get_mod_rev(module):
     mname = ''
     mrev = ''
-    #bt = ''
 
     with open(module, 'r', encoding='latin-1', errors='ignore') as ym:
         for line in ym:
-            if mname != '' and mrev != '':# and bt != '':
-                return mname + '@' + mrev# + ' (belongs-to {})'.format(bt)
+            if mname != '' and mrev != '':
+                return mname + '@' + mrev
 
             if mname == '':
                 m = re.search(r'^\s*(sub)?module\s+([\w\-\d]+)', line)
@@ -460,14 +459,6 @@ def get_mod_rev(module):
                     mrev = m.group(1)
                     continue
 
-            #if bt == '':
-            #    m = re.search(r'^\s*belongs-to\s+([\w\-\d]+)', line)
-            #    if m:
-            #        bt = m.group(1)
-            #        continue
-
-    #if bt != '':
-    #    return mname + '@' + mrev + ' (belongs-to {})'.format(bt)
     if mrev == '':
         return mname
     else: 
@@ -545,13 +536,13 @@ if __name__ == "__main__":
                                                      "Default is NULL")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
     args = parser.parse_args()
-    print(str(datetime.datetime.now().time()) + ': start of job.')
+    print(str(datetime.datetime.now().time()) + ': start of job.', flush = True)
 
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
         print("yang_list content: ")
         print(yang_list)
-    print(str(datetime.datetime.now().time()) + ': relevant files list built, ' + str(len(yang_list)) + ' modules found.')
+    print(str(datetime.datetime.now().time()) + ': relevant files list built, ' + str(len(yang_list)) + ' modules found.', flush = True)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
@@ -585,10 +576,10 @@ if __name__ == "__main__":
             if out.rstrip():
                 new_yang_file_without_path_with_revision = out.rstrip() + ".yang"
                 if new_yang_file_without_path_with_revision.split('@')[0] != yang_file_without_path.split('@')[0]:
-                    print('Name of the yang file ' + yang_file_without_path + ' is wrong changing to correct one')
+                    print('Name of the yang file ' + yang_file_without_path + ' is wrong changing to correct one', flush = True)
                     yang_file_without_path = new_yang_file_without_path_with_revision
                 if new_yang_file_without_path_with_revision.split('@')[1].split('.')[0] != yang_file_without_path.split('@')[1].split('.'):
-                    print('revision of the yang file ' + yang_file_without_path + ' is wrong changing to correct one')
+                    print('Revision of the yang file ' + yang_file_without_path + ' is wrong changing to correct one', flush = True)
                     yang_file_without_path = new_yang_file_without_path_with_revision
 
                 dictionary[yang_file_without_path] = (compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
@@ -596,7 +587,7 @@ if __name__ == "__main__":
                     dictionary_no_submodules[yang_file_without_path] = (
                     compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
             else:
-                print("Unable to get name@revision out of " + yang_file + ' no output')
+                print("Unable to get name@revision out of " + yang_file + ' no output', flush = True)
         else:
             out = get_mod_rev(yang_file)
             if out.rstrip():
@@ -609,13 +600,13 @@ if __name__ == "__main__":
                     dictionary_no_submodules[new_yang_file_without_path_with_revision] = (
                         compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
             else:
-                print("Unable to get name@revision out of " + yang_file + ' no output')
+                print("Unable to get name@revision out of " + yang_file + ' no output', flush = True)
 
-    print(str(datetime.datetime.now().time()) + ': all modules compiled/validated')
+    print(str(datetime.datetime.now().time()) + ': all modules compiled/validated', flush = True)
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary, args.htmlpath, args.prefix + ".json")
-    print(str(datetime.datetime.now().time()) + ': ' + args.prefix + '.json file generated')
+    print(str(datetime.datetime.now().time()) + ': ' + args.prefix + '.json file generated', flush = True)
 
     # YANG modules from drafts: : make a list out of the dictionary
     #my_list = []
@@ -626,9 +617,8 @@ if __name__ == "__main__":
     my_new_list = list_br_html_addition(my_list)
 
     # YANG modules from drafts: HTML page generation for yang models
-    print()
-    print(args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath)
-    print(args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath)
+    print(str(datetime.datetime.now().time()) + ": " + args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath, flush = True)
+    print(str(datetime.datetime.now().time()) + ": " + args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath, flush = True)
     # if want to populate the document location from github, must uncomment the following line
     # if want to populate the document location from github, must change all occurences from
     # number_of_yang_modules_that_passed_compilation(dictionary, 1, ...
@@ -659,4 +649,4 @@ if __name__ == "__main__":
     print("Number of YANG data models from " + args.prefix + " that passed compilation: " + str(passed_without_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(passed_with_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(total_number))
-    print(str(datetime.datetime.now().time()) + ': end of job')
+    print(str(datetime.datetime.now().time()) + ': end of job', flush = True)
