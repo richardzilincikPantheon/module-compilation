@@ -536,13 +536,13 @@ if __name__ == "__main__":
                                                      "Default is NULL")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
     args = parser.parse_args()
-    print(str(datetime.datetime.now().time()) + ': start of job.', flush = True)
+    print(str(datetime.datetime.now().time()) + '(' + str(os.getpid()) + '): Start of job in ' + args.rootdir, flush = True)
 
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
         print("yang_list content: ")
         print(yang_list)
-    print(str(datetime.datetime.now().time()) + ': relevant files list built, ' + str(len(yang_list)) + ' modules found.', flush = True)
+    print(str(datetime.datetime.now().time()) + '(' + str(os.getpid()) + '): relevant files list built, ' + str(len(yang_list)) + ' modules found in ' + args.rootdir, flush = True)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
@@ -576,10 +576,10 @@ if __name__ == "__main__":
             if out.rstrip():
                 new_yang_file_without_path_with_revision = out.rstrip() + ".yang"
                 if new_yang_file_without_path_with_revision.split('@')[0] != yang_file_without_path.split('@')[0]:
-                    print('Name of the yang file ' + yang_file_without_path + ' is wrong changing to correct one', flush = True)
+                    print('Name of the YANG file ' + yang_file_without_path + ' is wrong changing to correct one into ' + new_yang_file_without_path_with_revision, flush = True)
                     yang_file_without_path = new_yang_file_without_path_with_revision
                 if new_yang_file_without_path_with_revision.split('@')[1].split('.')[0] != yang_file_without_path.split('@')[1].split('.'):
-                    print('Revision of the yang file ' + yang_file_without_path + ' is wrong changing to correct one', flush = True)
+                    print('Revision of the YANG file ' + yang_file_without_path + ' is wrong changing to correct as ' + new_yang_file_without_path_with_revision, flush = True)
                     yang_file_without_path = new_yang_file_without_path_with_revision
 
                 dictionary[yang_file_without_path] = (compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
@@ -649,4 +649,4 @@ if __name__ == "__main__":
     print("Number of YANG data models from " + args.prefix + " that passed compilation: " + str(passed_without_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(passed_with_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(total_number))
-    print(str(datetime.datetime.now().time()) + ': end of job', flush = True)
+    print(str(datetime.datetime.now().time()) + '(' + str(os.getpid()) + '): end of job', flush = True)

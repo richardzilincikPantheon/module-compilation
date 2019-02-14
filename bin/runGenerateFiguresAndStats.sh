@@ -15,8 +15,8 @@ function on_exit {
 	local reason=$?
 	# Matplot seems to create temporary directories
 	rm -rf $TMP/matplot*
-	date +"%c abort of the script" >> $LOG
-	date +"%c abort of $0"
+	date +"%c: Abort of the script" >> $LOG
+	date +"%c: Abort of $0"
 	exit $reason
 }
 
@@ -24,10 +24,10 @@ trap on_exit EXIT ERR
 	
 source configure.sh
 
-date +"%c start of $0"
+date +"%c: Start of $0"
 
 export LOG=$LOGS/GenerateFiguresAndStats.log
-date +"%c starting" > $LOG
+date +"%c: Starting" > $LOG
 
 # Generate the statistics since the beginning and ftp the files
 # the YANG-get-stats.py (without arguements) generates the full stats in json in $WEB_PRIVATE/stats/ :
@@ -35,13 +35,13 @@ date +"%c starting" > $LOG
 # the YANG-get-stats.py --days 5 doesn't generate the json file.
 mkdir -p $WEB_PRIVATE/stats
 
-echo "Generating the JSON files in $WEB_PRIVATE/stats" >> $LOG
+date +"%c: Generating the JSON files in $WEB_PRIVATE/stats" >> $LOG
 YANG-get-stats.py >> $LOG  2>&1
 
-echo "Generating the JSON files with --days 5" >> $LOG
+date +"%c: Generating the JSON files with --days 5" >> $LOG
 YANG-get-stats.py --days 5 >> $LOG 2>&1
 
-echo "Generating the pictures" >> $LOG
+date +"%c: Generating the pictures" >> $LOG
 mkdir -p $WEB_PRIVATE/figures
 YANG-figures.py >> $LOG 2>&1
 
@@ -58,5 +58,5 @@ symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-gr
 
 
 trap - EXIT ERR
-date +"%c end of the script" >> $LOG
-date +"%c End of $0"
+date +"%c: End of the script" >> $LOG
+date +"%c: End of $0"
