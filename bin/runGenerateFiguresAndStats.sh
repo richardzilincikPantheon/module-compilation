@@ -22,18 +22,16 @@ function on_exit {
 
 trap on_exit EXIT ERR
 	
-source configure.sh
-
 date +"%c: Start of $0"
-
 export LOG=$LOGS/GenerateFiguresAndStats.log
 date +"%c: Starting" > $LOG
 
+source configure.sh >> $LOG 2>&1
 # Generate the statistics since the beginning and ftp the files
 # the YANG-get-stats.py (without arguements) generates the full stats in json in $WEB_PRIVATE/stats/ :
 # this is necessary so that the figures are up to date with today stats, and YANG-figures can pick those latest stats up
 # the YANG-get-stats.py --days 5 doesn't generate the json file.
-mkdir -p $WEB_PRIVATE/stats
+mkdir -p $WEB_PRIVATE/stats >> $LOG 2>&1
 
 date +"%c: Generating the JSON files in $WEB_PRIVATE/stats" >> $LOG
 YANG-get-stats.py >> $LOG  2>&1
@@ -42,11 +40,11 @@ date +"%c: Generating the JSON files with --days 5" >> $LOG
 YANG-get-stats.py --days 5 >> $LOG 2>&1
 
 date +"%c: Generating the pictures" >> $LOG
-mkdir -p $WEB_PRIVATE/figures
+mkdir -p $WEB_PRIVATE/figures >> $LOG 2>&1
 YANG-figures.py >> $LOG 2>&1
 
-# part 1: Generate the dependency figures
-cd $WEB_PRIVATE/figures
+date +"%c: Generating the dependency pictures" >> $LOG
+cd $WEB_PRIVATE/figures >> $LOG
 symd.py --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
 mv modules.png modules-ietf.png
 symd.py --recurse --draft $MODULES --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1

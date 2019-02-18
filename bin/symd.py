@@ -10,6 +10,7 @@ from __future__ import print_function  # Must be at the beginning of the file
 import matplotlib as mpl
 mpl.use('Agg') # To prevent using a X-Windows server
 import matplotlib.pyplot as plt
+import math
 import networkx as nx
 import argparse
 import glob
@@ -388,7 +389,8 @@ def init(rfc_repos, draft_repos, recurse=False):
     print('\nInitialization finished.\n')
 
 
-def plot_module_dependency_graph(graph, node):
+def plot_module_dependency_graph(graph):
+#def plot_module_dependency_graph(graph, node):
     """
     Plot a graph of specified yang modules. this function is used to plot
     both the full dependency graph of all yang modules in the DB, or a
@@ -396,11 +398,11 @@ def plot_module_dependency_graph(graph, node):
     :param graph: Graph to be plotted
     :return: None
     """
-    fixed_positions = {node: [0.5, 0.5] }
-    print(fixed_positions)
-    import math
+#    fixed_positions = {node: [0.5, 0.5] }
+#    print(fixed_positions)
     k = 1 / math.sqrt(len(graph))
-    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-5, fixed=fixed_positions, k=k, center=[0.5, 0.5])
+    pos = nx.spring_layout(graph, iterations=2000, k=k, center=[0.5, 0.5])
+#EVY    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-5, fixed=fixed_positions, k=k, center=[0.5, 0.5])
 #    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-6)
     print(pos)
     # Draw RFC nodes (yang modules) in red
@@ -489,7 +491,9 @@ if __name__ == "__main__":
         plot_num += 1
         print("Plotting graph for module '%s'..." % node)
         try:
-            plot_module_dependency_graph(get_subgraph_for_node(node), node)
+            # EVY: do we need this extract argument ???
+#            plot_module_dependency_graph(get_subgraph_for_node(node), node)
+            plot_module_dependency_graph(get_subgraph_for_node(node))
             plt.savefig("%s.png" % node)
             print('    Done.')
         except nx.exception.NetworkXError as e:

@@ -450,13 +450,13 @@ def get_mod_rev(module):
             if mname == '':
                 m = re.search(r'^\s*(sub)?module\s+([\w\-\d]+)', line)
                 if m:
-                    mname = m.group(2)
+                    mname = m.group(2).strip()
                     continue
 
             if mrev == '':
                 m = re.search(r'^\s*revision\s+"?([\d\-]+)"?', line)
                 if m:
-                    mrev = m.group(1)
+                    mrev = m.group(1).strip()
                     continue
 
     if mrev == '':

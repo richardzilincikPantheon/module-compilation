@@ -523,9 +523,7 @@ if __name__ == "__main__":
     remove_directory_content(args.draftextractionyangpath, debug_level)
 
     # must run the rsync-clean-up.py script 
-#    ietf_drafts = [f for f in os.listdir(args.draftpath) if os.path.isfile(os.path.join(args.draftpath, f))]
     ietf_drafts = []
-    ietf_drafts.sort()
     for fname in os.listdir(args.draftpath):
         ffname = os.path.join(args.draftpath, fname)
         if os.path.isfile(ffname):
@@ -534,6 +532,7 @@ if __name__ == "__main__":
                     if '<CODE BEGINS>' in line:
                         ietf_drafts.append(fname)
                         break
+    ietf_drafts.sort()
 #    ietf_drafts = []
     ietf_rfcs = [f for f in os.listdir(args.rfcpath) if os.path.isfile(os.path.join(args.rfcpath, f))]
     ietf_rfcs.sort()
@@ -552,13 +551,16 @@ if __name__ == "__main__":
         if yang_models_in_rfc:
             # Basic sanity check
             if any(' ' in filename for filename in yang_models_in_rfc):
-                print("File has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
+                print("File " + rfc_file + " has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
+                ietf_rfcs.remove(rfc_file)
                 continue
             if any('YYYY-MM-DD' in filename for filename in yang_models_in_rfc):
-                print("File has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
+                print("File " + rfc_file + " has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
+                ietf_rfcs.remove(rfc_file)
                 continue
             if any('.yang' == filename for filename in yang_models_in_rfc):
-                print("File has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
+                print("File " + rfc_file + " has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
+                ietf_rfcs.remove(rfc_file)
                 continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from RFC:")
@@ -582,13 +584,16 @@ if __name__ == "__main__":
         if yang_models_in_draft:
             # Basic sanity check
             if any(' ' in filename for filename in yang_models_in_draft):
-                print("File has invalid module name")
+                print("File " + draft_file + " has invalid module name")
+                ietf_drafts.remove(draft_file)
                 continue
             if any('YYYY-MM-DD' in filename for filename in yang_models_in_draft):
-                print("File has invalid module name")
+                print("File " + draft_file + " has invalid module name")
+                ietf_drafts.remove(draft_file)
                 continue
             if any('.yang' == filename for filename in yang_models_in_draft):
-                print("File has invalid module name")
+                print("File " + draft_file + " has invalid module name")
+                ietf_drafts.remove(draft_file)
                 continue
             if debug_level > 0:
                 print("DEBUG: in main: extracted YANG models from draft:")

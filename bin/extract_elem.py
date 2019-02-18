@@ -75,7 +75,7 @@ def extract_elem(module_fname, extract_dir, elem_type):
                     file_out = None
 
 def get_identifier(elem_type, line):
-    match = re.match('\s*' + elem_type + '\s+([-_\.\w]+)' + '\s*{', line)
+    match = re.match('\s*' + elem_type + '\s+([-_\.\w\d]+)' + '\s*{', line)
     if match:
         return match.group(1)
     else:
