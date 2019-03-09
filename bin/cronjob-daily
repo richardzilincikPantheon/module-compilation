@@ -17,16 +17,16 @@ source activate
 source configure.sh
 date +"%c: Downloading from GitHub YangModels"
 rundownloadgithub.sh
-date +"%c:  Starting runYANGGenereicstats-daily.sh"
+date +"%c: Starting runYANGGenericstats-daily.sh"
 runYANGgenericstats-daily.sh
-date +"%c:  Starting runIETFstats.sh"
+date +"%c: Starting runIETFstats.sh"
 runIETFstats.sh
-date +"%c:  Starting rename-file-backup.py"
+date +"%c: Starting rename-file-backup.py"
 mkdir -p $BACKUPDIR
 rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
-date +"%c:  Starting runGenerateMainPage.sh"
+date +"%c: Starting runGenerateMainPage.sh"
 runGenerateMainPage.sh
-date +"%c:  Starting runGenerateFiguresAndStats.sh"
+date +"%c: Starting runGenerateFiguresAndStats.sh"
 runGenerateFiguresAndStats.sh
 
 # This simple files for other Yang Catalog to know which files have been created
