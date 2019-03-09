@@ -24,7 +24,7 @@ def extract_elem(module_fname, extract_dir, elem_type):
     in_comment = False
     found_keyword = False
     file_out = None
-    with open(module_fname, 'r', encoding='latin-1', errors='ignore') as ym:
+    with open(module_fname, 'r', encoding='utf-8', errors='ignore') as ym:
         for line in ym:
             if not found_keyword: # Still looking for keyword
                 comment_start = line.find('//')
@@ -59,7 +59,7 @@ def extract_elem(module_fname, extract_dir, elem_type):
                     identifier = match.group(1)
                     # Let's open the output file if not yet done
                     if file_out == None:
-                        file_out = open(extract_dir + '/' + elem_type + '-' + identifier + '.txt', 'w')
+                        file_out = open(extract_dir + '/' + elem_type + '-' + identifier + '.txt', 'w', encoding = 'utf-8')
 #                        print("Creating file: " + extract_dir + '/' + elem_type + '-' + identifier + '.txt')
             if found_keyword: # Processing the keyword
                 file_out.write(line)
