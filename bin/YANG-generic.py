@@ -236,7 +236,7 @@ def generate_html_table(l, h, htmlpath, file_name, txt=""):
     generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise: " + txt]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.table(l, header_row=h)
-    f = open(htmlpath + file_name, 'w')
+    f = open(htmlpath + file_name, 'w', encoding = 'utf-8')
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
@@ -253,7 +253,7 @@ def generate_html_list(l, htmlpath, file_name):
     generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise"]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.list(l)
-    f = open(htmlpath + file_name, 'w')
+    f = open(htmlpath + file_name, 'w', encoding = 'utf-8')
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
@@ -420,7 +420,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    f = open(path + file_name, 'w')
+    f = open(path + file_name, 'w', encoding = 'utf-8')
     f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
     f.close()
 
@@ -434,7 +434,7 @@ def read_dictionary_file_in_json(path, file_name):
     :param file_name: The file name to be created
     :return: dictionary
     """
-    json_data = open(path + file_name)
+    json_data = open(path + file_name, encoding = 'utf-8')
     return json.load(json_data)
 
 
@@ -442,7 +442,7 @@ def get_mod_rev(module):
     mname = ''
     mrev = ''
 
-    with open(module, 'r', encoding='latin-1', errors='ignore') as ym:
+    with open(module, 'r', encoding='utf-8', errors='ignore') as ym:
         for line in ym:
             if mname != '' and mrev != '':
                 return mname + '@' + mrev
@@ -466,7 +466,7 @@ def get_mod_rev(module):
 
 def module_or_submodule(input_file):
     if input_file:
-        file_input = open(input_file, "r", encoding='latin-1', errors='ignore')
+        file_input = open(input_file, "r", encoding='utf-8', errors='ignore')
         all_lines = file_input.readlines()
         file_input.close()
         commented_out = False

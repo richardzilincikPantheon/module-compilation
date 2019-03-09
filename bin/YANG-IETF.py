@@ -162,7 +162,7 @@ def generate_html_table(l, h, htmlpath, file_name):
     generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise"]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.table(l, header_row=h)
-    f = open(htmlpath + file_name, 'w')
+    f = open(htmlpath + file_name, 'w', encoding = 'utf-8')
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
@@ -180,7 +180,7 @@ def generate_html_list(l, htmlpath, file_name):
     generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise"]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.list(l)
-    f = open(htmlpath + file_name, 'w')
+    f = open(htmlpath + file_name, 'w', encoding = 'utf-8')
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
@@ -275,7 +275,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    f = open(path + file_name, 'w')
+    f = open(path + file_name, 'w', encoding = 'utf-8')
     f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
     f.close()
 
@@ -289,7 +289,7 @@ def read_dictionary_file_in_json(path, file_name):
     :param file_name: The file name to be created
     :return: dictionary
     """
-    json_data = open(path + file_name)
+    json_data = open(path + file_name, encoding = 'utf-8')
     return json.load(json_data)
     
 def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
@@ -417,7 +417,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
 
 def module_or_submodule(input_file):
     if input_file:
-        file_input = open(input_file, "r")
+        file_input = open(input_file, "r", encoding = 'utf-8')
         all_lines = file_input.readlines()
         file_input.close()
         commented_out = False
@@ -527,7 +527,7 @@ if __name__ == "__main__":
     for fname in os.listdir(args.draftpath):
         ffname = os.path.join(args.draftpath, fname)
         if os.path.isfile(ffname):
-            with open(ffname, 'r', encoding='latin-1', errors='ignore') as f:
+            with open(ffname, 'r', encoding='utf-8', errors='ignore') as f:
                 for line in f:
                     if '<CODE BEGINS>' in line:
                         ietf_drafts.append(fname)
