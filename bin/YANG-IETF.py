@@ -303,7 +303,8 @@ def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
     :return: none
     """ 
     # TODO should we add more files to this list ? Or use a configuration file ?
-    for y in ["ietf-foo@2010-01-18.yang", "hw.yang", "hardware-entities.yang", "udmcore.yang", "ct-ipfix-psamp-example@2011-03-15.yang", "example-ospf-topology.yang"]:
+    for y in ["ietf-foo@2010-01-18.yang", "hw.yang", "hardware-entities.yang", "udmcore.yang", "ct-ipfix-psamp-example@2011-03-15.yang",
+              "example-ospf-topology.yang", "ct-ipfix-psamp-example.yang"]:
         if not os.path.isfile(path + y):
             continue
         bash_command = "mv " + path + y + " " + path2 + y
