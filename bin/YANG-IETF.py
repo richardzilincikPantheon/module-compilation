@@ -320,17 +320,17 @@ def remove_invalid_files(dir):
     for full_fname in glob.glob(dir + '/' + '*.yang'):
         fname = os.path.basename(full_fname)
         if ' ' in fname:
-            os.remove(fname)
-            print("Invalid YANG module removed: " . full_fname)
+            os.remove(full_fname)
+            print("Invalid YANG module removed: " + full_fname)
         if '@YYYY-MM-DD' in fname:
-            os.remove(fname)
-            print("Invalid YANG module removed: " . full_fname)
+            os.remove(full_fname)
+            print("Invalid YANG module removed: " + full_fname)
         if fname.startswith('.yang'):
-            os.remove(fname)
-            print("Invalid YANG module removed: " . full_fname)
+            os.remove(full_fname)
+            print("Invalid YANG module removed: " + full_fname)
         if fname.startswith('@'):
-            os.remove(fname)
-            print("Invalid YANG module removed: " . full_fname)
+            os.remove(full_fname)
+            print("Invalid YANG module removed: " + full_fname)
 
 def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint):  
     """
