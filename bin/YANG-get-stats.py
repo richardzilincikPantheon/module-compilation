@@ -110,7 +110,7 @@ def list_of_ietf_draft_containing_keyword(drafts, keyword, draftpath, debug_leve
     list_of_ietf_draft_with_keyword = []
     for f in drafts:
         file_included = False
-        for line in open(draftpath + f, 'r'):
+        for line in open(draftpath + f, 'r', encoding = 'utf-8'):
             if keyword in line.lower():
                 file_included = True
                 if debug_level > 0:
@@ -133,7 +133,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    with open(path + file_name, 'w') as outfile:
+    with open(path + file_name, 'w', encoding = 'utf-8') as outfile:
         json.dump(in_dict, outfile, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii = True)
     
 def read_dictionary_file_in_json(path, file_name):
@@ -145,7 +145,7 @@ def read_dictionary_file_in_json(path, file_name):
     :param file_name: The file name to be created
     :return: dictionary
     """
-    json_data = open(path + file_name)
+    json_data = open(path + file_name, 'r', encoding = 'utf-8')
     return json.load(json_data)
     
 # ----------------------------------------------------------------------
