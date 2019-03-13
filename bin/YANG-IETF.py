@@ -33,6 +33,8 @@ from operator import itemgetter
 from subprocess import Popen, PIPE
 import shlex
 import datetime
+import shutil
+import glob
 
 # ----------------------------------------------------------------------
 # Functions
@@ -309,6 +311,26 @@ def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
         if debug_level > 0:
             print("DEBUG: " + " move_old_examples_YANG_modules_from_RFC: error " + temp_result)   
 
+def remove_invalid_files(dir):
+    """
+    Remove YANG modules in directory having invalid filenames. The root cause is XYM extracting YANG modules with non valid filename...
+    :param dir: the directory to analyze for invalid filenames.
+    :return none
+    """
+    for full_fname in glob.glob(dir + '/' + '*.yang'):
+        fname = os.path.basename(full_fname)
+        if ' ' in fname:
+            os.remove(fname)
+            print("Invalid YANG module removed: " . full_fname)
+        if '@YYYY-MM-DD' in fname:
+            os.remove(fname)
+            print("Invalid YANG module removed: " . full_fname)
+        if fname.startswith('.yang'):
+            os.remove(fname)
+            print("Invalid YANG module removed: " . full_fname)
+        if fname.startswith('@'):
+            os.remove(fname)
+            print("Invalid YANG module removed: " . full_fname)
 
 def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint):  
     """
@@ -549,7 +571,7 @@ if __name__ == "__main__":
         # Extract the correctly formatted YANG Models in args.rfcyangpath
         yang_models_in_rfc = xym.xym(rfc_file, args.rfcpath, args.rfcyangpath, strict=True, strict_examples=False, debug_level=args.debug, add_line_refs=False, force_revision_pyang=False, force_revision_regexp=True)
         if yang_models_in_rfc:
-            # Basic sanity check
+            # Basic sanity checks
             if any(' ' in filename for filename in yang_models_in_rfc):
                 print("File " + rfc_file + " has invalid module name" + '[%s]' % ', '.join(map(str, yang_models_in_rfc)))
                 ietf_rfcs.remove(rfc_file)
@@ -575,6 +597,7 @@ if __name__ == "__main__":
                     #if not y.startswith("iana-"):
 					    # this is where I add the check
             rfc_yang_dict[rfc_file] = yang_models_in_rfc
+    remove_invalid_files(args.rfcyangpath)
     print(str(datetime.datetime.now().time()) + ': all RFC processed', flush = True)
 
     for draft_file in ietf_drafts:
@@ -610,15 +633,12 @@ if __name__ == "__main__":
             draft_yang_dict[draft_file] = yang_models_in_draft   
             
             # copy the draft in a specific directory for strict = True
-            bash_command = "cp " + args.draftpath + draft_file + " " + args.allyangdraftpathstrict
-            temp_result = os.popen(bash_command).read()
-            if debug_level > 0 and temp_result:
-                print("DEBUG: " + " copy the IETF draft containing a YANG model:  error " + temp_result)
+            shutil.copy2(args.draftpath + draft_file, args.allyangdraftpathstrict)
 
     # Extract the correctly formatted example YANG Models in args.allyangexamplepath
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.allyangexamplepath, strict=True, strict_examples=True, debug_level=args.debug)
         if yang_models_in_draft:
-            # Basic sanity check
+            # Basic sanity checks
             if any(' ' in filename for filename in yang_models_in_draft):
                 print("File has invalid module name")
                 continue
@@ -635,15 +655,12 @@ if __name__ == "__main__":
             draft_yang_example_dict[draft_file] = yang_models_in_draft
             
             # copy the draft in a specific directory for strict = True
-            bash_command = "cp " + args.draftpath + draft_file + " " + args.allyangdraftpathonlyexample
-            temp_result = os.popen(bash_command).read()
-            if debug_level > 0:
-                print("DEBUG: " + " copy the IETF draft containing a YANG model:  error " + temp_result)
+            shutil.copy2(args.draftpath + draft_file,  args.allyangdraftpathonlyexample)
                 
         # Extract  all YANG Models, included the wrongly formatted ones, in args.allyangpath
         yang_models_in_draft = xym.xym(draft_file, args.draftpath, args.allyangpath, strict=False, strict_examples=False, debug_level=args.debug)
         if yang_models_in_draft:
-            # Basic sanity check
+            # Basic sanity checks
             if any(' ' in filename for filename in yang_models_in_draft):
                 print("File has invalid module name")
                 continue
@@ -658,12 +675,13 @@ if __name__ == "__main__":
             draft_yang_all_dict[draft_file] = yang_models_in_draft          
 
             # copy the draft in a specific directory for strict = False
-            bash_command = "cp " + args.draftpath + draft_file + " " + args.allyangdraftpathnostrict
-            temp_result = os.popen(bash_command).read()
-            if debug_level > 0:
-                print("DEBUG: " + " copy the IETF draft containing a YANG model:  error " + temp_result)
-            
+            shutil.copy2(args.draftpath + draft_file, args.allyangdraftpathnostrict)
+
+    remove_invalid_files(args.yangpath) 
+    remove_invalid_files(args.allyangexamplepath)
+    remove_invalid_files(args.allyangpath)
     print(str(datetime.datetime.now().time()) + ': all IETF drafts processed', flush = True)
+
     # invert the key, value in the dictionary. Should be key: yang model, value: draft-file
     yang_draft_dict = invert_yang_modules_dict(draft_yang_dict, debug_level)
     yang_example_draft_dict = invert_yang_modules_dict(draft_yang_example_dict, debug_level)
