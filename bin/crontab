@@ -9,4 +9,3 @@ SHELL=/bin/bash
 #
 5 0 * * 0 (cd ~/sdo_analysis/bin/ ; ./cronjob-weekly) > /var/yang/logs/cronjob-weekly.log
 5 0 * * 1-6 (cd ~/sdo_analysis/bin/ ; ./cronjob-daily) > /var/yang/logs/cronjob-daily.log
-25 6 * * * (cd ~/sdo_analysis/bin/ ;  DJANGO_SETTINGS_MODULE=yangsuite.settings.develop MEDIA_ROOT=/var/yang/yangsuite ./create_yangsuite_repo.py) > /var/yang/logs/create_yangsuite_repo.log 2>&1
