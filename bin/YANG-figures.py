@@ -139,7 +139,9 @@ for key in sorted(yangRFC_history):
     yangmoduletotal.append(int(yangRFC_history[key]['total']))
 figure, axes = plt.subplots()
 axes.plot(yangmoduledates, yangmoduletotal)
-axes.set_ylim(bottom=0, top=80, auto=False)  # Leave top unset to be dynamic for this one
+top_max = yangRFC_history[sorted(list(yangRFC_history.keys()))[-1]]
+top_max = int(top_max['total']) + 10
+axes.set_ylim(bottom=0, top=top_max, auto=False)
 axes.xaxis.set_major_formatter(daysFmt)
 axes.xaxis.set_minor_locator(months)
 axes.set_ylabel('# RFC YANG Modules')
