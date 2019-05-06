@@ -1,0 +1,11 @@
+MAILTO=evyncke@cisco.com,miroslav.kovac@pantheon.tech
+SHELL=/bin/bash
+#
+# For more information see the manual pages of crontab(5) and cron(8)
+#
+# m h  dom mon dow   command
+#
+#  SDO Analysis to fetch from IETF, YangModels, ...
+#
+5 1 * * 0 (cd ~/sdo_analysis/bin/ ; ./cronjob-weekly) > /var/yang/logs/cronjob-weekly.log
+5 1 * * 1-6 (cd ~/sdo_analysis/bin/ ; ./cronjob-daily) > /var/yang/logs/cronjob-daily.log
