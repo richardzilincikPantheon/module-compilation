@@ -9,7 +9,7 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
-export YANG=/home/yang
+export YANG=/.
 export YANGVAR=`get_config.py --section Directory-Section --key var`
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
