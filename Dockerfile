@@ -39,6 +39,8 @@ RUN pip3 install pyang
 RUN mkdir /opt/confd
 RUN /sdo_analysis/confd-${confd_version}.linux.x86_64.installer.bin /opt/confd
 
+RUN dpkg -i yumapro-client-18.10-9.u1804.amd64.deb
+
 RUN chmod 0777 bin/configure.sh
 
 # Add crontab file in the cron directory
