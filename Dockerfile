@@ -1,11 +1,13 @@
 FROM python:3
+ARG YANG_ID_GID
 
+ENV YANG_ID_GID "$YANG_ID_GID"
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 
 ENV VIRTUAL_ENV=/sdo_analysis
 
 RUN groupadd -r yang \
-  && useradd --no-log-init -r -g yang -u 1016 -d $VIRTUAL_ENV yang
+  && useradd --no-log-init -r -g yang -u ${YANG_ID_GID} -d $VIRTUAL_ENV yang
 
 #Install Cron
 RUN apt-get update
@@ -47,7 +49,7 @@ RUN chmod 0777 bin/configure.sh
 COPY crontab /etc/cron.d/ietf-cron
 
 RUN chown yang:yang /etc/cron.d/ietf-cron
-USER 1016:0
+USER ${YANG_ID_GID}:0
 
 # Apply cron job
 RUN crontab /etc/cron.d/ietf-cron
