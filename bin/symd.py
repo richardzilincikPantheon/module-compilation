@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 ##############################################################################
+# Copyright The IETF Trust 2019, All Rights Reserved
 # Copyright (c) 2015 Cisco Systems  All rights reserved.
 #
 # This program and the accompanying materials are made available under the
@@ -19,7 +20,7 @@ import os
 import re
 
 __author__ = "Jan Medved, Eric Vyncke"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
 __license__ = "Eclipse Public License v1.0"
 __email__ = "jmedved@cisco.com, evyncke@cisco.com"
 

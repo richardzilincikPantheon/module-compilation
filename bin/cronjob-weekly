@@ -1,4 +1,6 @@
 #!/bin/bash -e
+
+# Copyright The IETF Trust 2019, All Rights Reserved
 # Copyright (c) 2017 Cisco and/or its affiliates.
 # This software is licensed to you under the terms of the Apache License, Version 2.0 (the "License").
 # You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0

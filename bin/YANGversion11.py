@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-
+# Copyright The IETF Trust 2019, All Rights Reserved
 # Copyright 2015-2018, Cisco Systems
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,7 +22,7 @@ import configparser
 import os
 
 __author__ = 'Benoit Claise'
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
 __license__ = "Apache v2.0"
 __email__ = "bclaise@cisco.com"
 
