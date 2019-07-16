@@ -243,7 +243,7 @@ def generate_html_table(l, h, htmlpath, file_name, txt=""):
                 typically: SDO, github source, etc...
     :return: None
     """
-    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise: " + txt]
+    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by the YANG Catalog: " + txt]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.table(l, header_row=h)
     f = open(htmlpath + file_name, 'w', encoding = 'utf-8')
@@ -260,7 +260,7 @@ def generate_html_list(l, htmlpath, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by Beno&icirc;t Claise"]
+    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by the YANG Catalog"]
     htmlcode = HTML.list(generated)
     htmlcode1 = HTML.list(l)
     f = open(htmlpath + file_name, 'w', encoding = 'utf-8')
