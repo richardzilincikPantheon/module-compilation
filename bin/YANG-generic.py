@@ -113,6 +113,7 @@ def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=Tru
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
+
 def run_pyang_version(debug_level=0):
     """
     Return the pyang version.
@@ -123,6 +124,7 @@ def run_pyang_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
+
 
 def run_confd(p, model, allinclu, debug_level):
     """
@@ -142,10 +144,11 @@ def run_confd(p, model, allinclu, debug_level):
         bash_command = confdc_exec + " --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     else:
         # bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/802.3 --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/draft/802.1 --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-        bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + confdc_yangpath_ieee + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-        if debug_level:
-            print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
+        bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG-rfc/" + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + confdc_yangpath_ieee + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+    if debug_level:
+        print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
+
 
 def run_confd_version(debug_level=0):
     """
@@ -156,6 +159,7 @@ def run_confd_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
+
 
 def run_yumadumppro(p, model, allinclu, debug_level):
     """
@@ -183,6 +187,7 @@ def run_yumadumppro(p, model, allinclu, debug_level):
         result = ""
     return result
 
+
 def run_yumadumppro_version(debug_level=0):
     """
     Return the yangdump-pro version
@@ -193,6 +198,7 @@ def run_yumadumppro_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
+
 
 def run_yanglint(p, model, allinclu, debug_level):
     """
@@ -213,6 +219,7 @@ def run_yanglint(p, model, allinclu, debug_level):
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
+
 def run_yanglint_version(debug_level=0):
     """
     Return the yanglint version
@@ -223,6 +230,7 @@ def run_yanglint_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
+
 
 def generate_html_table(l, h, htmlpath, file_name, txt=""):
     """
@@ -320,6 +328,7 @@ def number_of_yang_modules_that_passed_compilation(in_dict, pos, compilation_con
         if in_dict[k][pos - 1] == compilation_condition:
             t += 1
     return t
+
 
 def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, result_yanglint):
     """
@@ -465,6 +474,7 @@ def get_mod_rev(module):
         return mname
     else: 
         return mname + '@' + mrev
+
 
 def module_or_submodule(input_file):
     if input_file:
