@@ -717,9 +717,10 @@ if __name__ == "__main__":
         result_yanglint = run_yanglint(yang_file, args.yangpath, debug_level)      
         draft_name = yang_draft_dict[yang_file]
         url = draft_name.split(".")[0]
+        rev_num = url.split("-")[-1]
         url = url.rstrip('-0123456789')
         mailto = url + "@ietf.org"
-        url = "https://datatracker.ietf.org/doc/" + url
+        url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
         draft_url = '<a href="' + url + '">' + draft_name + '</a>'
         email = '<a href="mailto:' + mailto + '">Email Authors</a>'
         url2 = web_url + "/YANG-modules/" + yang_file
@@ -759,9 +760,10 @@ if __name__ == "__main__":
         result_no_ietf_flag = run_pyang(yang_file, ietf_flag, args.allyangexamplepath, debug_level)
         draft_name = yang_example_draft_dict[yang_file]
         url = draft_name.split(".")[0]
+        rev_num = url.split("-")[-1]
         url = url.rstrip('-0123456789')
         mailto = url + "@ietf.org"
-        url = "https://datatracker.ietf.org/doc/" + url
+        url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
         draft_url = '<a href="' + url + '">' + draft_name + '</a>'
         email = '<a href="mailto:' + mailto + '">Email Authors</a>'
         if "error" in result_pyang:
@@ -874,9 +876,10 @@ if __name__ == "__main__":
             result_yanglint = run_yanglint(yang_file, args.yangpath, debug_level)      
             draft_name = yang_draft_dict[yang_file]
             url = draft_name.split(".")[0]
+            rev_num = url.split("-")[-1]
             url = url.rstrip('-0123456789')
             mailto = url + "@ietf.org"
-            url = "https://datatracker.ietf.org/doc/" + url
+            url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
             draft_url = '<a href="' + url + '">' + draft_name + '</a>'
             email = '<a href="mailto:' + mailto + '">Email All Authors</a>'
             cisco_email = '<a href="mailto:' + cisco_email + '">Email Cisco Authors Only</a>'                   
