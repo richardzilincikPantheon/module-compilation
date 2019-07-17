@@ -15,6 +15,8 @@
 import argparse
 import configparser
 import os
+from glob import glob
+
 import HTML
 import time
 import datetime
@@ -33,6 +35,12 @@ __email__ = "bclaise@cisco.com"
 # ----------------------------------------------------------------------
 # Functions
 # ----------------------------------------------------------------------
+def list_all_subdirs(dir):
+    subdirs = []
+    for direc in glob(dir + "/*/"):
+        subdirs.append(direc)
+        subdirs.extend(list_all_subdirs(direc))
+    return subdirs
 
 
 def list_of_yang_modules_in_dir(srcdir, debug_level):
@@ -143,8 +151,10 @@ def run_confd(p, model, allinclu, debug_level):
     if allinclu:
         bash_command = confdc_exec + " --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     else:
+        subdirs = list_all_subdirs(modules_directory)
+        yangpath = ':'.join(subdirs)
         # bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/802.3 --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/draft/802.1 --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-        bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG-rfc/" + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + confdc_yangpath_ieee + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+        bash_command = confdc_exec + " --yangpath " + yangpath + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
