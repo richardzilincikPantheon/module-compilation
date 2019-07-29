@@ -19,27 +19,26 @@ __author__ = 'Benoit Claise, Eric Vyncke'
 __copyright__ = "Copyright(c) 2015-2019, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
 __email__ = "bclaise@cisco.com, evyncke@cisco.com"
 
-from xym import xym
-from remove_directory_content import remove_directory_content
-from extract_emails import extract_email_string
-from extract_elem import extract_elem
 import argparse
 import configparser
-import os
-import HTML
-import json
-import time
-import re
-from operator import itemgetter
-from subprocess import Popen, PIPE
-import shlex
 import datetime
-import shutil
 import glob
+import json
+import os
+import shutil
+import time
+
+import HTML
+from extract_elem import extract_elem
+from extract_emails import extract_email_string
+from remove_directory_content import remove_directory_content
+from xym import xym
+
 
 # ----------------------------------------------------------------------
 # Functions
 # ----------------------------------------------------------------------
+
 
 def run_pyang(model, ietf, yangpath, debug_level):
     """
@@ -58,7 +57,8 @@ def run_pyang(model, ietf, yangpath, debug_level):
     if debug_level:
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-    
+
+
 def run_pyang_version(debug_level=0):
     """
     Return the pyang version.
@@ -70,6 +70,7 @@ def run_pyang_version(debug_level=0):
         print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
 
+
 def run_confd(model, yangpath, debug_level):
     """
     Run confdc on the YANG model
@@ -78,12 +79,12 @@ def run_confd(model, yangpath, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     os.chdir(yangpath)
-    # bash_command = confdc_exec + " --yangpath $MODULES/mef --yangpath $MODULES/open-config-main --yangpath $MODULES/ieee.draft  --yangpath $MODULES/YANG-rfc --yangpath $MODULES/ieee.802.1.draft --yangpath $MODULES/ieee.802.3.draft --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/ --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.3 --yangpath $NONIETFDIR/yangmodels/yang/standard/ieee/draft/802.1 -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     bash_command = confdc_exec + " --yangpath " + confdc_yangpath + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-    
+
+
 def run_confd_version(debug_level=0):
     """
     Return the confd version
@@ -93,7 +94,8 @@ def run_confd_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return "confd version " + os.popen(bash_command).read()
-    
+
+
 def run_yumadumppro(model, yangpath, debug_level):
     """
     Run run_yumadump-pro on the YANG model
@@ -104,8 +106,7 @@ def run_yumadumppro(model, yangpath, debug_level):
     :return: the outcome of the PYANG compilation
     """
     os.chdir(yangpath)
-#    bash_command = "yangdump-pro --warn-off=1022 --warn-off=1023 --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
-    bash_command = "yangdump-pro --modpath /var/yang/yang/modules --quiet-mode --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
+    bash_command = "yangdump-pro --quiet-mode --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
     result = os.popen(bash_command).read()
@@ -115,7 +116,8 @@ def run_yumadumppro(model, yangpath, debug_level):
     if "*** 0 Errors, 0 Warnings" in result:
          result = ""
     return result
-    
+
+
 def run_yumadumppro_version(debug_level=0):
     """
     Return the yangdump-pro version
@@ -126,6 +128,7 @@ def run_yumadumppro_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
+
 
 def run_yanglint(model, yangpath, debug_level):
     """
@@ -139,7 +142,8 @@ def run_yanglint(model, yangpath, debug_level):
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-    
+
+
 def run_yanglint_version(debug_level=0):
     """
     Return the yanglint version
@@ -150,7 +154,8 @@ def run_yanglint_version(debug_level=0):
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-    
+
+
 def generate_html_table(l, h, htmlpath, file_name):
     """
     Create a table out of the dict and generate a HTML file
@@ -170,6 +175,7 @@ def generate_html_table(l, h, htmlpath, file_name):
     f.write(htmlcode1)
     f.close()
 
+
 def generate_html_list(l, htmlpath, file_name):
     """
     Create a table out of the dict and generate a HTML file
@@ -187,7 +193,8 @@ def generate_html_list(l, htmlpath, file_name):
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
-    
+
+
 def dict_to_list(in_dict):
     """
     Create a list out of a dictionary  
@@ -214,6 +221,7 @@ def dict_to_list_rfc(in_dict):
     for key, value in in_dict.items():
         dictlist.append((key,str(value)))
     return dictlist
+
 
 def list_br_html_addition(l):
     """
@@ -250,6 +258,7 @@ def invert_yang_modules_dict(in_dict, debug_level):
         print("DEBUG: " + inv_dict)
     return inv_dict
 
+
 def number_of_yang_modules_that_passed_compilation(in_dict, compilation_condition):
     """
     return the number of drafts that passed the pyang compilation 
@@ -261,11 +270,11 @@ def number_of_yang_modules_that_passed_compilation(in_dict, compilation_conditio
     """
     t = 0
     for k, v in in_dict.items():
-#        if in_dict[k][2] == compilation_condition: 
-         if in_dict[k][3] == compilation_condition: 
+         if in_dict[k][3] == compilation_condition:
 
             t+=1
     return t
+
 
 def write_dictionary_file_in_json(in_dict, path, file_name):
     """
@@ -278,9 +287,8 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    f = open(path + file_name, 'w', encoding = 'utf-8')
-    f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
-    f.close()
+    with open(path + file_name, 'w', encoding = 'utf-8') as fw:
+        fw.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
 
 
 def read_dictionary_file_in_json(path, file_name):
@@ -294,7 +302,8 @@ def read_dictionary_file_in_json(path, file_name):
     """
     json_data = open(path + file_name, encoding = 'utf-8')
     return json.load(json_data)
-    
+
+
 def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
     """
     Move some YANG modules, which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html: 
@@ -313,7 +322,8 @@ def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
         if debug_level > 0:
             print("DEBUG: " + " move_old_examples_YANG_modules_from_RFC: error " + temp_result)   
 
-def remove_invalid_files(dir):
+
+def remove_invalid_files(dir, yang_dict):
     """
     Remove YANG modules in directory having invalid filenames. The root cause is XYM extracting YANG modules with non valid filename...
     :param dir: the directory to analyze for invalid filenames.
@@ -323,16 +333,25 @@ def remove_invalid_files(dir):
         fname = os.path.basename(full_fname)
         if ' ' in fname:
             os.remove(full_fname)
+            if yang_dict.get(fname):
+                yang_dict.pop(fname)
             print("Invalid YANG module removed: " + full_fname)
         if '@YYYY-MM-DD' in fname:
             os.remove(full_fname)
+            if yang_dict.get(fname):
+                yang_dict.pop(fname)
             print("Invalid YANG module removed: " + full_fname)
         if fname.startswith('.yang'):
             os.remove(full_fname)
+            if yang_dict.get(fname):
+                yang_dict.pop(fname)
             print("Invalid YANG module removed: " + full_fname)
         if fname.startswith('@'):
             os.remove(full_fname)
+            if yang_dict.get(fname):
+                yang_dict.pop(fname)
             print("Invalid YANG module removed: " + full_fname)
+
 
 def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint):  
     """
@@ -430,11 +449,6 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
         compilation = "PASSED"
     else:
         compilation = "NOT SURE"
-
-    # Next three lines to be removed after troubleshooting
-    #compilation_list = [compilation_pyang, compilation_pyang_no_ietf, compilation_confd, compilation_yuma, compilation_yanglint, compilation]
-    #print yang_file + " " + str(compilation_list) + " "+ result_pyang + " " + result_no_ietf_flag + " "+ result_confd + " "+ result_yuma + " "+ result_yanglint
-    #return compilation_list
     
     return compilation
 
@@ -557,11 +571,9 @@ if __name__ == "__main__":
                         ietf_drafts.append(fname)
                         break
     ietf_drafts.sort()
-#    ietf_drafts = []
     ietf_rfcs = [f for f in os.listdir(args.rfcpath) if os.path.isfile(os.path.join(args.rfcpath, f))]
     ietf_rfcs.sort()
-#    ietf_rfcs = [ 'rfc7407.txt' ]
-        
+
     print(str(datetime.datetime.now().time()) + ': file list generated', flush = True)
     # Extracting YANG Modules from IETF drafts
     draft_yang_dict = {}
@@ -599,7 +611,8 @@ if __name__ == "__main__":
                     #if not y.startswith("iana-"):
 					    # this is where I add the check
             rfc_yang_dict[rfc_file] = yang_models_in_rfc
-    remove_invalid_files(args.rfcyangpath)
+    yang_rfc_dict = invert_yang_modules_dict(rfc_yang_dict, debug_level)
+    remove_invalid_files(args.rfcyangpath, yang_rfc_dict)
     print(str(datetime.datetime.now().time()) + ': all RFC processed', flush = True)
 
     for draft_file in ietf_drafts:
@@ -679,16 +692,14 @@ if __name__ == "__main__":
             # copy the draft in a specific directory for strict = False
             shutil.copy2(args.draftpath + draft_file, args.allyangdraftpathnostrict)
 
-    remove_invalid_files(args.yangpath) 
-    remove_invalid_files(args.allyangexamplepath)
-    remove_invalid_files(args.allyangpath)
-    print(str(datetime.datetime.now().time()) + ': all IETF drafts processed', flush = True)
-
     # invert the key, value in the dictionary. Should be key: yang model, value: draft-file
     yang_draft_dict = invert_yang_modules_dict(draft_yang_dict, debug_level)
+    remove_invalid_files(args.yangpath, yang_draft_dict)
     yang_example_draft_dict = invert_yang_modules_dict(draft_yang_example_dict, debug_level)
-    yang_draft_all_dict = invert_yang_modules_dict(draft_yang_all_dict, debug_level)   
-    yang_rfc_dict = invert_yang_modules_dict(rfc_yang_dict, debug_level)
+    remove_invalid_files(args.allyangexamplepath, yang_example_draft_dict)
+    yang_draft_all_dict = invert_yang_modules_dict(draft_yang_all_dict, debug_level)
+    remove_invalid_files(args.allyangpath, yang_draft_all_dict)
+    print(str(datetime.datetime.now().time()) + ': all IETF drafts processed', flush = True)
     print(str(datetime.datetime.now().time()) + ': Python dict inverted', flush = True)
     # Remove the YANG modules (the key in the inverted rfc_dict dictionary dictionary)
     # which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html: 

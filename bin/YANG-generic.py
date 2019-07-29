@@ -14,17 +14,14 @@
 
 import argparse
 import configparser
+import datetime
+import json
 import os
+import re
+import time
 from glob import glob
 
 import HTML
-import time
-import datetime
-import json
-import re
-from subprocess import Popen, PIPE
-import shlex
-
 
 __author__ = 'Benoit Claise'
 __copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
@@ -99,8 +96,6 @@ def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=Tru
 #        2. $YANG_MODPATH
 #        3. $HOME/yang/modules
 #        4. $YANG_INSTALL/yang/modules OR if $YANG_INSTALL is unset <the default installation directory>/yang/modules (on Unix systems: /usr/share/yang/modules)
-
-
     directory = os.path.dirname(model)
     filename = model.split("/")[-1]
     os.chdir(directory)
@@ -146,14 +141,12 @@ def run_confd(p, model, allinclu, debug_level):
     # Note: confd doesn't include YANG module recursively and doesn't follow symbolic links
     # Every single time there is a new directory with YANG modules, I need to add it to the bash_command
     directory = os.path.dirname(model)
-    filename = model.split("/")[-1]
     os.chdir(directory)
     if allinclu:
         bash_command = confdc_exec + " --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     else:
         subdirs = list_all_subdirs(modules_directory)
         yangpath = ':'.join(subdirs)
-        # bash_command = confdc_exec + " --yangpath " + modules_directory + " --yangpath " + ietf_directory + "/YANG/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/common/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/dependent/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/standard/ --yangpath " + non_ietf_directory + "/mef/YANG-public/src/model/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/ --yangpath " + non_ietf_directory + "/yangmodels/yang/standard/ieee/draft/802.3 --yangpath " + non_ietf_directory +"/yangmodels/yang/standard/ieee/draft/802.1 --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
         bash_command = confdc_exec + " --yangpath " + yangpath + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
@@ -181,7 +174,6 @@ def run_yumadumppro(p, model, allinclu, debug_level):
     :return: the outcome of the PYANG compilation
     """
     directory = os.path.dirname(model)
-    filename = model.split("/")[-1]
     os.chdir(directory)
     if allinclu:
         bash_command = "yangdump-pro --quiet-mode --config=/etc/yumapro/yangdump-pro-allinclusive.conf " + model + " 2>&1"
@@ -219,7 +211,6 @@ def run_yanglint(p, model, allinclu, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     directory = os.path.dirname(model)
-#    filename = model.split("/")[-1]
     os.chdir(directory)
     if allinclu:
         bash_command = "yanglint -V -i -p " + p + " " + model + " 2>&1"
@@ -315,7 +306,6 @@ def list_br_html_addition(l):
     for sublist in l:
         for i in range(len(sublist)):
             if isinstance(sublist[i], str):
-#            if type(sublist[i]) == type(''):
                 sublist[i] = sublist[i].replace("\n", "<br>")
     return l
 
@@ -422,10 +412,6 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
         compilation = "PASSED"
     else:
         compilation = "NOT SURE"
-
-    # Next two lines to be removed after troubleshooting
-    #compilation_list = [compilation_pyang, compilation_confd, compilation_yuma, compilation_yanglint, compilation]
-    #print(yang_file + ": " + str(compilation_list) + "/"+ result_pyang + "/" + result_confd + "/"+ result_yuma + "/"+ result_yanglint + "/\n----")
 
     return compilation
 
