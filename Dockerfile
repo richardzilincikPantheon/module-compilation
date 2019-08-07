@@ -14,7 +14,8 @@ RUN apt-get update
 RUN apt-get -y install cron \
   && apt-get autoremove -y
 
-COPY . $VIRTUAL_ENV
+COPY ./sdo_analysis $VIRTUAL_ENV
+COPY ./resources/* $VIRTUAL_ENV/
 
 WORKDIR $VIRTUAL_ENV
 
@@ -46,7 +47,7 @@ RUN dpkg -i yumapro-client-18.10-9.u1804.amd64.deb
 RUN chmod 0777 bin/configure.sh
 
 # Add crontab file in the cron directory
-COPY crontab /etc/cron.d/ietf-cron
+COPY ./sdo_analysis/crontab /etc/cron.d/ietf-cron
 
 RUN chown yang:yang /etc/cron.d/ietf-cron
 USER ${YANG_ID_GID}:0
