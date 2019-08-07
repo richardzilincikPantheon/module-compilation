@@ -46,6 +46,9 @@ RUN dpkg -i yumapro-client-18.10-9.u1804.amd64.deb
 
 RUN chmod 0777 bin/configure.sh
 
+COPY ./conf/yangdump-pro.conf /etc/yumapro/yangdump-pro.conf
+COPY ./conf/yangdump-pro-allinclusive.conf /etc/yumapro/yangdump-pro-allinclusive.conf
+
 # Add crontab file in the cron directory
 COPY ./sdo_analysis/crontab /etc/cron.d/ietf-cron
 
