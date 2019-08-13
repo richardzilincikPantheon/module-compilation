@@ -1,4 +1,4 @@
-FROM python:3
+FROM ubuntu:latest
 ARG YANG_ID_GID
 
 ENV YANG_ID_GID "$YANG_ID_GID"
@@ -30,11 +30,18 @@ RUN echo "deb http://download.opensuse.org/repositories/home:/liberouter/xUbuntu
 RUN wget -nv https://download.opensuse.org/repositories/home:liberouter/xUbuntu_18.04/Release.key -O Release.key
 RUN apt-key add - < Release.key
 
-RUN apt-get update
+# Install Java.
+RUN \
+  apt-get update && \
+#  apt-get install -y libffi libssl1.0 libcrypto.so.6 openjdk-7-jdk openssh-client build-essential ant && \
+   apt-get -y install rsync python3.6 python3-pip && \
+   apt-get install -y openssh-client build-essential libssl-dev libssl1.0.0
+
 
 RUN apt-get install -y \
 	libyang \
-    openssh-client
+    openssh-client \
+    rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install pyang
