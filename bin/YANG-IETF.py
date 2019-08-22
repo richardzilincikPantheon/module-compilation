@@ -174,6 +174,7 @@ def generate_html_table(l, h, htmlpath, file_name):
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
+    os.chmod(htmlpath + file_name, 0o664)
 
 
 def generate_html_list(l, htmlpath, file_name):
@@ -193,6 +194,7 @@ def generate_html_list(l, htmlpath, file_name):
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
+    os.chmod(htmlpath + file_name, 0o664)
 
 
 def dict_to_list(in_dict):
@@ -289,6 +291,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     """
     with open(path + file_name, 'w', encoding = 'utf-8') as fw:
         fw.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
+    os.chmod(path + file_name, 0o664)
 
 
 def read_dictionary_file_in_json(path, file_name):
@@ -309,12 +312,14 @@ def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
     Move some YANG modules, which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html: 
     ietf-foo@2010-01-18.yang, hw.yang, hardware-entities.yang, udmcore.yang, and ct-ipfix-psamp-example.yang
     Those YANG modules, from old RFCs, don't follow the example- conventions
-    :param path: the path where to remove the YANG modules
+    :param path: the path from where we move the YANG modules
+    :param path2: the path to where we move the YANG modules
+    :param debug_level: debugging level
     :return: none
-    """ 
-    # TODO should we add more files to this list ? Or use a configuration file ?
-    for y in ["ietf-foo@2010-01-18.yang", "hw.yang", "hardware-entities.yang", "udmcore.yang", "ct-ipfix-psamp-example@2011-03-15.yang",
-              "example-ospf-topology.yang", "ct-ipfix-psamp-example.yang"]:
+    """
+    with open('./resources/old-rfcs.json', 'r') as f:
+        modules = json.load(f)
+    for y in modules:
         if not os.path.isfile(path + y):
             continue
         bash_command = "mv " + path + y + " " + path2 + y
