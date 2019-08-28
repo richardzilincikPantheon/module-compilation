@@ -55,6 +55,9 @@ RUN pip3 install -r requirements.txt
 RUN mkdir /opt/confd
 RUN /sdo_analysis/confd-${confd_version}.linux.x86_64.installer.bin /opt/confd
 
+RUN rm -rf /usr/bin/python
+RUN ln -s /usr/bin/python3 /usr/bin/python
+
 RUN dpkg -i yumapro-client-18.10-9.u1804.amd64.deb
 
 RUN chmod 0777 bin/configure.sh
