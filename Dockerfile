@@ -46,7 +46,7 @@ RUN apt-get install -y \
     && rm  -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
-RUN pip3 install pyang
+RUN pip3 install -r requirements.txt
 
 RUN mkdir /opt/confd
 RUN /sdo_analysis/confd-${confd_version}.linux.x86_64.installer.bin /opt/confd
