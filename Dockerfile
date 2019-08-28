@@ -41,7 +41,7 @@ RUN \
    apt-get install -y openssh-client build-essential libssl-dev libssl1.0.0
 
 RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
-  && mv setup.py /home/pyhtgen/pyhtgen; cd /home/pyhtgen/pyhtgen;  python setup.py install
+  && mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen; cd /home/pyhtgen/pyhtgen;  python setup.py install
 
 RUN apt-get install -y \
     openssh-client \
