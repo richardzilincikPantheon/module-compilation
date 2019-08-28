@@ -40,6 +40,8 @@ RUN \
    apt-get -y install rsync python3.6 python3-pip && \
    apt-get install -y openssh-client build-essential libssl-dev libssl1.0.0
 
+RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
+  && cd /home/pyhtgen; python setup.py install
 
 RUN apt-get install -y \
     openssh-client \
