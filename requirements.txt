@@ -3,6 +3,6 @@ pyang==1.7.8
 matplotlib==2.2.3
 HTML.py==0.4
 networkx==2.2
-Jinja2==2.10
+Jinja2==2.10.1
 xym==0.4.4
 
