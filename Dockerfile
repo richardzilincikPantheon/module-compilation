@@ -6,7 +6,7 @@ ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 
 ENV VIRTUAL_ENV=/sdo_analysis
 
-RUN groupadd -r yang \
+RUN groupadd -g ${YANG_ID_GID} -r yang \
   && useradd --no-log-init -r -g yang -u ${YANG_ID_GID} -d $VIRTUAL_ENV yang
 
 #Install Cron
@@ -69,7 +69,7 @@ COPY ./conf/yangdump-pro-allinclusive.conf /etc/yumapro/yangdump-pro-allinclusiv
 COPY ./sdo_analysis/crontab /etc/cron.d/ietf-cron
 
 RUN chown yang:yang /etc/cron.d/ietf-cron
-USER ${YANG_ID_GID}:0
+USER ${YANG_ID_GID}:${YANG_ID_GID}
 
 # Apply cron job
 RUN crontab /etc/cron.d/ietf-cron
