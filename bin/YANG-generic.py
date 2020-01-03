@@ -98,6 +98,8 @@ def run_pyang(p, model, pyang_param, allinclu, take_pyang_param_into_account=Tru
 #        4. $YANG_INSTALL/yang/modules OR if $YANG_INSTALL is unset <the default installation directory>/yang/modules (on Unix systems: /usr/share/yang/modules)
     directory = os.path.dirname(model)
     filename = model.split("/")[-1]
+    if filename.startswith('example'):
+        take_pyang_param_into_account = False
     os.chdir(directory)
     if pyang_param and take_pyang_param_into_account and allinclu:
         bash_command = " --lint -p " + p + " " + filename + " 2>&1"
