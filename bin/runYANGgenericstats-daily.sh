@@ -32,6 +32,12 @@ mkdir -p $MODULES >> $LOG 2>&1
 date +"%c: forking all sub-processes" >> $LOG
 
 declare -a PIDS
+($BIN/YANG-generic.py --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/etsi@3587cb0" --lint True --prefix ETSI261 --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-v2.6.1/" >> $LOG 2>&1) &
+PIDS+=("$!")
+
+($BIN/YANG-generic.py --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/etsi@fbb7924" --lint True --prefix ETSI271 --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-v2.7.1/" >> $LOG 2>&1) &
+PIDS+=("$!")
+
 ($BIN/YANG-generic.py --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/bbf@7abc8b9" --lint True --prefix BBF --rootdir "$TMP/bbf/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
@@ -74,7 +80,7 @@ mkdir -p $TMP/openroadm-public >> $LOG 2>&1
 rm -f $TMP/openroadm-public/* >> $LOG 2>&1
 find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \;
 
-($BIN/YANG-generic.py --metadata "OpenRoadm 2.0.1: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM20 --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) &
+($BIN/YANG-generic.py --metadata "OpenRoadm 6.1.0: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM61 --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 date +"%c: waiting for all sub-processes" >> $LOG
