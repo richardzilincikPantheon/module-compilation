@@ -35,25 +35,25 @@ source configure.sh >> $LOG 2>&1
 mkdir -p $WEB_PRIVATE/stats >> $LOG 2>&1
 
 date +"%c: Generating the JSON files in $WEB_PRIVATE/stats" >> $LOG
-YANG-get-stats.py >> $LOG  2>&1
+python python YANG-get-stats.py >> $LOG  2>&1
 
 date +"%c: Generating the JSON files with --days 5" >> $LOG
-YANG-get-stats.py --days 5 >> $LOG 2>&1
+python YANG-get-stats.py --days 5 >> $LOG 2>&1
 
 date +"%c: Generating the pictures" >> $LOG
 mkdir -p $WEB_PRIVATE/figures >> $LOG 2>&1
-YANG-figures.py >> $LOG 2>&1
+python YANG-figures.py >> $LOG 2>&1
 
 date +"%c: Generating the dependency pictures" >> $LOG
 cd $WEB_PRIVATE/figures >> $LOG
-symd.py --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
+python symd.py --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
 mv modules.png modules-ietf.png
-symd.py --recurse --draft $MODULES --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
+python symd.py --recurse --draft $MODULES --rfc-repos $IETFDIR/YANG-rfc/ --graph >>$LOG 2>&1
 mv modules.png modules-all.png
-symd.py --recurse --draft $MODULES --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-interfaces >>$LOG 2>&1
+python symd.py --recurse --draft $MODULES --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-interfaces >>$LOG 2>&1
 mv ietf-interfaces.png ietf-interfaces-all.png
-symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-interfaces >>$LOG 2>&1
-symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-routing >>$LOG 2>&1
+python symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-interfaces >>$LOG 2>&1
+python symd.py --recurse --draft $IETFDIR/YANG/ --rfc-repos $IETFDIR/YANG-rfc/ --sub-graph ietf-routing >>$LOG 2>&1
 
 
 trap - EXIT ERR

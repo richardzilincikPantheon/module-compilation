@@ -36,8 +36,8 @@ rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt"
 
 #remove the drafts with xym.py error, but that don't contain YANG data modules
 date +"%c: Removing bad IETF drafts" >> $LOG
-YANG-exclude-bad-drafts.py >> $LOG 2>&1
-YANG-exclude-bad-drafts.py --dstdir $IETFDIR/my-id-archive-mirror >> $LOG 2>&1
+python YANG-exclude-bad-drafts.py >> $LOG 2>&1
+python YANG-exclude-bad-drafts.py --dstdir $IETFDIR/my-id-archive-mirror >> $LOG 2>&1
 
 #copy the current content to the -old files 
 if [ -f $WEB_PRIVATE/IETFDraftYANGPageCompilation.html ]
@@ -109,7 +109,7 @@ ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 # TODO only process new I-D/RFC
 date +"%c: Starting to extract all YANG modules from IETF documents" >> $LOG
 # Using --draftpath $IETFDIR/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
-YANG-IETF.py >> $LOG 2>&1
+python YANG-IETF.py >> $LOG 2>&1
 # YANG-IETF.py --draftpath $IETFDIR/my-id-archive-mirror/ >> $LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 
@@ -125,7 +125,7 @@ cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules >> $LOG 2>&1
 date +"%c: IETF YANG modules copied to $WEB/YANG-modules" >> $LOG
 
 # Generate the report for RFC-ed YANG modules, and ftp the files.
-YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed `$PYANG -v` with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
+python YANG-generic.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed `$PYANG -v` with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
 date +"%c: All RFC processed" >> $LOG
 
 #Generate the diff files 
@@ -144,7 +144,7 @@ tar cfz $WEB_DOWNLOADABLES/All-YANG-drafts.tgz *yang >> $LOG 2>&1
 date +"%c: YANG v1.0 tarball files generated" >> $LOG
 
 # copy the YANG 1.1 data models in $IETF_DIR/YANG-v11
-YANGversion11.py >> $LOG 2>&1
+python YANGversion11.py >> $LOG 2>&1
 
 cd $IETFDIR/YANG-v11
 tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang >> $LOG 2>&1

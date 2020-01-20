@@ -28,7 +28,7 @@ runIETFstats.sh
 
 date +"%c:  Starting rename-file-backup.py"
 mkdir -p $BACKUPDIR
-rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
+python rename-file-backup.py --documentpath=$WEB_PRIVATE/ --backuppath=$BACKUPDIR/
 
 date +"%c:  Starting runGenerateMainPage.sh"
 runGenerateMainPage.sh
