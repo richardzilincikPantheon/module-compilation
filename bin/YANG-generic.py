@@ -253,6 +253,7 @@ def generate_html_table(l, h, htmlpath, file_name, txt=""):
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
+    os.chmod(htmlpath + file_name, 0o664)
 
 
 def generate_html_list(l, htmlpath, file_name):
@@ -270,6 +271,7 @@ def generate_html_list(l, htmlpath, file_name):
     f.write(htmlcode)
     f.write(htmlcode1)
     f.close()
+    os.chmod(htmlpath + file_name, 0o664)
 
 
 def dict_to_list(in_dict):
@@ -432,6 +434,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     f = open(path + file_name, 'w', encoding = 'utf-8')
     f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
     f.close()
+    os.chmod(path + file_name, 0o664)
 
 
 def read_dictionary_file_in_json(path, file_name):

@@ -317,7 +317,7 @@ def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
     :param debug_level: debugging level
     :return: none
     """
-    with open('./resources/old-rfcs.json', 'r') as f:
+    with open('{}/resources/old-rfcs.json'.format(os.path.dirname(os.path.realpath(__file__))), 'r') as f:
         modules = json.load(f)
     for y in modules:
         if not os.path.isfile(path + y):
