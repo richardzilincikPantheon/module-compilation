@@ -17,6 +17,7 @@ export CONF=$YANG/sdo_analysis/conf
 export BACKUPDIR=`get_config.py --section Directory-Section --key backup`
 export CONFD_DIR=`get_config.py --section Tool-Section --key confd_dir`
 export PYANG=`get_config.py --section Tool-Section --key pyang_exec`
+export CREDENTIALS=`get_config.py --section General-Section --key credentials`
 
 #
 # Repositories
@@ -36,3 +37,4 @@ export TMP=`get_config.py --section Directory-Section --key temp`
 export WEB_PRIVATE=`get_config.py --section Web-Section --key private_directory`
 export WEB_DOWNLOADABLES=`get_config.py --section Web-Section --key downloadables_directory`
 export WEB=`get_config.py --section Web-Section --key public_directory`
+export MY_URI=`get_config.py --section Web-Section --key my_uri`

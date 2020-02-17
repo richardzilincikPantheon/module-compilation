@@ -29,20 +29,20 @@ date +"%c: Starting" > $LOG
 
 source configure.sh >> $LOG 2>&1
 # Generate the statistics since the beginning and ftp the files
-# the YANG-get-stats.py (without arguements) generates the full stats in json in $WEB_PRIVATE/stats/ :
-# this is necessary so that the figures are up to date with today stats, and YANG-figures can pick those latest stats up
-# the YANG-get-stats.py --days 5 doesn't generate the json file.
+# the yangGetStats.py (without arguements) generates the full stats in json in $WEB_PRIVATE/stats/ :
+# this is necessary so that the figures are up to date with today stats, and yang-figures can pick those latest stats up
+# the yangGetStats.py --days 5 doesn't generate the json file.
 mkdir -p $WEB_PRIVATE/stats >> $LOG 2>&1
 
 date +"%c: Generating the JSON files in $WEB_PRIVATE/stats" >> $LOG
-python $BIN/YANG-get-stats.py >> $LOG  2>&1
+python $BIN/yangGetStats.py >> $LOG  2>&1
 
 date +"%c: Generating the JSON files with --days 5" >> $LOG
-python $BIN/YANG-get-stats.py --days 5 >> $LOG 2>&1
+python $BIN/yangGetStats.py --days 5 >> $LOG 2>&1
 
 date +"%c: Generating the pictures" >> $LOG
 mkdir -p $WEB_PRIVATE/figures >> $LOG 2>&1
-python $BIN/YANG-figures.py >> $LOG 2>&1
+python $BIN/yangFigures.py >> $LOG 2>&1
 
 date +"%c: Generating the dependency pictures" >> $LOG
 cd $WEB_PRIVATE/figures >> $LOG

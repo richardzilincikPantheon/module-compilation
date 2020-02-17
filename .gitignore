@@ -1,0 +1,19 @@
+# Ignore Vim temporary files
+.*.sw?
+
+# Vagrant
+.vagrant
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.project
+
+# Python
+.tox/
+__pycache__/
+*.pyc
+
+

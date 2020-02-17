@@ -148,7 +148,7 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     with open(path + file_name, 'w', encoding = 'utf-8') as outfile:
         json.dump(in_dict, outfile, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii = True)
     os.chmod(path + file_name, 0o664)
-
+dir()
 def read_dictionary_file_in_json(path, file_name):
     """
     Read a file, in json, with my directory data
