@@ -15,7 +15,7 @@
 source configure.sh
 
 # Main page compilation out of existing created page for the different SDOs/projects
-
+python $BIN/generatePrivatePage.py
 cd $WEB_PRIVATE
 rm -f YANGPageMain.html
 cat *PageMain.html > YANGPageMain.html
