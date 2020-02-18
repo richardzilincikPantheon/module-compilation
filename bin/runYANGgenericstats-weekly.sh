@@ -106,6 +106,25 @@ do
    python yangGeneric.py --allinclusive True --metadata "Fujitsu https://github.com/YangModels/yang/tree/master/vendor/fujitsu/$git" --lint True --prefix Fujitsu$prefix --rootdir "$path" >> $LOG 2>&1
 done
 
+for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/nokia/*/)
+do
+   subdircount=`find $path -maxdepth 1 -type d | wc -l`
+   if [ $subdircount -eq 1 ]
+   then
+      echo "path to $path*/ does not exists"
+      continue
+   fi
+   for path2 in $(ls -d $path*/)
+   do
+      git=${path2##*/7x50_YangModels/}
+      yang_removed=${git%/*}
+      prefix=${yang_removed#*/}
+      prefix=$(echo $prefix | tr -cd '[:alnum:]'| sed 's/latestsros//g')
+      python yangGeneric.py --allinclusive True --metadata "Nokia $git https://github.com/YangModels/yang/tree/master/vendor/nokia/$git" --lint True --prefix Nokia$prefix --rootdir "$path2" >> $LOG 2>&1
+   done
+done
+
+
 date +"%c: waiting for all forked shell to terminate " >> $LOG
 # Wait for all child-processes
 #for PID in $PIDS

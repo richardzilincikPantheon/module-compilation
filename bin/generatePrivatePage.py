@@ -106,16 +106,15 @@ if __name__ == "__main__":
     nokia_all_os = [name for name in os.listdir(nokia_dir) if os.path.isdir(os.path.join(nokia_dir, name))]
     context['nokia'] = []
     for directory in nokia_all_os:
-        directory_upper = directory.strip('_YangModels').upper()
-        context['nokia'].append({'alphaNumeric': re.sub(r'\W+', '', directory_upper),
-                                    'allCharacters': directory_upper})
+        os_dir = '{}/{}'.format(nokia_dir, directory)
+        specific_os_dir = [name for name in os.listdir(os_dir) if os.path.isdir(os.path.join(os_dir, name))]
+        directory_upper = directory.upper()
+        for directory_specific_os in specific_os_dir:
+            context['nokia'].append(
+                {'alphaNumeric': re.sub(r'\W+', '', directory_specific_os.strip('latest_sros_')),
+                 'allCharacters': directory_specific_os.strip('latest_sros_')})
     context['nokia'] = sorted(context['nokia'], key=lambda i: i['alphaNumeric'])
 
     result = render('./resources/index.html', context)
     with open('{}/index.html'.format(private_dir), 'w') as f:
         f.write(result)
-
-
-
-
-
