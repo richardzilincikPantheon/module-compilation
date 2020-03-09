@@ -12,9 +12,8 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 #
-BIN=/home/yang/sdo_analysis/bin
+BIN=/sdo_analysis/bin
 cd $BIN
-source activate
 source configure.sh
 #
 date +"%c:  Starting download from GitHub YangModels"

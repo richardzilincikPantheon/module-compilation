@@ -150,5 +150,8 @@ cd $IETFDIR/YANG-v11
 tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang >> $LOG 2>&1
 date +"%c: YANG v1.1 tarball files generated" >> $LOG
 
+python $BIN/gatherIETFdependentModules.py >> $LOG 2>&1
+date +"%c:dependencies copied" >> $LOG
+
 date +"%c: End of the script!" >> $LOG
 cd $BIN

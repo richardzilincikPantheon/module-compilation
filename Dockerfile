@@ -52,6 +52,8 @@ RUN pip3 install requests
 RUN pip3 install xym
 RUN pip3 install -r requirements.txt
 
+RUN cd /sdo_analysis/bin/resources/HTML; python setup.py install
+
 RUN mkdir /opt/confd
 RUN /sdo_analysis/confd-${confd_version}.linux.x86_64.installer.bin /opt/confd
 
