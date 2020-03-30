@@ -19,11 +19,12 @@ COPY ./resources/* $VIRTUAL_ENV/
 
 WORKDIR $VIRTUAL_ENV
 
-ENV confd_version 6.7
+ENV confd_version 7.3.1
 
 RUN apt-get update
 RUN apt-get install -y \
     wget \
+    curl \
     gnupg2
 
 RUN apt-get update \
@@ -52,13 +53,12 @@ RUN pip3 install requests
 RUN pip3 install xym
 RUN pip3 install -r requirements.txt
 
-RUN cd /sdo_analysis/bin/resources/HTML; python setup.py install
-
 RUN mkdir /opt/confd
 RUN /sdo_analysis/confd-${confd_version}.linux.x86_64.installer.bin /opt/confd
 
 RUN rm -rf /usr/bin/python
 RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN cd /sdo_analysis/bin/resources/HTML; python setup.py install
 
 RUN dpkg -i yumapro-client-18.10-9.u1804.amd64.deb
 
@@ -71,15 +71,15 @@ COPY ./conf/yangdump-pro-allinclusive.conf /etc/yumapro/yangdump-pro-allinclusiv
 COPY ./sdo_analysis/crontab /etc/cron.d/ietf-cron
 
 RUN chown yang:yang /etc/cron.d/ietf-cron
+RUN chown -R yang:yang $VIRTUAL_ENV
 USER ${YANG_ID_GID}:${YANG_ID_GID}
 
 # Apply cron job
 RUN crontab /etc/cron.d/ietf-cron
 
 USER root:root
-
-ENV PYTHONPATH=$VIRTUAL_ENV/bin/python
-ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+#ENV PYTHONPATH=$VIRTUAL_ENV/bin/python
+RUN echo "export PATH=$VIRTUAL_ENV/bin:$PATH" > /etc/environment
 ENV GIT_PYTHON_GIT_EXECUTABLE=/usr/bin/git
 
 ENV YANG=/.

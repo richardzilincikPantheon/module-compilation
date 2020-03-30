@@ -14,7 +14,7 @@
 #
 BIN=/sdo_analysis/bin
 cd $BIN
-source activate
+#source activate
 source configure.sh
 date +"%c: Downloading from GitHub YangModels"
 rundownloadgithub.sh

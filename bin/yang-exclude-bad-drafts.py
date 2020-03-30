@@ -14,13 +14,10 @@
 
 import argparse
 import configparser
-from collections import Counter
 import os
-import sys
-import re
-import requests
 
 __author__ = 'bclaise@cisco.com'
+
 
 def list_lines_from_file(f, debug_level):
     """
@@ -44,7 +41,8 @@ def list_lines_from_file(f, debug_level):
         if debug_level > 1:
             print(" List empty from the list_lines_from_file function")
     return list_of_line
- 
+
+
 def remove_files(ll, d, debug_level):
     """
     Returns a list of all the lines in the file
@@ -53,7 +51,6 @@ def remove_files(ll, d, debug_level):
     :param debug_level: debug level
     :return: a list of all the lines in the file
     """
-    list_of_line = []
     for l in ll:
         bash_command = "rm -f " + d + l
         if debug_level > 1:
@@ -62,6 +59,7 @@ def remove_files(ll, d, debug_level):
         if debug_level > 0:
             print(temp_result)
     return 
+
 
 def replace_draft_version_by_asterix(ll, debug_level):
     """
@@ -80,6 +78,7 @@ def replace_draft_version_by_asterix(ll, debug_level):
     if debug_level > 0:
         print("replace_draft_version_by_asterix: new list " + str(newll))
     return newll
+
 
 if __name__ == "__main__":
     """

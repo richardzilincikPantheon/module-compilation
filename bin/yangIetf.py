@@ -702,13 +702,13 @@ def push_to_confd(updated_modules, config):
     credentials = config.get('General-Section', 'credentials').split()
     confd_prefix = '{}://{}:{}'.format(confd_protocol, confd_host, confd_port)
     if '{"module": []}' not in json_modules_data:
-        url = confd_prefix + '/api/config/catalog/modules/'
+        url = confd_prefix + '/restconf/data/yang-catalog:catalog/modules/'
         response = requests.patch(url, data=json_modules_data,
                                   auth=(credentials[0],
                                         credentials[1]),
                                   headers={
-                                      'Accept': 'application/vnd.yang.data+json',
-                                      'Content-type': 'application/vnd.yang.data+json'})
+                                      'Accept': 'application/yang-data+json',
+                                      'Content-type': 'application/yang-data+json'})
         if response.status_code < 200 or response.status_code > 299:
             print('Request with body on path {} failed with {}'.
                   format(json_modules_data, url,
