@@ -57,3 +57,4 @@ After running all those scripts, the following directories are populated:
   - figures/*.png a couple of graphics including dependency graphs for some modules (ietf-interfaces, ..), for all YANG modules known (heavy graph), and history statistics
   - stats/*.json statistics about YANG modules extracted from IETF drafts and RFC 
 - Directory-Section:backup ($BACKUPDIR in shell): an history directory containing all files from <SDO> with a date suffix (used to generated the history graphcis)
+
