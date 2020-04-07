@@ -108,7 +108,7 @@ done
 
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/nokia/*/)
 do
-q   if [ $subdircount -eq 1 ]
+   if [ $subdircount -eq 1 ]
    then
       echo "path to $path*/ does not exists"
       continue
