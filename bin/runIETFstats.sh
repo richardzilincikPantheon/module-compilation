@@ -116,6 +116,8 @@ date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 #clean up of the .fxs files created by confdc
 rm -f $IETFDIR/YANG/*.fxs >> $LOG 2>&1
 rm -f $IETFDIR/YANG-rfc/*.fxs >> $LOG 2>&1
+#clean up of the .fxs files created by confdc
+find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs rm >> $LOG 2>&1
 
 # move all IETF YANG modules to the web part
 # TODO better using a symbolic link ?

@@ -133,7 +133,7 @@ date +"%c: waiting for all forked shell to terminate " >> $LOG
 
 date +"%c: Cleaning up the remaining .fxs " >> $LOG
 #clean up of the .fxs files created by confdc
-find $NONIETFDIR/yangmodels -name *.fxs -print | xargs rm >> $LOG 2>&1
+find $NONIETFDIR/yangmodels -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print  | xargs rm >> $LOG 2>&1
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< "$CREDENTIALS"
