@@ -582,7 +582,7 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
     pyang_module = '{}/{}'.format(yang_path, yang_file)
     name_revision = \
         os.popen(
-            '$PYANG -f' + 'name-revision  --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
+            '$PYANG -f' + 'name --name-print-revision --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
             ' ')[0]
     if '@' not in name_revision:
         name_revision += '@1970-01-01'
