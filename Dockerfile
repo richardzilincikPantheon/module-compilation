@@ -46,6 +46,12 @@ RUN \
 RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
   && mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen; cd /home/pyhtgen/pyhtgen;  python setup.py install
 
+RUN echo postfix postfix/mailname string yang2.amsl.com | debconf-set-selections; \
+    echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections; \
+    apt-get -y install postfix
+
+COPY ./resources/main.cf /etc/postfix/main.cf
+
 RUN apt-get install -y \
     openssh-client \
     && rm  -rf /var/lib/apt/lists/*
@@ -115,4 +121,4 @@ ENV WEB="get_config.py --section Web-Section --key public_directory"
 RUN chmod 0644 /etc/cron.d/ietf-cron
 
 # Run the command on container startup
-CMD cron -f && tail -f /var/yang/logs/cronjob-daily.log
+CMD cron -f && service postfix start && tail -f /var/yang/logs/cronjob-daily.log
