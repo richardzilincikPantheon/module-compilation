@@ -13,7 +13,7 @@ PATH=/sdo_analysis/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/
 export PATH
 python_exec=$(readlink -f `command -v python`)
 python_version="${python_exec##*/}"
-PYTHONPATH=/usr/lib/$python_version
+PYTHONPATH=/usr/lib/$python_version/site-packages
 export PYTHONPATH
 
 export YANG=/.
