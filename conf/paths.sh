@@ -15,6 +15,7 @@ python_exec=$(readlink -f `command -v python`)
 python_version="${python_exec##*/}"
 PYTHONPATH=/usr/lib/$python_version/site-packages
 export PYTHONPATH
+export PYTHONIOENCODING=utf-8
 
 export YANG=/.
 export YANGVAR=`python get_config.py --section Directory-Section --key var`

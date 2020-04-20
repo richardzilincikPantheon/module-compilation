@@ -580,9 +580,20 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
 
     updated_modules = []
     pyang_module = '{}/{}'.format(yang_path, yang_file)
+    found = False
+    for root, dirs, files in os.walk(yang_path):
+        if found:
+            break
+        for ff in files:
+            if ff == yang_file:
+                pyang_module = '{}/{}'.format(root, ff)
+                found = True
+            if found:
+                break
+    if not found:
+        print("Error file " + yang_file + " not found in dir or subdir of " + yang_path)
     name_revision = \
-        os.popen(
-            '$PYANG -f' + 'name --name-print-revision --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
+        os.popen('$PYANG -f' + 'name --name-print-revision --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
             ' ')[0]
     if '@' not in name_revision:
         name_revision += '@1970-01-01'

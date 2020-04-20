@@ -105,6 +105,6 @@ find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -pr
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< "$CREDENTIALS"
-curl -X POST -u ${CRED[0]}:${CRED[1]} $MY_URI/api/load-cache >> $LOG 2>&1
+curl -X POST -u "${CRED[0]}":"${CRED[1]}" $MY_URI/api/load-cache >> $LOG 2>&1
 
 date +"%c: end of job" >> $LOG

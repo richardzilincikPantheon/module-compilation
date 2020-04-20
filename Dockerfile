@@ -121,4 +121,4 @@ ENV WEB="get_config.py --section Web-Section --key public_directory"
 RUN chmod 0644 /etc/cron.d/ietf-cron
 
 # Run the command on container startup
-CMD cron -f && service postfix start && tail -f /var/yang/logs/cronjob-daily.log
+CMD cron && service postfix start && tail -f /var/yang/logs/cronjob-daily.log
