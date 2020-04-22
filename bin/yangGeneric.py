@@ -356,7 +356,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     elif result_pyang == "":
         compilation_pyang = "PASSED"
     else:
-        compilation_pyang = "NOT SURE"
+        compilation_pyang = "UNKNOWN"
 
     # logic for confdc compilation result:
     if "error" in result_confd:
@@ -373,7 +373,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     elif result_confd == "":
         compilation_confd = "PASSED"
     else:
-        compilation_confd = "NOT SURE"
+        compilation_confd = "UNKNOWN"
     # "cannot compile submodules; compile the module instead" error  message
     # => still print the message, but doesn't report it as FAILED
     if "error: cannot compile submodules; compile the module instead" in result_confd:
@@ -395,7 +395,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     elif "Warning" in result_yuma and yang_file not in result_yuma:
         compilation_yuma = "PASSED"
     else:
-        compilation_yuma = "NOT SURE"
+        compilation_yuma = "UNKNOWN"
 
     # logic for yanglint compilation result:
     if "err :" in result_yanglint:
@@ -405,7 +405,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     elif result_yanglint == "":
         compilation_yanglint = "PASSED"
     else:
-        compilation_yanglint = "NOT SURE"
+        compilation_yanglint = "UNKNOWN"
     # "err : Unable to parse submodule, parse the main module instead." error  message
     # => still print the message, but doesn't report it as FAILED
     if "err : Unable to parse submodule, parse the main module instead." in result_yanglint:
@@ -420,7 +420,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     elif compilation_list == ["PASSED", "PASSED", "PASSED", "PASSED"]:
         compilation = "PASSED"
     else:
-        compilation = "NOT SURE"
+        compilation = "UNKNOWN"
 
     return compilation
 

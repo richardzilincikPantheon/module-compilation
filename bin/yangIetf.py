@@ -395,7 +395,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
     elif result_pyang == "":
         compilation_pyang = "PASSED"
     else:
-        compilation_pyang = "NOT SURE"
+        compilation_pyang = "UNKNOWN"
 
     # logic for pyang compilation result:
     if "error" in result_no_ietf_flag:
@@ -405,7 +405,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
     elif result_no_ietf_flag == "":
         compilation_pyang_no_ietf = "PASSED"
     else:
-        compilation_pyang_no_ietf = "NOT SURE"
+        compilation_pyang_no_ietf = "UNKNOWN"
 
     # logic for confdc compilation result:
     #    if "error" in result_confd and yang_file in result_confd:
@@ -422,7 +422,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
     elif result_confd == "":
         compilation_confd = "PASSED"
     else:
-        compilation_confd = "NOT SURE"
+        compilation_confd = "UNKNOWN"
     # "cannot compile submodules; compile the module instead" error  message
     # => still print the message, but doesn't report it as FAILED
     if "error: cannot compile submodules; compile the module instead" in result_confd:
@@ -444,7 +444,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
     elif "Warning" in result_yuma and yang_file not in result_yuma:
         compilation_yuma = "PASSED"
     else:
-        compilation_yuma = "NOT SURE"
+        compilation_yuma = "UNKNOWN"
 
     # logic for yanglint compilation result:
     if "err :" in result_yanglint:
@@ -454,7 +454,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
     elif result_yanglint == "":
         compilation_yanglint = "PASSED"
     else:
-        compilation_yanglint = "NOT SURE"
+        compilation_yanglint = "UNKNOWN"
     # "err : Unable to parse submodule, parse the main module instead." error  message
     # => still print the message, but doesn't report it as FAILED
     if "err : Unable to parse submodule, parse the main module instead." in result_yanglint:
@@ -474,7 +474,7 @@ def combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_co
     elif compilation_list == ["PASSED", "PASSED", "PASSED", "PASSED", "PASSED"]:
         compilation = "PASSED"
     else:
-        compilation = "NOT SURE"
+        compilation = "UNKNOWN"
 
     return compilation
 
@@ -721,7 +721,7 @@ def push_to_confd(updated_modules, config):
                                       'Accept': 'application/yang-data+json',
                                       'Content-type': 'application/yang-data+json'})
         if response.status_code < 200 or response.status_code > 299:
-            print('Request with body on path {} failed with {}'.
+            print('Request with body {} on path {} failed with {}'.
                   format(json_modules_data, url,
                          response.text))
     return []
@@ -1081,7 +1081,7 @@ if __name__ == "__main__":
         elif result_pyang == "":
             compilation = "PASSED"
         else:
-            compilation = "NOT SURE"
+            compilation = "UNKNOWN"
         updated_modules.extend(
             check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
                                    result_pyang,
