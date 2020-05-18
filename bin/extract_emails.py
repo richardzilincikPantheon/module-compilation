@@ -19,10 +19,10 @@ import argparse
 import configparser
 import os
 
+
 # ----------------------------------------------------------------------
 # Functions
 # ----------------------------------------------------------------------
-
 def list_of_ietf_drafts(directory, debug_level):
     """
     Returns the list of files in a directory
@@ -40,7 +40,8 @@ def list_of_ietf_drafts(directory, debug_level):
         if "draft-" in f:
             only_drafts.append(f)
     return only_drafts
-    
+
+
 def extract_email_string(d, email_domain, debug_level):
     """
     Returns a string, comma separated, of all the email addresses for the company email domain,  
@@ -76,11 +77,11 @@ def extract_email_string(d, email_domain, debug_level):
             email_string = email_string + i + ", "
     email_string = email_string.rstrip(", ")
     return email_string
-    
+
+
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
-
 if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()

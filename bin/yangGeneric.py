@@ -442,19 +442,6 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     os.chmod(path + file_name, 0o664)
 
 
-def read_dictionary_file_in_json(path, file_name):
-    """
-    Read a file, in json, with my directory data
-    For testing purposes.
-
-    :param path: The directory where the json file with be created
-    :param file_name: The file name to be created
-    :return: dictionary
-    """
-    json_data = open(path + file_name, encoding='utf-8')
-    return json.load(json_data)
-
-
 def get_mod_rev(module):
     mname = ''
     mrev = ''

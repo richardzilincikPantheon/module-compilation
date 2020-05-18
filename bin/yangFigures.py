@@ -12,14 +12,13 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
-
 import matplotlib as mpl
 mpl.use('Agg') # To prevent using a X-Windows server
-import matplotlib.pyplot as plt
 from pylab import *
 from matplotlib.dates import MonthLocator, DateFormatter
 import json
 import configparser
+
 
 def historical_yangmodule_compiled_readJSON(jsonfile):
     yangmodule_history_json_file = jsonfile
@@ -28,6 +27,7 @@ def historical_yangmodule_compiled_readJSON(jsonfile):
     print(" Found " + str(len(yangmodule_history)) + " entrie(s) from " + jsonfile) 
 
     return yangmodule_history
+
 
 # fonts
 fontr = {'family' : 'serif',

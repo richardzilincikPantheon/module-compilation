@@ -3,4 +3,5 @@ pyang==2.1.1
 matplotlib==2.2.3
 networkx==1.10
 Jinja2==2.10.1
-
+requests==2.23.0
+xym==0.4.8

@@ -57,8 +57,6 @@ RUN apt-get install -y \
     && rm  -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
-RUN pip3 install requests
-RUN pip3 install xym
 RUN pip3 install -r requirements.txt
 
 RUN mkdir /opt/confd
