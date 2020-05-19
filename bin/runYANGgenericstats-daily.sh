@@ -76,13 +76,25 @@ declare -a PIDS
 # openroadm public
 # openROADM, we need to flatten the directory structure
 # TODO modify the yangGeneric.py file to handle a directory tree ?
-mkdir -p $TMP/openroadm-public >> $LOG 2>&1
-rm -f $TMP/openroadm-public/* >> $LOG 2>&1
-find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \;
-
-(python $BIN/yangGeneric.py --metadata "OpenRoadm 6.1.0: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM61 --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) #&
+cur_dir=$(pwd)
+cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
+git pull
+branches=$(git branch -a | grep remotes)
+for b in $branches
+  do
+    last_word=${b##*/}
+    first_char=${last_word:0:1}
+    if [[ $first_char =~ ^[[:digit:]] ]]; then
+      git checkout $last_word
+      mkdir -p $TMP/openroadm-public >> $LOG 2>&1
+      rm -f $TMP/openroadm-public/* >> $LOG 2>&1
+      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \;
+      (python $BIN/yangGeneric.py --metadata "OpenRoadm $last_word: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$last_word --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) #&
+    fi
+done
 #PIDS+=("$!")
 
+cd $cur_dir
 date +"%c: waiting for all sub-processes" >> $LOG
 
 # Wait for all child-processes

@@ -15,6 +15,7 @@ import os
 import re
 import sys
 import jinja2
+
 if sys.version_info >= (3, 4):
     import configparser as ConfigParser
 else:
@@ -46,6 +47,8 @@ if __name__ == "__main__":
     parser.add_argument('--config-path', type=str,
                         default='/etc/yangcatalog/yangcatalog.conf',
                         help='Set path to config file')
+    parser.add_argument('--openRoadM', help='Set list of openRoadM files. Default parameters are empty list',
+                        nargs='*')
     args = parser.parse_args()
 
     config_path = args.config_path
@@ -71,7 +74,7 @@ if __name__ == "__main__":
         for directory_specific_os in specific_os_dir:
             context[directory_upper].append({'alphaNumeric': re.sub(r'\W+', '', directory_specific_os),
                                              'allCharacters': directory_specific_os})
-        context[directory_upper] = sorted(context[directory_upper], key=lambda i:i['alphaNumeric'])
+        context[directory_upper] = sorted(context[directory_upper], key=lambda i: i['alphaNumeric'])
 
     juniper_all_os = [name for name in os.listdir(juniper_dir) if os.path.isdir(os.path.join(juniper_dir, name))]
     context['juniper'] = []
@@ -89,7 +92,7 @@ if __name__ == "__main__":
     for directory in huawei_all_os:
         directory_upper = directory.upper()
         context['huawei'].append({'alphaNumeric': re.sub(r'\W+', '', directory_upper),
-                                    'allCharacters': directory_upper})
+                                  'allCharacters': directory_upper})
     context['huawei'] = sorted(context['huawei'], key=lambda i: i['alphaNumeric'])
 
     fujitsu_all_os = [name for name in os.listdir(fujitsu_dir) if os.path.isdir(os.path.join(fujitsu_dir, name))]
@@ -99,8 +102,9 @@ if __name__ == "__main__":
         specific_os_dir = [name for name in os.listdir(os_dir) if os.path.isdir(os.path.join(os_dir, name))]
         directory_upper = directory.upper()
         for directory_specific_os in specific_os_dir:
-            context['fujitsu'].append({'alphaNumeric': re.sub(r'\W+', '', '{}{}'.format(directory, directory_specific_os)),
-                                       'allCharacters': '{}{}'.format(directory, directory_specific_os)})
+            context['fujitsu'].append(
+                {'alphaNumeric': re.sub(r'\W+', '', '{}{}'.format(directory, directory_specific_os)),
+                 'allCharacters': '{}{}'.format(directory, directory_specific_os)})
     context['fujitsu'] = sorted(context['fujitsu'], key=lambda i: i['alphaNumeric'])
 
     nokia_all_os = [name for name in os.listdir(nokia_dir) if os.path.isdir(os.path.join(nokia_dir, name))]
@@ -115,6 +119,9 @@ if __name__ == "__main__":
                  'allCharacters': directory_specific_os.strip('latest_sros_')})
     context['nokia'] = sorted(context['nokia'], key=lambda i: i['alphaNumeric'])
 
+    context['openroadm'] = []
+    for specific_version in args.openRoadM:
+        context['openroadm'].append({'alphaNumeric': specific_version})
     result = render('./resources/index.html', context)
     with open('{}/index.html'.format(private_dir), 'w') as f:
         f.write(result)

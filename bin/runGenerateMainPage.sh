@@ -15,7 +15,10 @@
 source configure.sh
 
 # Main page compilation out of existing created page for the different SDOs/projects
-python $BIN/generatePrivatePage.py
+cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
+git pull
+branches=$(git branch -a | grep remotes)
+python $BIN/generatePrivatePage.py --openRoadm ${branches}
 cd $WEB_PRIVATE
 rm -f YANGPageMain.html
 cat *PageMain.html > YANGPageMain.html

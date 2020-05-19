@@ -7,8 +7,8 @@
 
 <h3>Cisco Authors at the IETF</h3>
 <ul>
-	<li><a href="IETFPageCompilationYANGCiscoAuthors.html">Cisco Authors: YANG Data Models extracted from IETF drafts</a> (updated daily)
-	<li><a href="figures/IETFCiscoYANGAuthorsPageCompilation.png">See the graphical evolution</a> (updated daily)
+	<li><a href="IETFCiscoAuthorsYANGPageCompilation.html">Cisco Authors: YANG Data Models extracted from IETF drafts</a> (updated daily)
+	<li><a href="figures/IETFCiscoAuthorsYANGPageCompilation.png">See the graphical evolution</a> (updated daily)
 </ul>  
 
 <hr/>
@@ -33,12 +33,16 @@
 <hr />
 <h2>JSON Stats</h2>
 <ul>
-	<li><a href="IETFPageCompilationCiscoAuthorsStats.json">JSON dictionary, with stats from https://new.yangcatalog.org/private/IETFYANGPageCompilation.html</a> (updated daily)
+	<li><a href="IETFYANGPageCompilationStats.json">JSON dictionary, with stats from https://new.yangcatalog.org/private/IETFYANGPageCompilation.html</a> (updated daily)
 	<li><a href="IETFYANGPageCompilationCiscoAuthorsStats.json">JSON dictionary, with stats from https://new.yangcatalog.org/private/IETFCiscoAuthorsYANGPageCompilation.html</a> (updated daily)
 	<li><a href="IETFYANGOutOfRFCStats.json">JSON dictionary, with stats from https://new.yangcatalog.org/private/IETFYANGOutOfRFC.html</a> (updated daily)
-</ul>  
+</ul>
 
-
+<h2>General Stats</h2>
+<ul>
+	<li><a href="IETFYANGPageMain.html">IETF yang models stats</a> (updated daily)
+	<li><a href="YANGPageMain.html">Rest of the yang models stats</a> (updated daily)
+</ul>
 
 <hr />
 <h2>Dependency Graphs</h2>
@@ -81,6 +85,7 @@
        <a href="CiscoNX{{ os.alphaNumeric }}YANGPageMain.html">Cisco IOS NX {{ os.allCharacters }} native models: stats</a>
        <a href="CiscoNX{{ os.alphaNumeric }}.json">Cisco IOS NX {{ os.allCharacters }}: json</a>
     {% endfor %}
+</ul>
 <hr/>
 
 <h2>JUNIPER</H2>
@@ -126,6 +131,24 @@
     <a href="Nokia{{ os.alphaNumeric }}.json">Nokia {{ os.allCharacters }}: json</a>
     {% endfor %}
 </ul>
+
+    <h2>YUMAWORKS</h2>
+<ul>
+    <li><a href="YUMAWORKSYANGPageCompilation.html">YUMAWorks</a>
+    <a href="YUMAWORKSYANGPageMain.html">YUMAWorks: stats</a>
+    <a href="YUMAWORKS.json">YUMAWORKS: json</a>
+</ul>
+
+
+<h2>  OpenROADM Private Repo (don't use)</h2>
+<ul>
+    {% for os in openroadm %}
+    <li><a href="OpenROADM{{ os.alphaNumeric }}YANGPageCompilation.html">OpenROADM {{ os.alphaNumeric }} Private Repo</a>
+    <a href="OpenROADM{{ os.alphaNumeric }}YANGPageMain.html">OpenROADM {{ os.alphaNumeric }} Private Repo: stats</a>
+    <li><a href="OpenROADM{{ os.alphaNumeric }}.json">OpenROADM {{ os.alphaNumeric }} JSON dictionary, formatted after https://new.yangcatalog.org/private//OpenROADMPrivateYANGPageCompilation.html</a> (updated daily)
+    {% endfor %}
+</ul>
+
 
 <hr>
 <div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="https://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
