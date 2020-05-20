@@ -18,7 +18,7 @@ source configure.sh
 cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
 git pull
 branches=$(git branch -a | grep remotes)
-python $BIN/generatePrivatePage.py --openRoadm ${branches}
+python $BIN/generatePrivatePage.py --openRoadM ${branches}
 cd $WEB_PRIVATE
 rm -f YANGPageMain.html
 cat *PageMain.html > YANGPageMain.html
