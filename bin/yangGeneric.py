@@ -603,7 +603,7 @@ if __name__ == "__main__":
                         flush=True)
                     yang_file_without_path = new_yang_file_without_path_with_revision
                 if new_yang_file_without_path_with_revision.split('@')[1].split('.')[0] != \
-                        yang_file_without_path.split('@')[1].split('.'):
+                        yang_file_without_path.split('@')[1].split('.')[0]:
                     print(
                         'Revision of the YANG file ' + yang_file_without_path + ' is wrong changing to correct as ' + new_yang_file_without_path_with_revision,
                         flush=True)

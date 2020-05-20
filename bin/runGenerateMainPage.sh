@@ -15,10 +15,22 @@
 source configure.sh
 
 # Main page compilation out of existing created page for the different SDOs/projects
+cur_dir=$(pwd)
 cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
 git pull
 branches=$(git branch -a | grep remotes)
-python $BIN/generatePrivatePage.py --openRoadM ${branches}
+openroadm_array=()
+for b in $branches
+  do
+    last_word=${b##*/}
+    first_char=${last_word:0:1}
+    if [[ $first_char =~ ^[[:digit:]] ]]; then
+      openroadm+=" $last_word"
+    fi
+done
+
+cd $cur_dir
+python $BIN/generatePrivatePage.py --openRoadM ${openroadm}
 cd $WEB_PRIVATE
 rm -f YANGPageMain.html
 cat *PageMain.html > YANGPageMain.html
