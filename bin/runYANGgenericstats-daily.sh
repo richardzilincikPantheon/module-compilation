@@ -85,10 +85,10 @@ for b in $branches
     last_word=${b##*/}
     first_char=${last_word:0:1}
     if [[ $first_char =~ ^[[:digit:]] ]]; then
-      git checkout $last_word
+      git checkout $last_word >> $LOG 2>&1
       mkdir -p $TMP/openroadm-public >> $LOG 2>&1
       rm -f $TMP/openroadm-public/* >> $LOG 2>&1
-      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \;
+      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \; >> $LOG 2>&1
       (python $BIN/yangGeneric.py --metadata "OpenRoadm $last_word: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$last_word --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) #&
     fi
 done
