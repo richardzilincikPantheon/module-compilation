@@ -13,8 +13,8 @@ RUN groupadd -g ${YANG_GID} -r yang \
 
 #Install Cron
 RUN apt-get update
-RUN apt-get -y install cron \
-  && apt-get autoremove -y
+RUN apt-get -y install cron
+
 
 COPY ./sdo_analysis $VIRTUAL_ENV
 COPY ./resources/* $VIRTUAL_ENV/
@@ -23,25 +23,15 @@ WORKDIR $VIRTUAL_ENV
 
 ENV confd_version 7.3.1
 
-RUN apt-get update
-RUN apt-get install -y \
-    wget \
-    curl \
-    gnupg2
-
-RUN apt-get update \
-  && apt-get -y install clang cmake libpcre3-dev git libxml2-dev \
+RUN apt-get install -y wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
   && cd /home/libyang/build && cmake .. && make && make install
 
+
 # Install Java.
-RUN \
-  apt-get update && \
-#  apt-get install -y libffi libssl1.0 libcrypto.so.6 openjdk-7-jdk openssh-client build-essential ant && \
-   apt-get -y install rsync python3.6 python3-pip && \
-   apt-get install -y openssh-client build-essential libssl-dev libssl1.0.0
+RUN apt-get -y install rsync python3.6 python3-pip openssh-client build-essential libssl-dev libssl1.0.0
 
 RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
   && mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen; cd /home/pyhtgen/pyhtgen;  python setup.py install
@@ -54,6 +44,7 @@ COPY ./resources/main.cf /etc/postfix/main.cf
 
 RUN apt-get install -y \
     openssh-client \
+    && apt-get autoremove -y \
     && rm  -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
