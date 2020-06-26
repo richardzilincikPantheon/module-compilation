@@ -11,19 +11,14 @@ ENV VIRTUAL_ENV=/sdo_analysis
 RUN groupadd -g ${YANG_GID} -r yang \
   && useradd --no-log-init -r -g yang -u ${YANG_ID} -d $VIRTUAL_ENV yang
 
-#Install Cron
-RUN apt-get update
-RUN apt-get -y install cron
-
-
 COPY ./sdo_analysis $VIRTUAL_ENV
 COPY ./resources/* $VIRTUAL_ENV/
 
 WORKDIR $VIRTUAL_ENV
 
 ENV confd_version 7.3.1
-
-RUN apt-get install -y wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
+RUN apt-get update
+RUN apt-get install -y cron wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
