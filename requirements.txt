@@ -1,5 +1,5 @@
 configparser==3.7.4
-pyang==2.1.1
+pyang==2.2.1
 matplotlib==2.2.3
 networkx==1.10
 Jinja2==2.10.1
