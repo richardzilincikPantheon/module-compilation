@@ -697,7 +697,7 @@ def push_to_confd(updated_modules, config):
     confd_protocol = config.get('General-Section', 'protocol')
     confd_port = config.get('General-Section', 'confd-port')
     confd_host = config.get('General-Section', 'confd-ip')
-    credentials = config.get('General-Section', 'credentials').split()
+    credentials = config.get('General-Section', 'credentials').strip('"').split()
     confd_prefix = '{}://{}:{}'.format(confd_protocol, confd_host, confd_port)
     if '{"module": []}' not in json_modules_data:
         url = confd_prefix + '/restconf/data/yang-catalog:catalog/modules/'
