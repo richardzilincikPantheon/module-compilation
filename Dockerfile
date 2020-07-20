@@ -69,6 +69,9 @@ USER ${YANG_ID}:${YANG_GID}
 # Apply cron job
 RUN crontab /etc/cron.d/ietf-cron
 
+RUN git config --global user.name miroslavKovacPantheon
+RUN git config --global user.email miroslav.kovac@panetheon.tech
+
 USER root:root
 #ENV PYTHONPATH=$VIRTUAL_ENV/bin/python
 RUN echo "export PATH=$VIRTUAL_ENV/bin:$PATH" > /etc/environment

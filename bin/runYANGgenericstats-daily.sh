@@ -116,7 +116,7 @@ date +"%c: cleaning up the now useless .fxs files" >> $LOG
 find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs rm >> $LOG 2>&1
 
 date +"%c: reloading cache" >> $LOG
-read -ra CRED <<< "$CREDENTIALS"
-curl -X POST -u "${CRED[0]}":"${CRED[1]}" $MY_URI/api/load-cache >> $LOG 2>&1
+read -ra CRED <<< $CREDENTIALS
+curl -X POST -u "${CRED[0]:1}":"${CRED[1]::-1}" $MY_URI/api/load-cache >> $LOG 2>&1
 
 date +"%c: end of job" >> $LOG
