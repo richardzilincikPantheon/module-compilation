@@ -87,7 +87,7 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog/yangcatalog.conf')
-    ietf_directory = config.get('Directory-Section', 'ietf_directory')
+    ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
     parser = argparse.ArgumentParser(description='Remove drafts known as having xym errors, '
                                                   'but that do not contain YANG models')

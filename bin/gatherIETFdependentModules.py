@@ -8,10 +8,10 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog/yangcatalog.conf')
-    api_ip = config.get('API-Section', 'ip')
+    api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('General-Section', 'protocol-api')
     all_modules_dir = config.get('Directory-Section', 'save-file-dir')
-    ietf_dir = config.get('Directory-Section', 'ietf_directory')
+    ietf_dir = config.get('Directory-Section', 'ietf-directory')
     orgs = ['ieee', 'ietf']
     for org in orgs:
         prefix = '{}://{}'.format(protocol, api_ip)

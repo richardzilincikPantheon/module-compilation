@@ -694,10 +694,10 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
 def push_to_confd(updated_modules, config):
     print('creating patch request to confd with updated data')
     json_modules_data = json.dumps({'modules': {'module': updated_modules}})
-    confd_protocol = config.get('General-Section', 'protocol')
-    confd_port = config.get('General-Section', 'confd-port')
-    confd_host = config.get('General-Section', 'confd-ip')
-    credentials = config.get('General-Section', 'credentials').strip('"').split()
+    confd_protocol = config.get('General-Section', 'protocol-confd')
+    confd_port = config.get('Web-Section', 'confd-port')
+    confd_host = config.get('Web-Section', 'confd-ip')
+    credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
     confd_prefix = '{}://{}:{}'.format(confd_protocol, confd_host, confd_port)
     if '{"module": []}' not in json_modules_data:
         url = confd_prefix + '/restconf/data/yang-catalog:catalog/modules/'
@@ -722,15 +722,15 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog/yangcatalog.conf')
-    web_url = config.get('Web-Section', 'my_uri')
-    web_private = config.get('Web-Section', 'private_directory')
+    web_url = config.get('Web-Section', 'my-uri')
+    web_private = config.get('Web-Section', 'private-directory')
 
-    ietf_directory = config.get('Directory-Section', 'ietf_directory')
-    pyang_exec = config.get('Tool-Section', 'pyang_exec')
-    confdc_exec = config.get('Tool-Section', 'confdc_exec')
-    confdc_yangpath = config.get('Tool-Section', 'confdc_yangpath')
+    ietf_directory = config.get('Directory-Section', 'ietf-directory')
+    pyang_exec = config.get('Tool-Section', 'pyang-exec')
+    confdc_exec = config.get('Tool-Section', 'confdc-exec')
+    confdc_yangpath = config.get('Tool-Section', 'confdc-yangpath')
 
-    api_ip = config.get('API-Section', 'ip')
+    api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('General-Section', 'protocol-api')
     resutl_html_dir = config.get('Web-Section', 'result-html-dir')
 

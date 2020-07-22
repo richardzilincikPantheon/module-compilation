@@ -506,16 +506,16 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog/yangcatalog.conf')
-    api_ip = config.get('API-Section', 'ip')
+    api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('General-Section', 'protocol-api')
-    resutl_html_dir = config.get('Web-Section','result-html-dir')
-    web_private = config.get('Web-Section', 'private_directory') + '/'
-    non_ietf_directory = config.get('Directory-Section', 'non_ietf_directory')
-    ietf_directory = config.get('Directory-Section', 'ietf_directory')
-    modules_directory = config.get('Directory-Section', 'modules_directory')
-    pyang_exec = config.get('Tool-Section', 'pyang_exec')
-    confdc_exec = config.get('Tool-Section', 'confdc_exec')
-    confdc_yangpath_ieee = config.get('Tool-Section', 'confdc_yangpath_ieee')
+    resutl_html_dir = config.get('Web-Section', 'result-html-dir')
+    web_private = config.get('Web-Section', 'private-directory') + '/'
+    non_ietf_directory = config.get('Directory-Section', 'non-ietf-directory')
+    ietf_directory = config.get('Directory-Section', 'ietf-directory')
+    modules_directory = config.get('Directory-Section', 'modules-directory')
+    pyang_exec = config.get('Tool-Section', 'pyang-exec')
+    confdc_exec = config.get('Tool-Section', 'confdc-exec')
+    confdc_yangpath_ieee = config.get('Tool-Section', 'confdc-yangpath-ieee')
     parser = argparse.ArgumentParser(
         description='YANG Dcoument Processor: generate tables with compilation errors/warnings')
     parser.add_argument("--rootdir", default=".",

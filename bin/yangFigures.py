@@ -59,7 +59,7 @@ monthsFmt = DateFormatter("%b '%y")
 config = configparser.ConfigParser()
 config._interpolation = configparser.ExtendedInterpolation()
 config.read('/etc/yangcatalog/yangcatalog.conf')
-web_directory = config.get('Web-Section', 'private_directory')
+web_directory = config.get('Web-Section', 'private-directory')
 
 
 # generate stats for Cisco

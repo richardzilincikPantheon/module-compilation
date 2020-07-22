@@ -23,16 +23,16 @@ export YANGVAR=`python get_config.py --section Directory-Section --key var`
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
 export BACKUPDIR=`python get_config.py --section Directory-Section --key backup`
-export CONFD_DIR=`python get_config.py --section Tool-Section --key confd_dir`
-export PYANG=`python get_config.py --section Tool-Section --key pyang_exec`
-export CREDENTIALS=`python get_config.py --section General-Section --key credentials`
+export CONFD_DIR=`python get_config.py --section Tool-Section --key confd-dir`
+export PYANG=`python get_config.py --section Tool-Section --key pyang-exec`
+export CREDENTIALS=`python get_config.py --section Secrets-Section --key confd-credentials`
 
 #
 # Repositories
 #
-export NONIETFDIR=`python get_config.py --section Directory-Section --key non_ietf_directory`
-export IETFDIR=`python get_config.py --section Directory-Section --key ietf_directory`
-export MODULES=`python get_config.py --section Directory-Section --key modules_directory`
+export NONIETFDIR=`python get_config.py --section Directory-Section --key non_ietf-directory`
+export IETFDIR=`python get_config.py --section Directory-Section --key ietf-directory`
+export MODULES=`python get_config.py --section Directory-Section --key modules-directory`
 
 #
 # Working directories
@@ -42,7 +42,7 @@ export TMP=`python get_config.py --section Directory-Section --key temp`
 #
 # Where the HTML pages lie
 #
-export WEB_PRIVATE=`python get_config.py --section Web-Section --key private_directory`
-export WEB_DOWNLOADABLES=`python get_config.py --section Web-Section --key downloadables_directory`
-export WEB=`python get_config.py --section Web-Section --key public_directory`
-export MY_URI=`python get_config.py --section Web-Section --key my_uri`
+export WEB_PRIVATE=`python get_config.py --section Web-Section --key private-directory`
+export WEB_DOWNLOADABLES=`python get_config.py --section Web-Section --key downloadables-directory`
+export WEB=`python get_config.py --section Web-Section --key public-directory`
+export MY_URI=`python get_config.py --section Web-Section --key my-uri`

@@ -41,7 +41,7 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog/yangcatalog.conf')
-    web_private = config.get('Web-Section', 'private_directory')
+    web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
     parser = argparse.ArgumentParser(description='Move file to the their creation time')
     parser.add_argument("--documentpath", default= web_private + '/',

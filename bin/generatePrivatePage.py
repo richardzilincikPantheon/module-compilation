@@ -55,8 +55,8 @@ if __name__ == "__main__":
     config = ConfigParser.ConfigParser()
     config._interpolation = ConfigParser.ExtendedInterpolation()
     config.read(config_path)
-    private_dir = config.get('Web-Section', 'private_directory')
-    yang_repo_dir = config.get('Directory-Section', 'yang_models_dir')
+    private_dir = config.get('Web-Section', 'private-directory')
+    yang_repo_dir = config.get('Directory-Section', 'yang-models-dir')
 
     context = {}
     cisco_dir = '{}/vendor/cisco'.format(yang_repo_dir)

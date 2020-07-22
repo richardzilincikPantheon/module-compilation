@@ -161,9 +161,9 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config._interpolation = configparser.ExtendedInterpolation()
     config.read('/etc/yangcatalog/yangcatalog.conf')
-    web_private = config.get('Web-Section', 'private_directory')
+    web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
-    ietf_directory = config.get('Directory-Section', 'ietf_directory')
+    ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
     parser.add_argument("--htmlpath", default=backup_directory + '/',

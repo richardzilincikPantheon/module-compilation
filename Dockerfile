@@ -86,15 +86,15 @@ ENV YANGVAR="get_config.py --section Directory-Section --key var"
 ENV BIN=$YANG/sdo_analysis/bin
 ENV CONF=$YANG/sdo_analysis/conf
 ENV BACKUPDIR="get_config.py --section Directory-Section --key backup"
-ENV CONFD_DIR="get_config.py --section Tool-Section --key confd_dir"
-ENV PYANG="get_config.py --section Tool-Section --key pyang_exec"
+ENV CONFD_DIR="get_config.py --section Tool-Section --key confd-dir"
+ENV PYANG="get_config.py --section Tool-Section --key pyang-exec"
 
 #
 # Repositories
 #
-ENV NONIETFDIR="get_config.py --section Directory-Section --key non_ietf_directory"
-ENV IETFDIR="get_config.py --section Directory-Section --key ietf_directory"
-ENV MODULES="get_config.py --section Directory-Section --key modules_directory"
+ENV NONIETFDIR="get_config.py --section Directory-Section --key non_ietf-directory"
+ENV IETFDIR="get_config.py --section Directory-Section --key ietf-directory"
+ENV MODULES="get_config.py --section Directory-Section --key modules-directory"
 
 #
 # Working directories
@@ -104,9 +104,9 @@ ENV TMP="get_config.py --section Directory-Section --key temp"
 #
 # Where the HTML pages lie
 #
-ENV WEB_PRIVATE="get_config.py --section Web-Section --key private_directory"
-ENV WEB_DOWNLOADABLES="get_config.py --section Web-Section --key downloadables_directory"
-ENV WEB="get_config.py --section Web-Section --key public_directory"
+ENV WEB_PRIVATE="get_config.py --section Web-Section --key private-directory"
+ENV WEB_DOWNLOADABLES="get_config.py --section Web-Section --key downloadables-directory"
+ENV WEB="get_config.py --section Web-Section --key public-directory"
 
 # Give execution rights on the cron job
 RUN chmod 0644 /etc/cron.d/ietf-cron
