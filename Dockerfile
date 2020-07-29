@@ -92,7 +92,7 @@ ENV PYANG="get_config.py --section Tool-Section --key pyang-exec"
 #
 # Repositories
 #
-ENV NONIETFDIR="get_config.py --section Directory-Section --key non_ietf-directory"
+ENV NONIETFDIR="get_config.py --section Directory-Section --key non-ietf-directory"
 ENV IETFDIR="get_config.py --section Directory-Section --key ietf-directory"
 ENV MODULES="get_config.py --section Directory-Section --key modules-directory"
 

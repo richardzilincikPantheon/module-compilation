@@ -30,7 +30,7 @@ export CREDENTIALS=`python get_config.py --section Secrets-Section --key confd-c
 #
 # Repositories
 #
-export NONIETFDIR=`python get_config.py --section Directory-Section --key non_ietf-directory`
+export NONIETFDIR=`python get_config.py --section Directory-Section --key non-ietf-directory`
 export IETFDIR=`python get_config.py --section Directory-Section --key ietf-directory`
 export MODULES=`python get_config.py --section Directory-Section --key modules-directory`
 
