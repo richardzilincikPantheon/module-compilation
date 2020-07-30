@@ -237,7 +237,7 @@ if __name__ == "__main__":
             elif i == 8:
                 i = 0
                 if (datetime.date.today() - extracted_date).days > 30:
-                    yangPageCompilationHistoricalStats[date2num(extracted_date)] = {
+                    yangPageCompilationStats[date2num(extracted_date)] = {
                         "name": {"generated-at": generated_at,
                                  "passed": passed,
                                  "warnings": passed_with_warnings,
@@ -248,7 +248,7 @@ if __name__ == "__main__":
                                                                                "failed": failed}}
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
-            json.dump(yangPageCompilationHistoricalStats, f)
+            json.dump(yangPageCompilationStats, f)
         write_dictionary_file_in_json(yangPageCompilationStats, args.statspath, "YANGPageMainStats.json")
 
     prefix = "IETFYANGPageMain_"
@@ -288,7 +288,7 @@ if __name__ == "__main__":
         extracted_date = datetime.date(int(year), int(month), int(day))
         if (datetime.date.today() - extracted_date).days > 30:
             remove_old_html_files.append(args.htmlpath + f)
-            yangPageCompilationHistoricalStats[date2num(extracted_date)] = {"total": total,
+            yangPageCompilationStats[date2num(extracted_date)] = {"total": total,
                                                                             "warnings": passed_with_warnings,
                                                                             'passed': passed,
                                                                             "badly formated": badly_formated,
@@ -300,7 +300,7 @@ if __name__ == "__main__":
                                                               'examples': examples}
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
-            json.dump(yangPageCompilationHistoricalStats, f)
+            json.dump(yangPageCompilationStats, f)
         write_dictionary_file_in_json(yangPageCompilationStats, args.statspath, "IETFYANGPageMainStats.json")
 
     backup_prefix = ['HydrogenODLPageCompilation_', 'HeliumODLPageCompilation_',
@@ -349,7 +349,7 @@ if __name__ == "__main__":
             matplot_date = date2num(extracted_date)
             if (datetime.date.today() - extracted_date).days > 30:
                 remove_old_html_files.append(args.htmlpath + f)
-                yangPageCompilationHistoricalStats[matplot_date] = {"total": total_result,
+                yangPageCompilationStats[matplot_date] = {"total": total_result,
                                                                     "warning": passed_with_warning_result,
                                                                     "success": passed_result}
             yangPageCompilationStats[matplot_date] = {"total": total_result, "warning": passed_with_warning_result,
@@ -358,12 +358,12 @@ if __name__ == "__main__":
         if int(args.days) == -1:
             if prefix == "IETFDraftYANGPageCompilation_":
                 with open(json_history_file, 'w') as f:
-                    json.dump(yangPageCompilationHistoricalStats, f)
+                    json.dump(yangPageCompilationStats, f)
                 write_dictionary_file_in_json(yangPageCompilationStats, args.statspath,
                                               "IETFYANGPageCompilationStats.json")
             else:
                 with open(json_history_file, 'w') as f:
-                    json.dump(yangPageCompilationHistoricalStats, f)
+                    json.dump(yangPageCompilationStats, f)
                 write_dictionary_file_in_json(yangPageCompilationStats, args.statspath,
                                               "{}Stats.json".format(prefix[:-1]))
 
@@ -396,12 +396,12 @@ if __name__ == "__main__":
         extracted_date = datetime.date(int(year), int(month), int(day))
         if (datetime.date.today() - extracted_date).days > 30:
             remove_old_html_files.append(args.htmlpath + f)
-            yangPageCompilationHistoricalStats[date2num(extracted_date)] = {"total": rfc_result}
+            yangPageCompilationStats[date2num(extracted_date)] = {"total": rfc_result}
         IETFYANGOutOfRFC[date2num(extracted_date)] = {"total": rfc_result}
     # write IETFYANGOutOfRFC to a json file
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
-            json.dump(yangPageCompilationHistoricalStats, f)
+            json.dump(yangPageCompilationStats, f)
         write_dictionary_file_in_json(IETFYANGOutOfRFC, args.statspath, "IETFYANGOutOfRFCStats.json")
 
     # determine the number of company authored drafts
