@@ -402,7 +402,7 @@ if __name__ == "__main__":
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
             json.dump(yangPageCompilationStats, f)
-        write_dictionary_file_in_json(IETFYANGOutOfRFC, args.statspath, "IETFYANGOutOfRFCStats.json")
+        write_dictionary_file_in_json(yangPageCompilationStats, args.statspath, "IETFYANGOutOfRFCStats.json")
 
     # determine the number of company authored drafts
     files = [f for f in os.listdir(args.draftpathstrict) if os.path.isfile(os.path.join(args.draftpathstrict, f))]
