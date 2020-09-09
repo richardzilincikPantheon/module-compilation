@@ -12,6 +12,7 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 #
+START=`date "+%s"`
 BIN=/sdo_analysis/bin
 cd $BIN
 #source activate
@@ -40,4 +41,6 @@ runGenerateFiguresAndStats.sh
 cd $WEB_PRIVATE
 ls *.json > json_links
 
+END=`date "+%s"`
+python $BIN/job_log.py --start START --end END --status "Success" --filename "cronjob-weekly"
 date +"%c: End of $0"
