@@ -35,5 +35,5 @@ runGenerateFiguresAndStats.sh
 cd $WEB_PRIVATE
 ls *.json > json_links
 END=`date "+%s"`
-python $BIN/job_log.py --start START --end END --status "Success" --filename "cronjob-daily"
+python $BIN/job_log.py --start $START --end $END --status "Success" --filename "cronjob-daily"
 date +"%c: End of $0"

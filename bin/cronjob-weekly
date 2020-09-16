@@ -42,5 +42,5 @@ cd $WEB_PRIVATE
 ls *.json > json_links
 
 END=`date "+%s"`
-python $BIN/job_log.py --start START --end END --status "Success" --filename "cronjob-weekly"
+python $BIN/job_log.py --start $START --end $END --status "Success" --filename "cronjob-weekly"
 date +"%c: End of $0"
