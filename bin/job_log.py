@@ -40,14 +40,25 @@ if __name__ == "__main__":
     result['start'] = int(args.start)
     result['end'] = int(args.end)
     result['status'] = args.status
-    if args.status == 'Success':
-        result['last_successfull'] = int(args.end)
+
     try:
         with open('{}/cronjob.json'.format(temp_dir), 'r') as f:
             file_content = json.load(f)
     except:
         file_content = {}
 
+    last_successfull = None
+    # If successfull rewrite, otherwise use last_successfull value from JSON
+    if args.status == 'Success':
+        last_successfull = int(args.end)
+    else:
+        try:
+            previous_state = file_content.get(args.filename)
+            last_successfull = previous_state.get('last_successfull')
+        except:
+            last_successfull = None
+
+    result['last_successfull'] = last_successfull
     file_content[args.filename] = result
 
     with open('{}/cronjob.json'.format(temp_dir), 'w') as f:
