@@ -32,15 +32,15 @@ RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
   && mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen; cd /home/pyhtgen/pyhtgen;  python setup.py install
 
 RUN echo postfix postfix/mailname string yang2.amsl.com | debconf-set-selections; \
-    echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections; \
-    apt-get -y install postfix
+  echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections; \
+  apt-get -y install postfix
 
 COPY ./resources/main.cf /etc/postfix/main.cf
 
 RUN apt-get install -y \
-    openssh-client \
-    && apt-get autoremove -y \
-    && rm  -rf /var/lib/apt/lists/*
+  openssh-client \
+  && apt-get autoremove -y \
+  && rm  -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
@@ -52,7 +52,7 @@ RUN rm -rf /usr/bin/python
 RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN cd /sdo_analysis/bin/resources/HTML; python setup.py install
 
-RUN dpkg -i yumapro-client-19.10-6.u1804.amd64.deb
+RUN dpkg -i yumapro-client-19.10-12.u1804.amd64.deb
 
 RUN chmod 0777 bin/configure.sh
 
