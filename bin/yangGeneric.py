@@ -513,6 +513,7 @@ if __name__ == "__main__":
     non_ietf_directory = config.get('Directory-Section', 'non-ietf-directory')
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
     modules_directory = config.get('Directory-Section', 'modules-directory')
+    temp_dir = config.get('Directory-Section', 'temp')
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     confdc_exec = config.get('Tool-Section', 'confdc-exec')
     confdc_yangpath_ieee = config.get('Tool-Section', 'confdc-yangpath-ieee')
@@ -549,7 +550,18 @@ if __name__ == "__main__":
           flush=True)
     all_yang_catalog_metadta = {}
     prefix = '{}://{}'.format(protocol, api_ip)
-    modules = requests.get('{}/api/search/modules'.format(prefix)).json()
+
+    modules = {}
+    try:
+        with open("{}/all_modules_data.json".format(temp_dir), "r") as f:
+            modules = json.load(f)
+            print('All the modules data loaded from JSON files')
+    except:
+        modules = {}
+    if modules == {}:
+        modules = requests.get('{}/api/search/modules'.format(prefix)).json()
+        print('All the modules data loaded from API')
+
     for mod in modules['module']:
         all_yang_catalog_metadta['{}@{}'.format(mod['name'], mod['revision'])] = mod
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)

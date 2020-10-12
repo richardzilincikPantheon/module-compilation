@@ -726,6 +726,7 @@ if __name__ == "__main__":
     web_private = config.get('Web-Section', 'private-directory')
 
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
+    temp_dir = config.get('Directory-Section', 'temp')
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     confdc_exec = config.get('Tool-Section', 'confdc-exec')
     confdc_yangpath = config.get('Tool-Section', 'confdc-yangpath')
@@ -793,7 +794,18 @@ if __name__ == "__main__":
     debug_level = args.debug
     all_yang_catalog_metadta = {}
     prefix = '{}://{}'.format(protocol, api_ip)
-    modules = requests.get('{}/api/search/modules'.format(prefix)).json()
+
+    modules = {}
+    try:
+        with open("{}/all_modules_data.json".format(temp_dir), "r") as f:
+            modules = json.load(f)
+            print('All the modules data loaded from JSON files')
+    except:
+        modules = {}
+    if modules == {}:
+        modules = requests.get('{}/api/search/modules'.format(prefix)).json()
+        print('All the modules data loaded from API')
+
     for mod in modules['module']:
         all_yang_catalog_metadta['{}@{}'.format(mod['name'], mod['revision'])] = mod
 
