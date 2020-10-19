@@ -21,6 +21,9 @@ source $CONFD_DIR/confdrc >> $LOG 2>&1
 
 mkdir -p $MODULES >> $LOG 2>&1
 
+RESPONSE=$(curl -H "Accept: application/json" $MY_URI/api/search/modules) >> $LOG 2>&1
+echo "$RESPONSE" > "$TMP/all_modules_data.json"
+
 # Generate the weekly reports
 
 #declare -a PIDS
