@@ -498,6 +498,9 @@ def module_or_submodule(input_file):
         return None
 
 
+def get_timestamp_with_pid():
+    return str(datetime.datetime.now().time()) + ' (' + str(os.getpid()) + '): '
+
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
@@ -546,29 +549,28 @@ if __name__ == "__main__":
                                                      "Default is NULL")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
     args = parser.parse_args()
-    print(str(datetime.datetime.now().time()) + '(' + str(os.getpid()) + '): Start of job in ' + args.rootdir,
-          flush=True)
-    all_yang_catalog_metadta = {}
+    print(get_timestamp_with_pid() + 'Start of job in ' + args.rootdir, flush=True)
+    all_yang_catalog_metadata = {}
     prefix = '{}://{}'.format(protocol, api_ip)
 
     modules = {}
     try:
         with open("{}/all_modules_data.json".format(temp_dir), "r") as f:
             modules = json.load(f)
-            print('All the modules data loaded from JSON files')
+            print(get_timestamp_with_pid() + 'All the modules data loaded from JSON files', flush=True)
     except:
         modules = {}
     if modules == {}:
         modules = requests.get('{}/api/search/modules'.format(prefix)).json()
-        print('All the modules data loaded from API')
+        print(get_timestamp_with_pid() + 'All the modules data loaded from API', flush=True)
 
     for mod in modules['module']:
-        all_yang_catalog_metadta['{}@{}'.format(mod['name'], mod['revision'])] = mod
+        all_yang_catalog_metadata['{}@{}'.format(mod['name'], mod['revision'])] = mod
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
         print("yang_list content: ")
         print(yang_list)
-    print(str(datetime.datetime.now().time()) + '(' + str(os.getpid()) + '): relevant files list built, ' + str(
+    print(get_timestamp_with_pid() + 'relevant files list built, ' + str(
         len(yang_list)) + ' modules found in ' + args.rootdir, flush=True)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
@@ -603,7 +605,7 @@ if __name__ == "__main__":
             check_yangcatalog_data(confdc_exec, pyang_exec, args.rootdir, resutl_html_dir, yang_file_without_path, None, None, None, compilation,
                                    result_pyang,
                                    result_no_pyang_param, result_confd, result_yuma, result_yanglint,
-                                   all_yang_catalog_metadta, None))
+                                   all_yang_catalog_metadata, None))
         # Add the @revision to the yang_file if not present
         if "@" in yang_file and ".yang" in yang_file:
             out = get_mod_rev(yang_file)
@@ -644,11 +646,11 @@ if __name__ == "__main__":
             else:
                 print("Unable to get name@revision out of " + yang_file + ' no output', flush=True)
 
-    print(str(datetime.datetime.now().time()) + ': all modules compiled/validated', flush=True)
+    print(get_timestamp_with_pid() + 'all modules compiled/validated', flush=True)
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary, args.htmlpath, args.prefix + ".json")
-    print(str(datetime.datetime.now().time()) + ': ' + args.prefix + '.json file generated', flush=True)
+    print(get_timestamp_with_pid() + args.prefix + '.json file generated', flush=True)
 
     # YANG modules from drafts: : make a list out of the dictionary
     # my_list = []
@@ -659,11 +661,9 @@ if __name__ == "__main__":
     my_new_list = list_br_html_addition(my_list)
 
     # YANG modules from drafts: HTML page generation for yang models
-    print(str(
-        datetime.datetime.now().time()) + ": " + args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath,
+    print(get_timestamp_with_pid() + args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath,
           flush=True)
-    print(str(
-        datetime.datetime.now().time()) + ": " + args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath,
+    print(get_timestamp_with_pid() + args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath,
           flush=True)
     # if want to populate the document location from github, must uncomment the following line
     # if want to populate the document location from github, must change all occurences from
@@ -709,4 +709,4 @@ if __name__ == "__main__":
         passed_with_warnings) + "/" + str(total_number))
     print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(
         total_number))
-    print(str(datetime.datetime.now().time()) + '(' + str(os.getpid()) + '): end of job', flush=True)
+    print(get_timestamp_with_pid() + 'end of job', flush=True)

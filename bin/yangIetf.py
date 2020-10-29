@@ -580,7 +580,7 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
     if not found:
         print("Error file " + yang_file + " not found in dir or subdir of " + yang_path)
     name_revision = \
-        os.popen('$PYANG -f' + 'name --name-print-revision --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
+        os.popen(pyang_exec + ' -f' + 'name --name-print-revision --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
             ' ')[0]
     if '@' not in name_revision:
         name_revision += '@1970-01-01'
@@ -714,6 +714,10 @@ def push_to_confd(updated_modules, config):
     return []
 
 
+def get_timestamp_with_pid():
+    return str(datetime.datetime.now().time()) + ' (' + str(os.getpid()) + '): '
+
+
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
@@ -810,7 +814,7 @@ if __name__ == "__main__":
         all_yang_catalog_metadta['{}@{}'.format(mod['name'], mod['revision'])] = mod
 
     # note: args.strict is not used
-    print(str(datetime.datetime.now().time()) + ': Starting', flush=True)
+    print(get_timestamp_with_pid() + 'Starting', flush=True)
 
     # empty the yangpath, allyangpath, and rfcyangpath directory content
     remove_directory_content(args.yangpath, debug_level)
@@ -838,7 +842,7 @@ if __name__ == "__main__":
     ietf_rfcs = [f for f in os.listdir(args.rfcpath) if os.path.isfile(os.path.join(args.rfcpath, f))]
     ietf_rfcs.sort()
 
-    print(str(datetime.datetime.now().time()) + ': file list generated', flush=True)
+    print(get_timestamp_with_pid() + 'file list generated', flush=True)
     # Extracting YANG Modules from IETF drafts
     draft_yang_dict = {}
     draft_yang_all_dict = {}
@@ -882,7 +886,7 @@ if __name__ == "__main__":
             rfc_yang_dict[rfc_file] = yang_models_in_rfc
     yang_rfc_dict = invert_yang_modules_dict(rfc_yang_dict, debug_level)
     remove_invalid_files(args.rfcyangpath, yang_rfc_dict)
-    print(str(datetime.datetime.now().time()) + ': all RFC processed', flush=True)
+    print(get_timestamp_with_pid() + 'all RFC processed', flush=True)
 
     for draft_file in ietf_drafts:
         # Extract the correctly formatted YANG Models into args.yangpath
@@ -976,8 +980,8 @@ if __name__ == "__main__":
     remove_invalid_files(args.allyangexamplepath, yang_example_draft_dict)
     yang_draft_all_dict = invert_yang_modules_dict(draft_yang_all_dict, debug_level)
     remove_invalid_files(args.allyangpath, yang_draft_all_dict)
-    print(str(datetime.datetime.now().time()) + ': all IETF drafts processed', flush=True)
-    print(str(datetime.datetime.now().time()) + ': Python dict inverted', flush=True)
+    print(get_timestamp_with_pid() + 'all IETF drafts processed', flush=True)
+    print(get_timestamp_with_pid() + 'Python dict inverted', flush=True)
     # Remove the YANG modules (the key in the inverted rfc_dict dictionary dictionary)
     # which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html:
     # and the example-ospf-topology.yang, which is bug in xym
@@ -989,7 +993,7 @@ if __name__ == "__main__":
     # and the example-ospf-topology.yang, which is bug in xym
     # Those YANG modules, from old RFCs, don't follow the example- conventions
     move_old_examples_YANG_modules_from_RFC(args.rfcyangpath, args.yangexampleoldrfcpath, debug_level)
-    print(str(datetime.datetime.now().time()) + ': YANG modules moved', flush=True)
+    print(get_timestamp_with_pid() + 'YANG modules moved', flush=True)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
@@ -1032,11 +1036,11 @@ if __name__ == "__main__":
             dictionary_no_submodules[yang_file] = (
                 draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
                 result_yanglint)
-    print(str(datetime.datetime.now().time()) + ': IETF drafts validated/compiled', flush=True)
+    print(get_timestamp_with_pid() + 'IETF drafts validated/compiled', flush=True)
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary, args.htmlpath, "IETFDraft.json")
-    print(str(datetime.datetime.now().time()) + ': IETFDraft.json generated', flush=True)
+    print(get_timestamp_with_pid() + 'IETFDraft.json generated', flush=True)
     # YANG modules from drafts: : make a list out of the dictionary
     my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
@@ -1044,7 +1048,7 @@ if __name__ == "__main__":
     my_new_list = []
     my_new_list = list_br_html_addition(my_list)
     # YANG modules from drafts: HTML page generation for yang models
-    print(str(datetime.datetime.now().time()) + ": HTML page generation", flush=True)
+    print(get_timestamp_with_pid() + 'HTML page generation', flush=True)
     header = ['YANG Model', 'Draft Name', 'Email', 'Download the YANG model', 'Compilation',
               'Compilation Result (pyang --ietf). ' + run_pyang_version(pyang_exec, 0),
               'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(pyang_exec, 0),
@@ -1092,11 +1096,11 @@ if __name__ == "__main__":
         if module_or_submodule(args.allyangexamplepath + yang_file) == 'module':
             dictionary_no_submodules_example[yang_file] = (
                 draft_url, email, compilation, result_pyang, result_no_ietf_flag)
-    print(str(datetime.datetime.now().time()) + ': example YANG modules in IETF drafts validated/compiled', flush=True)
+    print(get_timestamp_with_pid() + 'example YANG modules in IETF drafts validated/compiled', flush=True)
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary_example, args.htmlpath, "IETFDraftExample.json")
-    print(str(datetime.datetime.now().time()) + ': IETFDraftExample.json generated', flush=True)
+    print(get_timestamp_with_pid() + 'IETFDraftExample.json generated', flush=True)
     # dictionary2 = {}
     # dictionary2 = read_dictionary_file_in_json(args.htmlpath, "IETFYANG.json")
     # YANG modules from drafts: : make a list out of the dictionary
@@ -1106,7 +1110,7 @@ if __name__ == "__main__":
     my_new_list = []
     my_new_list = list_br_html_addition(my_list)
     # YANG modules from drafts: HTML page generation for yang models
-    print(str(datetime.datetime.now().time()) + ": HTML page generation for Example YANG Models", flush=True)
+    print(get_timestamp_with_pid() + 'HTML page generation for Example YANG Models', flush=True)
     header = ['YANG Model', 'Draft Name', 'Email', 'Compilation', 'Compilation Result (pyang --ietf)',
               'Compilation Result (pyang). Note: also generates errors for imported files.']
     generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftExampleYANGPageCompilation.html")
@@ -1133,7 +1137,7 @@ if __name__ == "__main__":
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary2, args.htmlpath, "IETFYANGRFC.json")
-    print(str(datetime.datetime.now().time()) + ': IETFYANGRFC.json generated', flush=True)
+    print(get_timestamp_with_pid() + 'IETFYANGRFC.json generated', flush=True)
 
     # (Un)comment next two lines if I want to remove the submodule from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
     my_yang_in_rfc = sorted(dict_to_list_rfc(dictionary2))
@@ -1169,7 +1173,7 @@ if __name__ == "__main__":
     my_list2 = [line2, line5, line6, line7, line8, line9]
 
     generate_html_list(my_list2, args.htmlpath, "IETFYANGPageMain.html")
-    print(str(datetime.datetime.now().time()) + ': IETFYANGPageMain.html generated', flush=True)
+    print(get_timestamp_with_pid() + 'IETFYANGPageMain.html generated', flush=True)
 
     # Stats generation for the standard output
     print("--------------------------")
@@ -1259,7 +1263,7 @@ if __name__ == "__main__":
     my_new_list = []
     my_new_list = list_br_html_addition(my_list)
     # HTML page generation for yang models
-    print(str(datetime.datetime.now().time()) + ": Cisco HTML page generation", flush=True)
+    print(get_timestamp_with_pid() + 'Cisco HTML page generation', flush=True)
     header = ['YANG Model', 'Draft Name', 'All Authors Email', 'Only Cisco Email', 'Download the YANG model',
               'Compilation', 'Compilation Results (pyang --ietf)',
               'Compilation Results (pyang). Note: also generates errors for imported files.',
@@ -1268,5 +1272,5 @@ if __name__ == "__main__":
               'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
     generate_html_table(my_new_list, header, args.htmlpath, "IETFCiscoAuthorsYANGPageCompilation.html")
     print(output_email_string_unique)
-    print(str(datetime.datetime.now().time()) + ': IETFCiscoAuthorsYANGPageCompilation.html generated', flush=True)
-    print(str(datetime.datetime.now().time()) + ': end of job', flush=True)
+    print(get_timestamp_with_pid() + 'IETFCiscoAuthorsYANGPageCompilation.html generated', flush=True)
+    print(get_timestamp_with_pid() + 'end of job', flush=True)
