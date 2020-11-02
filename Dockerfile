@@ -17,8 +17,8 @@ COPY ./resources/* $VIRTUAL_ENV/
 WORKDIR $VIRTUAL_ENV
 
 ENV confd_version 7.3.1
-RUN apt-get update
-RUN apt-get install -y cron wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
+RUN apt-get -y update
+RUN apt-get -y install cron wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
@@ -37,9 +37,9 @@ RUN echo postfix postfix/mailname string yang2.amsl.com | debconf-set-selections
 
 COPY ./resources/main.cf /etc/postfix/main.cf
 
-RUN apt-get install -y \
+RUN apt-get -y install \
   openssh-client \
-  && apt-get autoremove -y \
+  && apt-get -y autoremove \
   && rm  -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
