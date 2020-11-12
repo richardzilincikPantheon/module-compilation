@@ -51,6 +51,7 @@ done
 
 # Cisco XE
 date +"%c: processing all Cisco XE modules " >> $LOG
+declare -a PIDSXE
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/xe/*/)
 do
    meta="IOS XE"

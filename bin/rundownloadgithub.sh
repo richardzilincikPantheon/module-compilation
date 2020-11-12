@@ -19,8 +19,7 @@
 # Get the local configuration
 source configure.sh
 LOG=$LOGS/downloadGitHub.log
-echo "Starting" > $LOG
-date >> $LOG
+date +"%c: Starting" > $LOG
 
 # Ensure master directory exists
 mkdir -p $NONIETFDIR
@@ -124,5 +123,4 @@ cd $NONIETFDIR/mef/YANG-public
 git init >>$LOG 2>&1
 git pull --recurse-submodules https://github.com/MEF-GIT/YANG-public.git >>$LOG 2>&1
 
-echo "End of the script!" >> $LOG
-date >> $LOG
+date +"%c: End of the script!" >> $LOG
