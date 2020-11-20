@@ -49,7 +49,7 @@ PIDS+=("$!")
 PIDS+=("$!")
 
 # Wait for all child-processes
-for PID in $PIDS
+for PID in ${PIDS[@]}
 do
 	wait $PID || exit 1
 done
@@ -72,7 +72,7 @@ PIDS2+=("$!")
 PIDS2+=("$!")
 
 # Wait for all child-processes
-for PID in $PIDS2
+for PID in ${PIDS2[@]}
 do
 	wait $PID || exit 1
 done
@@ -90,7 +90,7 @@ PIDS3+=("$!")
 (python $BIN/yangGeneric.py --metadata "Sysrepo: applications YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/applications" --lint True --prefix SysrepoApplication --rootdir "$NONIETFDIR/sysrepo/yang/applications/" >> $LOG 2>&1) &
 PIDS3+=("$!")
 
-for PID in $PIDS3
+for PID in ${PIDS3[@]}
 do
 	wait $PID || exit 1
 done
@@ -114,17 +114,8 @@ for b in $branches
       (python $BIN/yangGeneric.py --metadata "OpenRoadm $last_word: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$last_word --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) #&
     fi
 done
-#PIDS+=("$!")
 
 cd $cur_dir
-date +"%c: waiting for all sub-processes" >> $LOG
-
-# Wait for all child-processes
-#for PID in $PIDS
-#do
-#	wait $PID || exit 1
-#done
-
 date +"%c: all sub-process have ended" >> $LOG
 
 rm -f $TMP/bbf/*.fxs >> $LOG 2>&1

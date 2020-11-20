@@ -44,7 +44,7 @@ do
    done
 done
 # Wait for all child-processes until move to next OS
-for PID in $PIDSNX
+for PID in ${PIDSNX[@]}
 do
    wait $PID || exit 1
 done
@@ -67,7 +67,7 @@ do
    done
 done
 # Wait for all child-processes until move to next OS
-for PID in $PIDSXE
+for PID in ${PIDSXE[@]}
 do
    wait $PID || exit 1
 done
@@ -90,7 +90,7 @@ do
    done
 done
 # Wait for all child-processes until move to next vendor
-for PID in $PIDSXR
+for PID in ${PIDSXR[@]}
 do
    wait $PID || exit 1
 done
@@ -102,33 +102,38 @@ date +"%c: processing Juniper modules " >> $LOG
 declare -a PIDJUNIPER
 for i in {14..20}
 do
-   if [ $i -eq 15 ]
+   # Juniper/14.2 does not contain subdirectories
+   if [ $i -eq 14 ]
    then
-      continue
-   fi
-   for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/juniper/$i*/)
-   do
-      subdircount=`find $path -maxdepth 1 -type d | wc -l`
-      if [ $subdircount -eq 1 ]
-      then
-         echo "path to $path*/ does not exists"
-         continue
-      fi
-      for path2 in $(ls -d $path*/)
-      do
-         git=${path2##*/juniper/}
+         path=$(ls -d $NONIETFDIR/yangmodels/yang/vendor/juniper/$i*/)
+         git=${path##*/juniper/}
          yang_removed=${git%/*}
          prefix=${yang_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         (python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
-         PIDJUNIPER+=("$!")
+         python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >> $LOG 2>&1
+   # Juniper/15* does not exist
+   elif [ $i -eq 15 ]
+   then
+      continue
+   else
+      for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/juniper/$i*/)
+      do
+         for path2 in $(ls -d $path*/)
+         do
+            git=${path2##*/juniper/}
+            yang_removed=${git%/*}
+            prefix=${yang_removed#*/}
+            prefix2=$(echo $prefix | tr -cd '[:alnum:]')
+            (python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
+            PIDJUNIPER+=("$!")
+         done
       done
-      for PID in $PIDJUNIPER
+      for PID in ${PIDJUNIPER[@]}
       do
          wait $PID || exit 1
       done
       unset PIDJUNIPER
-   done
+   fi
 done
 
 # Huawei
@@ -145,7 +150,7 @@ do
    PIDSHUAWEI+=("$!")
 done
 # Wait for all child-processes
-for PID in $PIDSHUAWEI
+for PID in ${PIDSHUAWEI[@]}
 do
    wait $PID || exit 1
 done
@@ -167,7 +172,7 @@ do
    PIDSFUJITSU+=("$!")
 done
 # Wait for all child-processes
-for PID in $PIDSFUJITSU
+for PID in ${PIDSFUJITSU[@]}
 do
 	wait $PID || exit 1
 done
@@ -188,7 +193,7 @@ do
    done
 done
 # Wait for all child-processes
-for PID in $PIDSNOKIA
+for PID in ${PIDSNOKIA[@]}
 do
 	wait $PID || exit 1
 done
