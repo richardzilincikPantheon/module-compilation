@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
         response = requests.post(url, json=body)
         resp_body = response.json()
-        modules = resp_body['yang-catalog:modules']['module']
+        modules = resp_body.get('yang-catalog:modules', {}).get('module', [])
 
         for mod in modules:
             name = mod['name']
