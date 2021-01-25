@@ -16,7 +16,7 @@ COPY ./resources/* $VIRTUAL_ENV/
 
 WORKDIR $VIRTUAL_ENV
 
-ENV confd_version 7.3.1
+ENV confd_version 7.5
 RUN apt-get -y update
 RUN apt-get -y install cron wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
   && cd /home; mkdir w3cgrep \
