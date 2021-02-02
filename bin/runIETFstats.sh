@@ -39,7 +39,7 @@ date +"%c: Removing bad IETF drafts" >> $LOG
 python $BIN/yang-exclude-bad-drafts.py >> $LOG 2>&1
 python $BIN/yang-exclude-bad-drafts.py --dstdir $IETFDIR/my-id-archive-mirror >> $LOG 2>&1
 
-#copy the current content to the -old files 
+#copy the current content to the -old files
 if [ -f $WEB_PRIVATE/IETFDraftYANGPageCompilation.html ]
 then
 	cp $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html
@@ -106,11 +106,10 @@ rm -f $MODULES/open-config-main
 ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
 
 # Extract all YANG models from RFC and I-D
-# TODO only process new I-D/RFC
 date +"%c: Starting to extract all YANG modules from IETF documents" >> $LOG
 # Using --draftpath $IETFDIR/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
 python $BIN/yangIetf.py >> $LOG 2>&1
-# yangIetf.py --draftpath $IETFDIR/my-id-archive-mirror/ >> $LOG 2>&1
+# python $BIN/yangIetf.py --draftpath $IETFDIR/my-id-archive-mirror/ >> $LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >> $LOG
 
 #clean up of the .fxs files created by confdc
@@ -130,7 +129,7 @@ date +"%c: IETF YANG modules copied to $WEB/YANG-modules" >> $LOG
 python $BIN/yangGeneric.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed `$PYANG -v` with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >> $LOG 2>&1
 date +"%c: All RFC processed" >> $LOG
 
-#Generate the diff files 
+#Generate the diff files
 # Need to add || true as diff returns 1 in case of different files...
 diff $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html > $WEB_PRIVATE/IETFDraftYANGPageCompilation-diff.txt || true
 diff $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation.html $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-old.html > $WEB_PRIVATE/IETFCiscoAuthorsYANGPageCompilation-diff.txt || true

@@ -7,5 +7,5 @@ SHELL=/bin/bash
 #
 #  SDO Analysis to fetch from IETF, YangModels, ...
 #
-5 1 * * 0 (cd /sdo_analysis/bin/ ; echo "`date` starting cronjob-weekly" > /var/yang/logs/crons-log.log ; ./cronjob-weekly) > /var/yang/logs/cronjob-weekly.log
+5 1 * * 6 (cd /sdo_analysis/bin/ ; echo "`date` starting cronjob-weekly" > /var/yang/logs/crons-log.log ; ./cronjob-weekly) > /var/yang/logs/cronjob-weekly.log
 5 1 * * 1-6 (cd /sdo_analysis/bin/ ; echo "`date` starting cronjob-daily" > /var/yang/logs/crons-log.log ; ./cronjob-daily) > /var/yang/logs/cronjob-daily.log
