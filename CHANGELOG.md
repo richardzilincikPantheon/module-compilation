@@ -1,5 +1,8 @@
 ## Backend Release Notes
-* ##### v3.0.0 - 2021-02-DD
+
+* ##### vm.m.p - 2021-MM-DD
+
+* ##### v3.0.0 - 2021-02-10
 
   * Update Dockerfile
   * ConfD update [deployment #34](https://github.com/YangCatalog/deployment/issues/34)
