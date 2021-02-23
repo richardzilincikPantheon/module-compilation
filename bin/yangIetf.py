@@ -30,18 +30,19 @@ import time
 import HTML
 import jinja2
 import requests
+from xym import xym
+
 from extract_elem import extract_elem
 from extract_emails import extract_email_string
 from remove_directory_content import remove_directory_content
-from xym import xym
+from versions import ValidatorsVersions
 
 # ----------------------------------------------------------------------
-# Cash versions
+# Validators versions
 # ----------------------------------------------------------------------
-confd_version = ''
-pyang_version = ''
-yanglint_version = ''
-yumadumppro_version = ''
+validators_versions = ValidatorsVersions()
+versions = validators_versions.get_versions()
+version_changed = validators_versions.version_changed()
 
 
 # ----------------------------------------------------------------------
@@ -68,21 +69,6 @@ def run_pyang(pyang_exec, model, ietf, yangpath, debug_level):
     return os.popen(bash_command).read()
 
 
-def run_pyang_version(pyang_exec, debug_level=0):
-    """
-    Return the pyang version.
-    :param debug_level
-    :return: a string composed of the pyang version
-    """
-    global pyang_version
-    if pyang_version == '':
-        bash_command = pyang_exec + " -v 2>&1"
-        if debug_level:
-            print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
-        pyang_version = os.popen(bash_command).read()
-    return pyang_version
-
-
 def run_confd(confdc_exec, model, yangpath, debug_level):
     """
     Run confdc on the YANG model
@@ -95,20 +81,6 @@ def run_confd(confdc_exec, model, yangpath, debug_level):
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-
-
-def run_confd_version(confdc_exec, debug_level=0):
-    """
-    Return the confd version
-    :return: a string composed of the confd version
-    """
-    global confd_version
-    if confd_version == '':
-        bash_command = confdc_exec + " --version 2>&1"
-        if debug_level:
-            print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
-        confd_version = "confd version " + os.popen(bash_command).read()
-    return confd_version
 
 
 def run_yumadumppro(model, yangpath, debug_level):
@@ -133,21 +105,6 @@ def run_yumadumppro(model, yangpath, debug_level):
     return result
 
 
-def run_yumadumppro_version(debug_level=0):
-    """
-    Return the yangdump-pro version
-    :param debug
-    :return: a string composed of the yangdump-pro version
-    """
-    global yumadumppro_version
-    if yumadumppro_version == '':
-        bash_command = "yangdump-pro --version 2>&1"
-        if debug_level:
-            print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
-        yumadumppro_version = os.popen(bash_command).read()
-    return yumadumppro_version
-
-
 def run_yanglint(model, yangpath, debug_level):
     """
     Run yanglint on the YANG model
@@ -160,21 +117,6 @@ def run_yanglint(model, yangpath, debug_level):
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-
-
-def run_yanglint_version(debug_level=0):
-    """
-    Return the yanglint version
-    :param debug
-    :return: a string composed of the yanglint version
-    """
-    global yanglint_version
-    if yanglint_version == '':
-        bash_command = "yanglint -v 2>&1"
-        if debug_level:
-            print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
-        yanglint_version = os.popen(bash_command).read()
-    return yanglint_version
 
 
 def generate_html_table(l, h, htmlpath, file_name):
@@ -635,16 +577,16 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
             option = '--lint'
             if ietf is not None:
                 option = '--ietf'
-            ths.append('Compilation Result (pyang {}). {}'.format(option, run_pyang_version(pyang_exec)))
+            ths.append('Compilation Result (pyang {}). {}'.format(option, versions.get('pyang_version')))
             ths.append('Compilation Result (pyang). Note: also generates errors for imported files. {}'.format(
-                run_pyang_version(pyang_exec)))
+                versions.get('pyang_version')))
             ths.append('Compilation Results (confdc) Note: also generates errors for imported files. {}'.format(
-                run_confd_version(confdc_exec)))
+                versions.get('confd_version')))
             ths.append('Compilation Results (yangdump-pro). Note: also generates errors for imported files. {}'.format(
-                run_yumadumppro_version()))
+                versions.get('yangdump_version')))
             ths.append(
                 'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. {}'.format(
-                    run_yanglint_version()))
+                    versions.get('yanglint_version')))
 
             context = {'result': result,
                        'ths': ths}
@@ -796,7 +738,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     debug_level = args.debug
-    all_yang_catalog_metadta = {}
+    all_yang_catalog_metadata = {}
     prefix = '{}://{}'.format(protocol, api_ip)
 
     modules = {}
@@ -811,7 +753,7 @@ if __name__ == "__main__":
         print('All the modules data loaded from API')
 
     for mod in modules['module']:
-        all_yang_catalog_metadta['{}@{}'.format(mod['name'], mod['revision'])] = mod
+        all_yang_catalog_metadata['{}@{}'.format(mod['name'], mod['revision'])] = mod
 
     # note: args.strict is not used
     print(get_timestamp_with_pid() + 'Starting', flush=True)
@@ -1026,7 +968,7 @@ if __name__ == "__main__":
             check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
                                    result_pyang,
                                    result_no_ietf_flag, result_confd, result_yuma, result_yanglint,
-                                   all_yang_catalog_metadta, 'ietf-draft'))
+                                   all_yang_catalog_metadata, 'ietf-draft'))
         if len(updated_modules) > 100:
             updated_modules = push_to_confd(updated_modules, config)
         dictionary[yang_file] = (
@@ -1050,13 +992,11 @@ if __name__ == "__main__":
     # YANG modules from drafts: HTML page generation for yang models
     print(get_timestamp_with_pid() + 'HTML page generation', flush=True)
     header = ['YANG Model', 'Draft Name', 'Email', 'Download the YANG model', 'Compilation',
-              'Compilation Result (pyang --ietf). ' + run_pyang_version(pyang_exec, 0),
-              'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(pyang_exec, 0),
-              'Compilation Results (confdc) Note: also generates errors for imported files. ' + run_confd_version(confdc_exec, 0),
-              'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + run_yumadumppro_version(
-                  0),
-              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + run_yanglint_version(
-                  0)]
+              'Compilation Result (pyang --ietf). ' + versions.get('pyang_version'),
+              'Compilation Result (pyang). Note: also generates errors for imported files. ' + versions.get('pyang_version'),
+              'Compilation Results (confdc) Note: also generates errors for imported files. ' + versions.get('confd_version'),
+              'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + versions.get('yangdump_version'),
+              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
     generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftYANGPageCompilation.html")
 
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
@@ -1089,7 +1029,7 @@ if __name__ == "__main__":
             check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
                                    result_pyang,
                                    result_no_ietf_flag, '', '', '',
-                                   all_yang_catalog_metadta, 'ietf-example'))
+                                   all_yang_catalog_metadata, 'ietf-example'))
         if len(updated_modules) > 100:
             updated_modules = push_to_confd(updated_modules, config)
         dictionary_example[yang_file] = (draft_url, email, compilation, result_pyang, result_no_ietf_flag)
@@ -1127,7 +1067,7 @@ if __name__ == "__main__":
         dictionary2[yang_file] = rfc_url
         updated_modules.extend(
             check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, rfc_name, None, None,
-                                   None, None, None, None, None, all_yang_catalog_metadta, 'ietf-rfc'))
+                                   None, None, None, None, None, all_yang_catalog_metadata, 'ietf-rfc'))
         if len(updated_modules) > 100:
             updated_modules = push_to_confd(updated_modules, config)
         # Uncomment next three lines if I want to remove the submodule from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
@@ -1231,7 +1171,7 @@ if __name__ == "__main__":
                 check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
                                        result_pyang,
                                        result_no_ietf_flag, result_confd, result_yuma, result_yanglint,
-                                       all_yang_catalog_metadta, 'ietf-draft'))
+                                       all_yang_catalog_metadata, 'ietf-draft'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
             dictionary[yang_file] = (
@@ -1274,3 +1214,6 @@ if __name__ == "__main__":
     print(output_email_string_unique)
     print(get_timestamp_with_pid() + 'IETFCiscoAuthorsYANGPageCompilation.html generated', flush=True)
     print(get_timestamp_with_pid() + 'end of job', flush=True)
+
+    # Dump versions used in this run into .json file
+    validators_versions.dump_versions()

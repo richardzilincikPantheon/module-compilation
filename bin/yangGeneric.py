@@ -24,8 +24,8 @@ from glob import glob
 import HTML
 import requests
 
+from versions import ValidatorsVersions
 from yangIetf import check_yangcatalog_data, push_to_confd
-
 
 __author__ = 'Benoit Claise'
 __copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
@@ -123,18 +123,6 @@ def run_pyang(pyang_exec, p, model, pyang_param, allinclu, take_pyang_param_into
     return os.popen(bash_command).read()
 
 
-def run_pyang_version(pyang_exec, debug_level=0):
-    """
-    Return the pyang version.
-    :param debug_level
-    :return: a string composed of the pyang version
-    """
-    bash_command = pyang_exec + " -v 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
-
-
 def run_confd(confdc_exec, p, model, allinclu, debug_level):
     """
     Run confdc on the YANG model
@@ -153,21 +141,11 @@ def run_confd(confdc_exec, p, model, allinclu, debug_level):
     else:
         subdirs = list_all_subdirs(modules_directory)
         yangpath = ':'.join(subdirs)
-        bash_command = confdc_exec + " --yangpath " + yangpath + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
+        bash_command = confdc_exec + " --yangpath " + yangpath + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + \
+            "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
-
-
-def run_confd_version(confdc_exec, debug_level=0):
-    """
-    Return the confd version
-    :return: a string composed of the confd version
-    """
-    bash_command = confdc_exec + " --version 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
-    return "confd version " + os.popen(bash_command).read()
 
 
 def run_yumadumppro(p, model, allinclu, debug_level):
@@ -197,18 +175,6 @@ def run_yumadumppro(p, model, allinclu, debug_level):
     return result
 
 
-def run_yumadumppro_version(debug_level=0):
-    """
-    Return the yangdump-pro version
-    :param debug
-    :return: a string composed of the yangdump-pro version
-    """
-    bash_command = "yangdump-pro --version 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
-
-
 def run_yanglint(p, model, allinclu, debug_level):
     """
     Run yanglint on the YANG model
@@ -223,18 +189,6 @@ def run_yanglint(p, model, allinclu, debug_level):
         bash_command = "yanglint -V -i -p " + p + " " + model + " 2>&1"
     else:
         bash_command = "yanglint -V -i -p " + modules_directory + "/ " + model + " 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
-
-
-def run_yanglint_version(debug_level=0):
-    """
-    Return the yanglint version
-    :param debug
-    :return: a string composed of the yanglint version
-    """
-    bash_command = "yanglint -v 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -501,6 +455,7 @@ def module_or_submodule(input_file):
 def get_timestamp_with_pid():
     return str(datetime.datetime.now().time()) + ' (' + str(os.getpid()) + '): '
 
+
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
@@ -550,6 +505,12 @@ if __name__ == "__main__":
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
     args = parser.parse_args()
     print(get_timestamp_with_pid() + 'Start of job in ' + args.rootdir, flush=True)
+
+    # Get actual validators versions
+    validators_versions = ValidatorsVersions()
+    versions = validators_versions.get_versions()
+    version_changed = validators_versions.version_changed()
+
     all_yang_catalog_metadata = {}
     prefix = '{}://{}'.format(protocol, api_ip)
 
@@ -624,7 +585,7 @@ if __name__ == "__main__":
                     yang_file_without_path = new_yang_file_without_path_with_revision
 
                 dictionary[yang_file_without_path] = (
-                compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
+                    compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
                 if module_or_submodule(yang_file) == 'module':
                     dictionary_no_submodules[yang_file_without_path] = (
                         compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
@@ -639,7 +600,7 @@ if __name__ == "__main__":
                         "DEBUG: Adding the revision to YANG module because xym can't get revision (missing from the YANG module): " + yang_file)
                     print("DEBUG:  out: " + new_yang_file_without_path_with_revision)
                 dictionary[new_yang_file_without_path_with_revision] = (
-                compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
+                    compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
                 if module_or_submodule(yang_file) == 'module':
                     dictionary_no_submodules[new_yang_file_without_path_with_revision] = (
                         compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
@@ -673,13 +634,11 @@ if __name__ == "__main__":
         compilation_result_text = "Compilation Result (pyang --lint). "
     else:
         compilation_result_text = "Compilation Result (pyang --ietf). "
-    header = ['YANG Model', 'Compilation', compilation_result_text + run_pyang_version(pyang_exec, 0),
-              'Compilation Result (pyang). Note: also generates errors for imported files. ' + run_pyang_version(pyang_exec, 0),
-              'Compilation Results (confdc) Note: also generates errors for imported files. ' + run_confd_version(confdc_exec, 0),
-              'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + run_yumadumppro_version(
-                  0),
-              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + run_yanglint_version(
-                  0)]
+    header = ['YANG Model', 'Compilation', compilation_result_text + versions.get('pyang_version'),
+              'Compilation Result (pyang). Note: also generates errors for imported files. ' + versions.get('pyang_version'),
+              'Compilation Results (confdc) Note: also generates errors for imported files. ' + versions.get('confd_version'),
+              'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + versions.get('yangdump_version'),
+              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
 
     generate_html_table(my_new_list, header, args.htmlpath, args.prefix + "YANGPageCompilation.html", args.metadata)
 
