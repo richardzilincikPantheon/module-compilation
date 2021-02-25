@@ -33,7 +33,7 @@ RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
 
 RUN echo postfix postfix/mailname string yang2.amsl.com | debconf-set-selections; \
   echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections; \
-  apt-get -y install postfix
+  apt-get -y install postfix rsyslog systemd
 
 COPY ./resources/main.cf /etc/postfix/main.cf
 
@@ -112,4 +112,4 @@ ENV WEB="get_config.py --section Web-Section --key public-directory"
 RUN chmod 0644 /etc/cron.d/ietf-cron
 
 # Run the command on container startup
-CMD cron && service postfix start && tail -f /var/yang/logs/cronjob-daily.log
+CMD cron && service postfix start && service rsyslog start && tail -f /var/yang/logs/cronjob-daily.log
