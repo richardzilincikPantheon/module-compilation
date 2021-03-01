@@ -29,8 +29,7 @@ find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec ln -s {} $TMP
 
 mkdir -p $MODULES >> $LOG 2>&1
 
-RESPONSE=$(curl -H "Accept: application/json" $MY_URI/api/search/modules) >> $LOG 2>&1
-echo "$RESPONSE" > "$TMP/all_modules_data.json"
+curl -s -H "Accept: application/json" $MY_URI/api/search/modules -o "$TMP/all_modules_data.json" >> $LOG 2>&1
 
 date +"%c: forking all sub-processes" >> $LOG
 

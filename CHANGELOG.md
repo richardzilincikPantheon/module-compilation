@@ -2,9 +2,11 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+  * Removed unnecessary cURL command message [#58](https://github.com/YangCatalog/sdo_analysis/issues/58)
+
 * ##### v3.0.1 - 2021-02-26
 
- * rsyslog and systemd added to Docker image build [deployment #48](https://github.com/YangCatalog/deployment/issues/48)
+  * rsyslog and systemd added to Docker image build [deployment #48](https://github.com/YangCatalog/deployment/issues/48)
 
 * ##### v3.0.0 - 2021-02-10
 
@@ -19,22 +21,22 @@
   * Add health check endpoint
   * Save result of cronjob for admin ui
   * Various major/minor bug fixes and improvements
-  
+
 * ##### v2.0.0 - 2020-08-14
 
   * Update graphical representation of ietf modules
   * Update Pyang version
   * Various major/minor bug fixes and improvements
-  
+
 * ##### v1.1.0 - 2020-07-16
 
   * Update Dockerfile
   * Various major/minor bug fixes and improvements
-  
+
 * ##### v1.0.1 - 2020-07-03
-  
+
   * Various major/minor bug fixes and improvements
-  
+
 * ##### v1.0.0 - 2020-06-23
 
   * Initial submitted version
