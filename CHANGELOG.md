@@ -2,6 +2,7 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+  * xym tool update to version 0.5 [deployment #50](https://github.com/YangCatalog/deployment/issues/50)
   * Removed unnecessary cURL command message [#58](https://github.com/YangCatalog/sdo_analysis/issues/58)
 
 * ##### v3.0.1 - 2021-02-26
