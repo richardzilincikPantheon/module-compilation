@@ -24,6 +24,7 @@ from glob import glob
 import HTML
 import requests
 
+from fileHasher import FileHasher
 from versions import ValidatorsVersions
 from yangIetf import check_yangcatalog_data, push_to_confd
 
@@ -456,6 +457,41 @@ def get_timestamp_with_pid():
     return str(datetime.datetime.now().time()) + ' (' + str(os.getpid()) + '): '
 
 
+def get_name_with_revision(yang_file: str):
+    yang_file_without_path = yang_file.split('/')[-1]
+    out = get_mod_rev(yang_file)
+
+    if out.rstrip():
+        # Add the @revision to the yang_file if not present
+        if '@' in yang_file and '.yang' in yang_file:
+            new_yang_file_without_path_with_revision = out.rstrip() + '.yang'
+            if new_yang_file_without_path_with_revision.split('@')[0] != yang_file_without_path.split('@')[0]:
+                print(
+                    'Name of the YANG file ' + yang_file_without_path + ' is wrong changing to correct one into ' + new_yang_file_without_path_with_revision,
+                    flush=True)
+                yang_file_without_path = new_yang_file_without_path_with_revision
+            if new_yang_file_without_path_with_revision.split('@')[1].split('.')[0] != \
+                    yang_file_without_path.split('@')[1].split('.')[0]:
+                print(
+                    'Revision of the YANG file ' + yang_file_without_path + ' is wrong changing to correct as ' + new_yang_file_without_path_with_revision,
+                    flush=True)
+                yang_file_without_path = new_yang_file_without_path_with_revision
+
+            return yang_file_without_path
+        else:
+            new_yang_file_without_path_with_revision = out.rstrip() + '.yang'
+            if args.debug > 0:
+                print(
+                    "DEBUG: Adding the revision to YANG module because xym can't get revision(missing from the YANG module): " + yang_file)
+                print('DEBUG:  out: ' + new_yang_file_without_path_with_revision)
+
+            return new_yang_file_without_path_with_revision
+    else:
+        print('Unable to get name@revision out of ' + yang_file + ' - no output', flush=True)
+
+    return ''
+
+
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
@@ -503,6 +539,10 @@ if __name__ == "__main__":
                                                      "Example: MEF, IEEEStandards, IEEEExperimental"
                                                      "Default is NULL")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
+    parser.add_argument("--forcecompilation", type=bool, default=False,
+                        help="Optional flag that determines wheter compilation should be run "
+                             "for all files even if they have not been changed "
+                             "or even if the validators versions have not been changed.")
     args = parser.parse_args()
     print(get_timestamp_with_pid() + 'Start of job in ' + args.rootdir, flush=True)
 
@@ -510,6 +550,10 @@ if __name__ == "__main__":
     validators_versions = ValidatorsVersions()
     versions = validators_versions.get_versions()
     version_changed = validators_versions.version_changed()
+
+    # Get list of hashed files
+    fileHasher = FileHasher()
+    files_hashes = fileHasher.load_hashed_files_list()
 
     all_yang_catalog_metadata = {}
     prefix = '{}://{}'.format(protocol, api_ip)
@@ -526,11 +570,11 @@ if __name__ == "__main__":
         print(get_timestamp_with_pid() + 'All the modules data loaded from API', flush=True)
 
     for mod in modules['module']:
-        all_yang_catalog_metadata['{}@{}'.format(mod['name'], mod['revision'])] = mod
+        key = '{}@{}'.format(mod['name'], mod['revision'])
+        all_yang_catalog_metadata[key] = mod
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
-        print("yang_list content: ")
-        print(yang_list)
+        print('yang_list content:\n{}'.format(yang_list))
     print(get_timestamp_with_pid() + 'relevant files list built, ' + str(
         len(yang_list)) + ' modules found in ' + args.rootdir, flush=True)
 
@@ -539,73 +583,56 @@ if __name__ == "__main__":
     dictionary_no_submodules = {}
     updated_modules = []
 
+    # Load compilation results from .json file, if any exists
+    try:
+        with open('{}/{}.json'.format(args.htmlpath, args.prefix), 'r') as f:
+            dictionary = json.load(f)
+    except FileNotFoundError as e:
+        dictionary = {}
+
     for yang_file in yang_list:
-        compilation = ""
-        # print "PYANG compilation of " + yang_file
-        result_pyang = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, True, args.debug)
-        result_no_pyang_param = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, False, args.debug)
-        result_confd = run_confd(confdc_exec, args.rootdir, yang_file, args.allinclusive, args.debug)
-        result_yuma = run_yumadumppro(args.rootdir, yang_file, args.allinclusive, args.debug)
-        # if want to populate the document location from github, must uncomment the following 3 lines
-        # the difficulty: find back the exact githbut location, while everything is already copied in my local
-        # directories: maybe Carl's catalog service will help
-        #        draft_name = yang_file
-        #        draft_name = "https://github.com/MEF-GIT/YANG/tree/master/src/model/draft/" + yang_file
-        #        draft_name_url = '<a href="' + draft_name + '">' + yang_file + '</a>'
-        #
-        # determine the status, based on the different compilers
-        # remove the draft name from result_yuma
-        result_yanglint = run_yanglint(args.rootdir, yang_file, args.allinclusive, args.debug)
+        yang_file_without_path = yang_file.split('/')[-1]
+        yang_file_with_revision = get_name_with_revision(yang_file)
+        file_hash = fileHasher.hash_file(yang_file)
+        old_file_hash = files_hashes.get(yang_file, None)
+        yang_file_compilation = dictionary.get(yang_file_with_revision, [])
 
-        # if want to populate the document location from github, must uncomment the following line
-        #        dictionary[yang_file] = (draft_name_url, compilation, result, result_no_pyang_param)
-        yang_file_without_path = yang_file.split("/")[-1]
-        compilation = combined_compilation(yang_file_without_path, result_pyang, result_confd, result_yuma,
-                                           result_yanglint)
-        updated_modules.extend(
-            check_yangcatalog_data(confdc_exec, pyang_exec, args.rootdir, resutl_html_dir, yang_file_without_path, None, None, None, compilation,
-                                   result_pyang,
-                                   result_no_pyang_param, result_confd, result_yuma, result_yanglint,
-                                   all_yang_catalog_metadata, None))
-        # Add the @revision to the yang_file if not present
-        if "@" in yang_file and ".yang" in yang_file:
-            out = get_mod_rev(yang_file)
-            if out.rstrip():
-                new_yang_file_without_path_with_revision = out.rstrip() + ".yang"
-                if new_yang_file_without_path_with_revision.split('@')[0] != yang_file_without_path.split('@')[0]:
-                    print(
-                        'Name of the YANG file ' + yang_file_without_path + ' is wrong changing to correct one into ' + new_yang_file_without_path_with_revision,
-                        flush=True)
-                    yang_file_without_path = new_yang_file_without_path_with_revision
-                if new_yang_file_without_path_with_revision.split('@')[1].split('.')[0] != \
-                        yang_file_without_path.split('@')[1].split('.')[0]:
-                    print(
-                        'Revision of the YANG file ' + yang_file_without_path + ' is wrong changing to correct as ' + new_yang_file_without_path_with_revision,
-                        flush=True)
-                    yang_file_without_path = new_yang_file_without_path_with_revision
+        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+            files_hashes[yang_file] = file_hash
+            compilation = ""
+            # print "PYANG compilation of " + yang_file
+            result_pyang = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, True, args.debug)
+            result_no_pyang_param = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, False, args.debug)
+            result_confd = run_confd(confdc_exec, args.rootdir, yang_file, args.allinclusive, args.debug)
+            result_yuma = run_yumadumppro(args.rootdir, yang_file, args.allinclusive, args.debug)
+            # if want to populate the document location from github, must uncomment the following 3 lines
+            # the difficulty: find back the exact githbut location, while everything is already copied in my local
+            # directories: maybe Carl's catalog service will help
+            #        draft_name = yang_file
+            #        draft_name = "https://github.com/MEF-GIT/YANG/tree/master/src/model/draft/" + yang_file
+            #        draft_name_url = '<a href="' + draft_name + '">' + yang_file + '</a>'
+            #
+            # determine the status, based on the different compilers
+            # remove the draft name from result_yuma
+            result_yanglint = run_yanglint(args.rootdir, yang_file, args.allinclusive, args.debug)
 
-                dictionary[yang_file_without_path] = (
-                    compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
-                if module_or_submodule(yang_file) == 'module':
-                    dictionary_no_submodules[yang_file_without_path] = (
-                        compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
-            else:
-                print("Unable to get name@revision out of " + yang_file + ' no output', flush=True)
-        else:
-            out = get_mod_rev(yang_file)
-            if out.rstrip():
-                new_yang_file_without_path_with_revision = out.rstrip() + ".yang"
-                if args.debug > 0:
-                    print(
-                        "DEBUG: Adding the revision to YANG module because xym can't get revision (missing from the YANG module): " + yang_file)
-                    print("DEBUG:  out: " + new_yang_file_without_path_with_revision)
-                dictionary[new_yang_file_without_path_with_revision] = (
-                    compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
-                if module_or_submodule(yang_file) == 'module':
-                    dictionary_no_submodules[new_yang_file_without_path_with_revision] = (
-                        compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint)
-            else:
-                print("Unable to get name@revision out of " + yang_file + ' no output', flush=True)
+            # if want to populate the document location from github, must uncomment the following line
+            #        dictionary[yang_file] = (draft_name_url, compilation, result, result_no_pyang_param)
+            compilation = combined_compilation(yang_file_without_path, result_pyang, result_confd, result_yuma,
+                                               result_yanglint)
+            updated_modules.extend(
+                check_yangcatalog_data(confdc_exec, pyang_exec, args.rootdir, resutl_html_dir, yang_file_without_path, None, None, None, compilation,
+                                       result_pyang,
+                                       result_no_pyang_param, result_confd, result_yuma, result_yanglint,
+                                       all_yang_catalog_metadata, None))
+
+            yang_file_compilation = [
+                compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
+
+        if yang_file_with_revision != '':
+            dictionary[yang_file_with_revision] = yang_file_compilation
+            if module_or_submodule(yang_file) == 'module':
+                dictionary_no_submodules[yang_file_with_revision] = yang_file_compilation
 
     print(get_timestamp_with_pid() + 'all modules compiled/validated', flush=True)
 
@@ -669,3 +696,6 @@ if __name__ == "__main__":
     print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(
         total_number))
     print(get_timestamp_with_pid() + 'end of job', flush=True)
+
+    # Dump updated files content hashes into .json file
+    fileHasher.dump_hashed_files_list(files_hashes)

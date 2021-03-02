@@ -115,7 +115,7 @@ rm -f $TMP/openroadm-public/*.fxs >> $LOG 2>&1
 date +"%c: cleaning up the now useless .fxs files" >> $LOG
 
 #clean up of the .fxs files created by confdc
-find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs rm >> $LOG 2>&1
+find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs -r rm >> $LOG 2>&1
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< $CREDENTIALS

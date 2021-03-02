@@ -34,6 +34,7 @@ from xym import xym
 
 from extract_elem import extract_elem
 from extract_emails import extract_email_string
+from fileHasher import FileHasher
 from remove_directory_content import remove_directory_content
 from versions import ValidatorsVersions
 
@@ -542,7 +543,7 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
             module_data['author-email'] = email
 
         if compilation is not None and compilation != '' and module_data.get(
-            'compilation-status') != compilation.lower().replace(' ', '-'):
+                'compilation-status') != compilation.lower().replace(' ', '-'):
             update = True
             module_data['compilation-status'] = compilation.lower().replace(' ', '-')
 
@@ -726,7 +727,7 @@ if __name__ == "__main__":
     parser.add_argument("--rfcextractionyangpath", default=ietf_directory + "/YANG-rfc-extraction/",
                         help="The optional directory where to store "
                              "the typedef, grouping, identity from data models extracted from RFCs"
-                             "Default is '" + ietf_directory + "/YANG-rfc/'")
+                             "Default is '" + ietf_directory + "/YANG-rfc-extraction/'")
     parser.add_argument("--draftextractionyangpath", default=ietf_directory + "/YANG-extraction/",
                         help="The optional directory where to store "
                              "the typedef, grouping, identity from data models correctely extracted from drafts"
@@ -735,9 +736,18 @@ if __name__ == "__main__":
                                                                    "'If set to 'True' <CODE BEGINS> / <CODE ENDS> are "
                                                                    "required; default is 'False'")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
+    parser.add_argument("--forcecompilation", type=bool, default=False,
+                        help="Optional flag that determines wheter compilation should be run "
+                        "for all files even if they have not been changed "
+                        "or even if the validators versions have not been changed.")
 
     args = parser.parse_args()
     debug_level = args.debug
+
+    # Get list of hashed files
+    fileHasher = FileHasher()
+    files_hashes = fileHasher.load_hashed_files_list()
+
     all_yang_catalog_metadata = {}
     prefix = '{}://{}'.format(protocol, api_ip)
 
@@ -753,7 +763,8 @@ if __name__ == "__main__":
         print('All the modules data loaded from API')
 
     for mod in modules['module']:
-        all_yang_catalog_metadata['{}@{}'.format(mod['name'], mod['revision'])] = mod
+        key = '{}@{}'.format(mod['name'], mod['revision'])
+        all_yang_catalog_metadata[key] = mod
 
     # note: args.strict is not used
     print(get_timestamp_with_pid() + 'Starting', flush=True)
@@ -928,8 +939,9 @@ if __name__ == "__main__":
     # which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html:
     # and the example-ospf-topology.yang, which is bug in xym
     # ietf-foo@2010-01-18.yang, hw.yang, hardware-entities.yang, udmcore.yang, and ct-ipfix-psamp-example.yang
-    yang_rfc_dict = {k: v for k, v in yang_rfc_dict.items() if
-                     k != 'ietf-foo@2010-01-18.yang' and k != 'hw.yang' and k != 'hardware-entities.yang' and k != 'udmcore.yang' and k != 'ct-ipfix-psamp-example@2011-03-15.yang' and k != 'example-ospf-topology.yang'}
+    to_remove = ['ietf-foo@2010-01-18.yang', 'hw.yang', 'hardware-entities.yang',
+                 'udmcore.yang', 'ct-ipfix-psamp-example@2011-03-15.yang', 'example-ospf-topology.yang']
+    yang_rfc_dict = {k: v for k, v in yang_rfc_dict.items() if k not in to_remove}
     # Move the YANG modules, which are documented at http://www.claise.be/IETFYANGOutOfRFCNonStrictToBeCorrected.html:
     # ietf-foo@2010-01-18.yang, hw.yang, hardware-entities.yang, udmcore.yang, and ct-ipfix-psamp-example.yang
     # and the example-ospf-topology.yang, which is bug in xym
@@ -938,46 +950,56 @@ if __name__ == "__main__":
     print(get_timestamp_with_pid() + 'YANG modules moved', flush=True)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
-    dictionary = {}
+    # Load compilation results from .json file, if any exists
+    try:
+        with open('{}/IETFDraft.json'.format(args.htmlpath), 'r') as f:
+            dictionary = json.load(f)
+    except FileNotFoundError as e:
+        dictionary = {}
     dictionary_no_submodules = {}
     updated_modules = []
     for yang_file in yang_draft_dict:
-        draft_name, email, compilation = "", "", ""
-        result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = "", "", "", "", ""
-        ietf_flag = True
-        result_pyang = run_pyang(pyang_exec, yang_file, ietf_flag, args.yangpath, debug_level)
-        ietf_flag = False
-        result_no_ietf_flag = run_pyang(pyang_exec, yang_file, ietf_flag, args.yangpath, debug_level)
-        result_confd = run_confd(confdc_exec, yang_file, args.yangpath, debug_level)
-        result_yuma = run_yumadumppro(yang_file, args.yangpath, debug_level)
-        result_yanglint = run_yanglint(yang_file, args.yangpath, debug_level)
-        draft_name = yang_draft_dict[yang_file]
-        url = draft_name.split(".")[0]
-        rev_num = url.split("-")[-1]
-        url = url.rstrip('-0123456789')
-        mailto = url + "@ietf.org"
-        url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
-        draft_url = '<a href="' + url + '">' + draft_name + '</a>'
-        email = '<a href="mailto:' + mailto + '">Email Authors</a>'
-        url2 = web_url + "/YANG-modules/" + yang_file
-        yang_url = '<a href="' + url2 + '">Download the YANG model</a>'
+        yang_file_path = args.yangpath + yang_file
+        file_hash = fileHasher.hash_file(yang_file_path)
+        old_file_hash = files_hashes.get(yang_file_path, None)
+        yang_file_compilation = dictionary.get(yang_file, [])
 
-        compilation = combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
-                                           result_yanglint)
-        updated_modules.extend(
-            check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
-                                   result_pyang,
-                                   result_no_ietf_flag, result_confd, result_yuma, result_yanglint,
-                                   all_yang_catalog_metadata, 'ietf-draft'))
-        if len(updated_modules) > 100:
-            updated_modules = push_to_confd(updated_modules, config)
-        dictionary[yang_file] = (
-            draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
-            result_yanglint)
+        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+            files_hashes[yang_file_path] = file_hash
+            draft_name, email, compilation = "", "", ""
+            result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = "", "", "", "", ""
+            ietf_flag = True
+            result_pyang = run_pyang(pyang_exec, yang_file, ietf_flag, args.yangpath, debug_level)
+            ietf_flag = False
+            result_no_ietf_flag = run_pyang(pyang_exec, yang_file, ietf_flag, args.yangpath, debug_level)
+            result_confd = run_confd(confdc_exec, yang_file, args.yangpath, debug_level)
+            result_yuma = run_yumadumppro(yang_file, args.yangpath, debug_level)
+            result_yanglint = run_yanglint(yang_file, args.yangpath, debug_level)
+            draft_name = yang_draft_dict[yang_file]
+            url = draft_name.split(".")[0]
+            rev_num = url.split("-")[-1]
+            url = url.rstrip('-0123456789')
+            mailto = url + "@ietf.org"
+            url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
+            draft_url = '<a href="' + url + '">' + draft_name + '</a>'
+            email = '<a href="mailto:' + mailto + '">Email Authors</a>'
+            url2 = web_url + "/YANG-modules/" + yang_file
+            yang_url = '<a href="' + url2 + '">Download the YANG model</a>'
+
+            compilation = combined_compilation(yang_file, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
+                                               result_yanglint)
+            updated_modules.extend(
+                check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
+                                       result_pyang,
+                                       result_no_ietf_flag, result_confd, result_yuma, result_yanglint,
+                                       all_yang_catalog_metadata, 'ietf-draft'))
+            if len(updated_modules) > 100:
+                updated_modules = push_to_confd(updated_modules, config)
+            yang_file_compilation = [draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
+                                     result_yanglint]
+        dictionary[yang_file] = yang_file_compilation
         if module_or_submodule(args.yangpath + yang_file) == 'module':
-            dictionary_no_submodules[yang_file] = (
-                draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
-                result_yanglint)
+            dictionary_no_submodules[yang_file] = yang_file_compilation
     print(get_timestamp_with_pid() + 'IETF drafts validated/compiled', flush=True)
 
     # Dictionary serialization
@@ -1000,49 +1022,60 @@ if __name__ == "__main__":
     generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftYANGPageCompilation.html")
 
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
-    dictionary_example = {}
+    # Load compilation results from .json file, if any exists
+    try:
+        with open('{}/IETFDraftExample.json'.format(args.htmlpath), 'r') as f:
+            dictionary_example = json.load(f)
+    except FileNotFoundError as e:
+        dictionary_example = {}
     dictionary_no_submodules_example = {}
     for yang_file in yang_example_draft_dict:
-        draft_name, email, compilation = "", "", ""
-        result_pyang, result_no_ietf_flag = "", ""
-        ietf_flag = True
-        result_pyang = run_pyang(pyang_exec, yang_file, ietf_flag, args.allyangexamplepath, debug_level)
-        ietf_flag = False
-        result_no_ietf_flag = run_pyang(pyang_exec, yang_file, ietf_flag, args.allyangexamplepath, debug_level)
-        draft_name = yang_example_draft_dict[yang_file]
-        url = draft_name.split(".")[0]
-        rev_num = url.split("-")[-1]
-        url = url.rstrip('-0123456789')
-        mailto = url + "@ietf.org"
-        url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
-        draft_url = '<a href="' + url + '">' + draft_name + '</a>'
-        email = '<a href="mailto:' + mailto + '">Email Authors</a>'
-        if "error" in result_pyang:
-            compilation = "FAILED"
-        elif "warning" in result_pyang:
-            compilation = "PASSED WITH WARNINGS"
-        elif result_pyang == "":
-            compilation = "PASSED"
-        else:
-            compilation = "UNKNOWN"
-        updated_modules.extend(
-            check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
-                                   result_pyang,
-                                   result_no_ietf_flag, '', '', '',
-                                   all_yang_catalog_metadata, 'ietf-example'))
-        if len(updated_modules) > 100:
-            updated_modules = push_to_confd(updated_modules, config)
-        dictionary_example[yang_file] = (draft_url, email, compilation, result_pyang, result_no_ietf_flag)
+        yang_file_path = args.allyangexamplepath + yang_file
+        file_hash = fileHasher.hash_file(yang_file_path)
+        old_file_hash = files_hashes.get(yang_file_path, None)
+        yang_file_compilation = dictionary_example.get(yang_file, [])
+
+        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+            files_hashes[yang_file_path] = file_hash
+            draft_name, email, compilation = "", "", ""
+            result_pyang, result_no_ietf_flag = "", ""
+            ietf_flag = True
+            result_pyang = run_pyang(pyang_exec, yang_file, ietf_flag, args.allyangexamplepath, debug_level)
+            ietf_flag = False
+            result_no_ietf_flag = run_pyang(pyang_exec, yang_file, ietf_flag, args.allyangexamplepath, debug_level)
+            draft_name = yang_example_draft_dict[yang_file]
+            url = draft_name.split(".")[0]
+            rev_num = url.split("-")[-1]
+            url = url.rstrip('-0123456789')
+            mailto = url + "@ietf.org"
+            url = "https://datatracker.ietf.org/doc/" + url + '/' + rev_num
+            draft_url = '<a href="' + url + '">' + draft_name + '</a>'
+            email = '<a href="mailto:' + mailto + '">Email Authors</a>'
+            if "error" in result_pyang:
+                compilation = "FAILED"
+            elif "warning" in result_pyang:
+                compilation = "PASSED WITH WARNINGS"
+            elif result_pyang == "":
+                compilation = "PASSED"
+            else:
+                compilation = "UNKNOWN"
+            updated_modules.extend(
+                check_yangcatalog_data(confdc_exec, pyang_exec, args.allyangexamplepath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
+                                       result_pyang,
+                                       result_no_ietf_flag, '', '', '',
+                                       all_yang_catalog_metadata, 'ietf-example'))
+            if len(updated_modules) > 100:
+                updated_modules = push_to_confd(updated_modules, config)
+            yang_file_compilation = [draft_url, email, compilation, result_pyang, result_no_ietf_flag]
+        dictionary_example[yang_file] = yang_file_compilation
         if module_or_submodule(args.allyangexamplepath + yang_file) == 'module':
-            dictionary_no_submodules_example[yang_file] = (
-                draft_url, email, compilation, result_pyang, result_no_ietf_flag)
+            dictionary_no_submodules_example[yang_file] = yang_file_compilation
     print(get_timestamp_with_pid() + 'example YANG modules in IETF drafts validated/compiled', flush=True)
 
     # Dictionary serialization
     write_dictionary_file_in_json(dictionary_example, args.htmlpath, "IETFDraftExample.json")
     print(get_timestamp_with_pid() + 'IETFDraftExample.json generated', flush=True)
-    # dictionary2 = {}
-    # dictionary2 = read_dictionary_file_in_json(args.htmlpath, "IETFYANG.json")
+
     # YANG modules from drafts: : make a list out of the dictionary
     my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules_example))
@@ -1055,33 +1088,45 @@ if __name__ == "__main__":
               'Compilation Result (pyang). Note: also generates errors for imported files.']
     generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftExampleYANGPageCompilation.html")
 
-    # YANG modules from RFCs: dictionary2 generation, dictionary2 inversion, and page generation
-    # With dictionary2 generation: formatting for the IETFYANGOutOfRFC.html page
-    dictionary2 = {}
-    dictionary_no_submodules2 = {}
+    # YANG modules from RFCs: dictionary_rfc generation, dictionary_rfc inversion, and page generation
+    # With dictionary_rfc generation: formatting for the IETFYANGOutOfRFC.html page
+    # Load URLs from .json file, if any exists
+    try:
+        with open('{}/IETFYANGRFC.json'.format(args.htmlpath), 'r') as f:
+            dictionary_rfc = json.load(f)
+    except FileNotFoundError as e:
+        dictionary_rfc = {}
+    dictionary_rfc_no_submodules = {}
     for yang_file in yang_rfc_dict:
-        rfc_name = yang_rfc_dict[yang_file]
-        rfc_name = rfc_name.split(".")[0]
-        url = "https://tools.ietf.org/html/" + rfc_name
-        rfc_url = '<a href="' + url + '">' + rfc_name + '</a>'
-        dictionary2[yang_file] = rfc_url
-        updated_modules.extend(
-            check_yangcatalog_data(confdc_exec, pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, rfc_name, None, None,
-                                   None, None, None, None, None, all_yang_catalog_metadata, 'ietf-rfc'))
-        if len(updated_modules) > 100:
-            updated_modules = push_to_confd(updated_modules, config)
+        yang_file_path = args.rfcyangpath + yang_file
+        file_hash = fileHasher.hash_file(yang_file_path)
+        old_file_hash = files_hashes.get(yang_file_path, None)
+        rfc_url = dictionary_rfc.get(yang_file, '')
+
+        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+            files_hashes[yang_file_path] = file_hash
+            rfc_name = yang_rfc_dict[yang_file]
+            rfc_name = rfc_name.split(".")[0]
+            url = "https://tools.ietf.org/html/" + rfc_name
+            rfc_url = '<a href="' + url + '">' + rfc_name + '</a>'
+            updated_modules.extend(
+                check_yangcatalog_data(confdc_exec, pyang_exec, args.rfcyangpath, resutl_html_dir, yang_file, url, rfc_name, None, None,
+                                       None, None, None, None, None, all_yang_catalog_metadata, 'ietf-rfc'))
+            if len(updated_modules) > 100:
+                updated_modules = push_to_confd(updated_modules, config)
+        dictionary_rfc[yang_file] = rfc_url
         # Uncomment next three lines if I want to remove the submodule from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
-        # dictionary_no_submodules2[yang_file] = rfc_url
+        # dictionary_rfc_no_submodules[yang_file] = rfc_url
         # if module_or_submodule(args.rfcyangpath + yang_file) == 'module':
-        # dictionary_no_submodules2[yang_file] = rfc_url
+        # dictionary_rfc_no_submodules[yang_file] = rfc_url
 
     # Dictionary serialization
-    write_dictionary_file_in_json(dictionary2, args.htmlpath, "IETFYANGRFC.json")
+    write_dictionary_file_in_json(dictionary_rfc, args.htmlpath, "IETFYANGRFC.json")
     print(get_timestamp_with_pid() + 'IETFYANGRFC.json generated', flush=True)
 
     # (Un)comment next two lines if I want to remove the submodule from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
-    my_yang_in_rfc = sorted(dict_to_list_rfc(dictionary2))
-    #    my_yang_in_rfc = sorted(dict_to_list_rfc(dictionary_no_submodules2), key = itemgetter(1))
+    my_yang_in_rfc = sorted(dict_to_list_rfc(dictionary_rfc))
+    # my_yang_in_rfc = sorted(dict_to_list_rfc(dictionary_rfc_no_submodules), key = itemgetter(1))
 
     # stats number generation
     number_of_modules_YANG_models_from_ietf_drafts = len(yang_draft_dict.keys())
@@ -1174,14 +1219,11 @@ if __name__ == "__main__":
                                        all_yang_catalog_metadata, 'ietf-draft'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
-            dictionary[yang_file] = (
-                draft_url, email, cisco_email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd,
-                result_yuma, result_yanglint)
+            yang_file_compilation = [draft_url, email, cisco_email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd,
+                                     result_yuma, result_yanglint]
+            dictionary[yang_file] = yang_file_compilation
             if module_or_submodule(args.yangpath + yang_file) == 'module':
-                dictionary_no_submodules[yang_file] = (
-                    draft_url, email, cisco_email, yang_url, compilation, result_pyang, result_no_ietf_flag,
-                    result_confd,
-                    result_yuma, result_yanglint)
+                dictionary_no_submodules[yang_file] = yang_file_compilation
     output_email = output_email.rstrip(", ")
     # output_email is a string, comma separated, of cisco email address
     # want to, via a list, remove the duplicate, then re-generate a string
@@ -1214,6 +1256,9 @@ if __name__ == "__main__":
     print(output_email_string_unique)
     print(get_timestamp_with_pid() + 'IETFCiscoAuthorsYANGPageCompilation.html generated', flush=True)
     print(get_timestamp_with_pid() + 'end of job', flush=True)
+
+    # Dump updated files content hashes into .json file
+    fileHasher.dump_hashed_files_list(files_hashes)
 
     # Dump versions used in this run into .json file
     validators_versions.dump_versions()

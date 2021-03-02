@@ -1,0 +1,92 @@
+# Copyright The IETF Trust 2021, All Rights Reserved
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+__author__ = "Slavomir Mazur"
+__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
+__license__ = "Apache License, Version 2.0"
+__email__ = "slavomir.mazur@pantheon.tech"
+
+import configparser as ConfigParser
+import hashlib
+import json
+import threading
+import os
+
+
+class FileHasher:
+    def __init__(self):
+        config_path = '/etc/yangcatalog/yangcatalog.conf'
+        config = ConfigParser.ConfigParser()
+        config._interpolation = ConfigParser.ExtendedInterpolation()
+        config.read(config_path)
+        self.cache_dir = config.get('Directory-Section', 'cache')
+        self.lock = threading.Lock()
+
+    def hash_file(self, path: str):
+        """ Create hash from content of the given file.
+
+        :param path     (str) Path fo file to be hashed
+        :return         SHA256 hash of the content of the given file
+        :rtype          str
+        """
+        BLOCK_SIZE = 65536  # The size of each read from the file
+
+        file_hash = hashlib.sha256()
+        with open(path, 'rb') as f:
+            fb = f.read(BLOCK_SIZE)
+            while len(fb) > 0:
+                file_hash.update(fb)
+                fb = f.read(BLOCK_SIZE)
+
+        return file_hash.hexdigest()
+
+    def load_hashed_files_list(self, dst_dir: str = ''):
+        """ Load dumped list of files content hashes from .json file.
+        Several threads can access this file at once, so locking the file while accessing is necessary.
+        """
+        dst_dir = self.cache_dir if dst_dir == '' else dst_dir
+
+        self.lock.acquire()
+        try:
+            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
+                hashed_files_list = json.load(f)
+                print('Dictionary of {} hashes loaded successfully'.format(len(hashed_files_list)))
+        except FileNotFoundError as e:
+            hashed_files_list = {}
+        self.lock.release()
+
+        return hashed_files_list
+
+    def dump_hashed_files_list(self, files_hashes: dict, dst_dir: str = ''):
+        """ Dumped updated list of files content hashes into .json file.
+        Several threads can access this file at once, so locking the file while accessing is necessary.
+        """
+        dst_dir = self.cache_dir if dst_dir == '' else dst_dir
+
+        # Load existing hashes, merge with new one, then dump all to the .json file
+        self.lock.acquire()
+        try:
+            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
+                hashes_in_file = json.load(f)
+                print('Dictionary of {} hashes loaded successfully'.format(len(hashes_in_file)))
+        except FileNotFoundError as e:
+            hashed_files_list = {}
+
+        merged_files_hashes = {**hashes_in_file, **files_hashes}
+
+        with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'w') as f:
+            json.dump(merged_files_hashes, f, indent=2, sort_keys=True)
+        print('Dictionary of {} hashes successfully dumped into .json file'.format(len(merged_files_hashes)))
+        os.chmod('{}/sdo_files_modification_hashes.json'.format(dst_dir), 0o664)
+        self.lock.release()
