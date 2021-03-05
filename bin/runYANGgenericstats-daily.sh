@@ -55,7 +55,7 @@ PIDS+=("$!")
 PIDS+=("$!")
 
 # Standard IEEE
-(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee :  The "standard/ieee" branch is intended for approved PARs, for drafts as well as published standards. " --lint True --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/" >> $LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee :  The 'standard/ieee' branch is intended for approved PARs, for drafts as well as published standards. " --lint True --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 # Experimental IEEE
@@ -84,38 +84,51 @@ do
 	wait $PID || exit 1
 done
 
-# openroadm public
-# openROADM, we need to flatten the directory structure
-# TODO modify the yangGeneric.py file to handle a directory tree ?
+# OpenROADM public
+#
+# OpenROADM directory structure need to be flatten
+# Each branch representing the version is copied to a separate folder
+# This allows to run the yangGeneric.py script on multiple folders in parallel
 cur_dir=$(pwd)
 cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
 git pull
 branches=$(git branch -a | grep remotes)
 for b in $branches
   do
-    last_word=${b##*/}
-    first_char=${last_word:0:1}
+    version=${b##*/}
+    first_char=${version:0:1}
     if [[ $first_char =~ ^[[:digit:]] ]]; then
-      git checkout $last_word >> $LOG 2>&1
-      mkdir -p $TMP/openroadm-public >> $LOG 2>&1
-      rm -f $TMP/openroadm-public/* >> $LOG 2>&1
-      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/ \; >> $LOG 2>&1
-      (python $BIN/yangGeneric.py --metadata "OpenRoadm $last_word: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$last_word --rootdir "$TMP/openroadm-public/" >> $LOG 2>&1) #&
+      git checkout $version >> $LOG 2>&1
+      mkdir -p $TMP/openroadm-public/$version >> $LOG 2>&1
+      rm -f $TMP/openroadm-public/$version/* >> $LOG 2>&1
+      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/$version/ \; >> $LOG 2>&1
+      (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >> $LOG 2>&1) #&
     fi
 done
+
+# TODO: Symbolic links used - currently not possible to run in parallel
+# declare -a PIDS2
+# for path in $(ls -d $TMP/openroadm-public/*/)
+#   do
+#     version=$(basename $path)
+#     (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >> $LOG 2>&1) &
+#     PIDS2+=("$!")
+# done
+
+# # Wait for all child-processes
+# for PID in ${PIDS2[@]}
+# do
+# 	wait $PID || exit 1
+# done
 
 cd $cur_dir
 date +"%c: all sub-process have ended" >> $LOG
 
-rm -f $TMP/bbf/*.fxs >> $LOG 2>&1
-rm -f $TMP/openroadm-public/*.fxs >> $LOG 2>&1
-
-# Removed openROADM private handling
-
+# clean up of the .fxs files created by confdc
 date +"%c: cleaning up the now useless .fxs files" >> $LOG
-
-#clean up of the .fxs files created by confdc
-find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs rm >> $LOG 2>&1
+find $TMP/bbf/ -name *.fxs -print | xargs -r rm >> $LOG 2>&1
+find $TMP/openroadm-public/ -name *.fxs -print | xargs -r rm >> $LOG 2>&1
+find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs -r rm >> $LOG 2>&1
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< $CREDENTIALS
