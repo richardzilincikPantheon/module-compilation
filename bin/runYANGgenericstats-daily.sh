@@ -55,11 +55,11 @@ PIDS+=("$!")
 PIDS+=("$!")
 
 # Standard IEEE
-(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee :  The "standard/ieee" branch is intended for approved PARs, for drafts as well as published standards. " --lint True --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/" >> $LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee :  The 'standard/ieee' branch is intended for approved PARs, for drafts as well as published standards. " --lint True --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 # Experimental IEEE
-(python $BIN/yangGeneric.py --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee :  The "experimental/ieee" branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR). " --lint True --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/" >> $LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee :  The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR). " --lint True --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/" >> $LOG 2>&1) &
 PIDS+=("$!")
 
 # Openconfig

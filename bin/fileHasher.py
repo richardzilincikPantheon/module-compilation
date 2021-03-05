@@ -21,7 +21,8 @@ import configparser as ConfigParser
 import hashlib
 import json
 import threading
-import os
+
+from versions import ValidatorsVersions
 
 
 class FileHasher:
@@ -32,9 +33,12 @@ class FileHasher:
         config.read(config_path)
         self.cache_dir = config.get('Directory-Section', 'cache')
         self.lock = threading.Lock()
+        self.validators_versions_bytes = self.get_versions()
 
     def hash_file(self, path: str):
-        """ Create hash from content of the given file.
+        """ Create hash from content of the given file and validators versions.
+        Each time either the content of the file or the validator version change,
+        the resulting hash will be different.
 
         :param path     (str) Path fo file to be hashed
         :return         SHA256 hash of the content of the given file
@@ -48,6 +52,8 @@ class FileHasher:
             while len(fb) > 0:
                 file_hash.update(fb)
                 fb = f.read(BLOCK_SIZE)
+
+        file_hash.update(self.validators_versions_bytes)
 
         return file_hash.hexdigest()
 
@@ -81,12 +87,18 @@ class FileHasher:
                 hashes_in_file = json.load(f)
                 print('Dictionary of {} hashes loaded successfully'.format(len(hashes_in_file)))
         except FileNotFoundError as e:
-            hashed_files_list = {}
+            hashes_in_file = {}
 
         merged_files_hashes = {**hashes_in_file, **files_hashes}
 
         with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'w') as f:
             json.dump(merged_files_hashes, f, indent=2, sort_keys=True)
         print('Dictionary of {} hashes successfully dumped into .json file'.format(len(merged_files_hashes)))
-        os.chmod('{}/sdo_files_modification_hashes.json'.format(dst_dir), 0o664)
         self.lock.release()
+
+    def get_versions(self):
+        """ Return encoded validators versions dictionary.
+        """
+        validators_versions = ValidatorsVersions()
+        actual_versions = validators_versions.get_versions()
+        return json.dumps(actual_versions).encode('utf-8')

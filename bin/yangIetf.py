@@ -43,7 +43,6 @@ from versions import ValidatorsVersions
 # ----------------------------------------------------------------------
 validators_versions = ValidatorsVersions()
 versions = validators_versions.get_versions()
-version_changed = validators_versions.version_changed()
 
 
 # ----------------------------------------------------------------------
@@ -964,7 +963,7 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file_path, None)
         yang_file_compilation = dictionary.get(yang_file, [])
 
-        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             files_hashes[yang_file_path] = file_hash
             draft_name, email, compilation = "", "", ""
             result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = "", "", "", "", ""
@@ -1035,7 +1034,7 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file_path, None)
         yang_file_compilation = dictionary_example.get(yang_file, [])
 
-        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             files_hashes[yang_file_path] = file_hash
             draft_name, email, compilation = "", "", ""
             result_pyang, result_no_ietf_flag = "", ""
@@ -1103,7 +1102,7 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file_path, None)
         rfc_url = dictionary_rfc.get(yang_file, '')
 
-        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             files_hashes[yang_file_path] = file_hash
             rfc_name = yang_rfc_dict[yang_file]
             rfc_name = rfc_name.split(".")[0]
@@ -1259,6 +1258,3 @@ if __name__ == "__main__":
 
     # Dump updated files content hashes into .json file
     fileHasher.dump_hashed_files_list(files_hashes)
-
-    # Dump versions used in this run into .json file
-    validators_versions.dump_versions()

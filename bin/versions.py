@@ -57,34 +57,3 @@ class ValidatorsVersions:
 
     def get_versions(self):
         return self.versions
-
-    def dump_versions(self, dst_dir: str = ''):
-        """ Dump validators versions to .json file.
-        """
-        dst_dir = self.cache_dir if dst_dir == '' else dst_dir
-
-        with open('{}/sdo_validators_versions.json'.format(dst_dir), 'w') as f:
-            json.dump(self.versions, f)
-        print('Validators versions dumped into .json file')
-        os.chmod('{}/sdo_files_modification_hashes.json'.format(dst_dir), 0o664)
-
-    def get_dumped_versions(self, dst_dir: str = ''):
-        """ Load dumped validators versions from .json file.
-        """
-        dst_dir = self.cache_dir if dst_dir == '' else dst_dir
-
-        try:
-            with open('{}/sdo_validators_versions.json'.format(dst_dir), 'r') as f:
-                dumped_versions = json.load(f)
-                print('Validators versions loaded successfully')
-        except FileNotFoundError as e:
-            dumped_versions = {}
-
-        return dumped_versions
-
-    def version_changed(self):
-        """ Check if the version of any of the validators has changed.
-        """
-        dumped_versions = self.get_dumped_versions()
-
-        return self.versions != dumped_versions

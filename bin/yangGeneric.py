@@ -549,7 +549,6 @@ if __name__ == "__main__":
     # Get actual validators versions
     validators_versions = ValidatorsVersions()
     versions = validators_versions.get_versions()
-    version_changed = validators_versions.version_changed()
 
     # Get list of hashed files
     fileHasher = FileHasher()
@@ -590,6 +589,7 @@ if __name__ == "__main__":
     except FileNotFoundError as e:
         dictionary = {}
 
+    updated_hashes = {}
     for yang_file in yang_list:
         yang_file_without_path = yang_file.split('/')[-1]
         yang_file_with_revision = get_name_with_revision(yang_file)
@@ -597,8 +597,8 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file, None)
         yang_file_compilation = dictionary.get(yang_file_with_revision, [])
 
-        if old_file_hash is None or old_file_hash != file_hash or version_changed or args.forcecompilation:
-            files_hashes[yang_file] = file_hash
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
+            updated_hashes[yang_file] = file_hash
             compilation = ""
             # print "PYANG compilation of " + yang_file
             result_pyang = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, True, args.debug)
@@ -697,5 +697,6 @@ if __name__ == "__main__":
         total_number))
     print(get_timestamp_with_pid() + 'end of job', flush=True)
 
-    # Dump updated files content hashes into .json file
-    fileHasher.dump_hashed_files_list(files_hashes)
+    # Update files content hashes and dump into .json file
+    if len(updated_hashes) > 0:
+        fileHasher.dump_hashed_files_list(updated_hashes)
