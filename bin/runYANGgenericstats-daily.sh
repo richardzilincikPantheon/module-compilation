@@ -22,10 +22,9 @@ source $CONFD_DIR/confdrc >> $LOG 2>&1
 # Generate the daily reports
 
 # BBF, we need to flatten the directory structure
-# TODO modify the yangGeneric.py file to handle a directory tree ?
 mkdir -p $TMP/bbf >> $LOG 2>&1
 rm -f $TMP/bbf/* >> $LOG 2>&1
-find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec ln -s {} $TMP/bbf/ \; >> $LOG 2>&1
+find $NONIETFDIR/yangmodels/yang/standard/bbf -name "*.yang" -exec cp {} $TMP/bbf/ \; >> $LOG 2>&1
 
 mkdir -p $MODULES >> $LOG 2>&1
 
@@ -101,34 +100,35 @@ for b in $branches
       git checkout $version >> $LOG 2>&1
       mkdir -p $TMP/openroadm-public/$version >> $LOG 2>&1
       rm -f $TMP/openroadm-public/$version/* >> $LOG 2>&1
-      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec ln -s {} $TMP/openroadm-public/$version/ \; >> $LOG 2>&1
-      (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >> $LOG 2>&1) #&
+      find $NONIETFDIR/openroadm/OpenROADM_MSA_Public -name "*.yang" -exec cp {} $TMP/openroadm-public/$version/ \;  >> $LOG 2>&1
     fi
 done
 
-# TODO: Symbolic links used - currently not possible to run in parallel
-# declare -a PIDS2
-# for path in $(ls -d $TMP/openroadm-public/*/)
-#   do
-#     version=$(basename $path)
-#     (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >> $LOG 2>&1) &
-#     PIDS2+=("$!")
-# done
+date +"%c: forking all sub-processes for OpenROADM versions" >> $LOG
+declare -a PIDS2
+for path in $(ls -d $TMP/openroadm-public/*/)
+  do
+    version=$(basename $path)
+    (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >> $LOG 2>&1) &
+    PIDS2+=("$!")
+done
 
-# # Wait for all child-processes
-# for PID in ${PIDS2[@]}
-# do
-# 	wait $PID || exit 1
-# done
+# Wait for all child-processes
+for PID in ${PIDS2[@]}
+do
+	wait $PID || exit 1
+done
 
 cd $cur_dir
 date +"%c: all sub-process have ended" >> $LOG
 
 # clean up of the .fxs files created by confdc
 date +"%c: cleaning up the now useless .fxs files" >> $LOG
-find $TMP/bbf/ -name *.fxs -print | xargs -r rm >> $LOG 2>&1
-find $TMP/openroadm-public/ -name *.fxs -print | xargs -r rm >> $LOG 2>&1
 find $NONIETFDIR/ -name *.fxs ! -name fujitsu-optical-channel-interfaces.fxs -print | xargs -r rm >> $LOG 2>&1
+
+# Remove temp directory structure created for parsing OpenROADM and BBF yang modules
+rm -rf $TMP/bbf/ >> $LOG 2>&1
+rm -rf $TMP/openroadm-public/ >> $LOG 2>&1
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< $CREDENTIALS
