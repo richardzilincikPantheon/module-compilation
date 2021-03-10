@@ -17,7 +17,10 @@ BIN=/sdo_analysis/bin
 cd $BIN
 #source activate
 source configure.sh
-#
+
+date +"%c:  Starting cronjob-daily"
+cronjob-daily
+
 date +"%c:  Starting download from GitHub YangModels"
 rundownloadgithub.sh
 
