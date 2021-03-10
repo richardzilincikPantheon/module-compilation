@@ -20,7 +20,6 @@ __version__ = "1.1.0"
 
 import configparser as ConfigParser
 import json
-import os
 from subprocess import CalledProcessError, check_output
 
 import pyang

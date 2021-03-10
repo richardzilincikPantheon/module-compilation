@@ -45,32 +45,14 @@ def list_all_subdirs(dir):
     return subdirs
 
 
-def list_of_yang_modules_in_dir(srcdir, debug_level):
-    """
-    Returns the list of YANG Modules (.yang) in a directory
-    :param srcdir: directory to search for yang files
-    :param debug_level: If > 0 print some debug statements to the console
-    :return: list of YANG files
-    """
-    files = [f for f in os.listdir(srcdir) if os.path.isfile(os.path.join(srcdir, f))]
-    yang_files = []
-    for f in files:
-        if f.endswith(".yang"):
-            yang_files.append(f)
-            if debug_level > 0:
-                print("DEBUG: " + f + " in list_of_yang_modules_in_dir: is a YANG model")
-        else:
-            if debug_level > 0:
-                print("DEBUG: " + f + " in list_of_yang_modules_in_dir: is not a YANG model")
-    return yang_files
-
-
-def list_of_yang_modules_in_subdir(srcdir, debug_level):
+def list_of_yang_modules_in_subdir(srcdir: str, debug_level: int):
     """
     Returns the list of YANG Modules (.yang) in all sub-directories
-    :param srcdir: root directory to search for yang files
-    :param debug_level: If > 0 print some debug statements to the console
-    :return: list of YANG files
+
+    Arguments:
+        :param srcdir           (str) root directory to search for yang files
+        :param debug_level      (int) If > 0 print some debug statements to the console
+        :return: list of YANG files found in all sub-directories of root directory
     """
     ll = []
     for root, dirs, files in os.walk(srcdir):

@@ -13,7 +13,6 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
-# TODO, only check files more recent than a date
 __author__ = 'Benoit Claise, Eric Vyncke'
 __copyright__ = "Copyright(c) 2015-2019, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
 __email__ = "bclaise@cisco.com, evyncke@cisco.com"
@@ -1256,5 +1255,6 @@ if __name__ == "__main__":
     print(get_timestamp_with_pid() + 'IETFCiscoAuthorsYANGPageCompilation.html generated', flush=True)
     print(get_timestamp_with_pid() + 'end of job', flush=True)
 
-    # Dump updated files content hashes into .json file
-    fileHasher.dump_hashed_files_list(files_hashes)
+    # Update files content hashes and dump into .json file
+    if len(files_hashes) > 0:
+        fileHasher.dump_hashed_files_list(files_hashes)
