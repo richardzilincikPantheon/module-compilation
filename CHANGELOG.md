@@ -1,7 +1,11 @@
-## Backend Release Notes
+## SDO Analysis Release Notes
 
 * ##### vm.m.p - 2021-MM-DD
-
+  
+* ##### v3.1.0 - 2021-03-18
+  
+  * Directory structure of cloned OpenROADM repo modified [#63](https://github.com/YangCatalog/sdo_analysis/issues/63)
+  * Hashing file content with validators version to track modifications [#55](https://github.com/YangCatalog/sdo_analysis/issues/63)
   * xym tool update to version 0.5 [deployment #50](https://github.com/YangCatalog/deployment/issues/50)
   * Removed unnecessary cURL command message [#58](https://github.com/YangCatalog/sdo_analysis/issues/58)
 
