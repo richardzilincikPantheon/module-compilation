@@ -109,7 +109,7 @@ do
          yang_removed=${git%/*}
          prefix=${yang_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >> $LOG 2>&1
+         python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path" >> $LOG 2>&1
    # Juniper/15* does not exist
    elif [ $i -eq 15 ]
    then
@@ -203,6 +203,6 @@ find $NONIETFDIR/yangmodels -name *.fxs ! -name fujitsu-optical-channel-interfac
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< "$CREDENTIALS"
-curl -X POST -u "${CRED[0]}":"${CRED[1]}" $MY_URI/api/load-cache >> $LOG 2>&1
+curl -s -X POST -u "${CRED[0]}":"${CRED[1]}" $MY_URI/api/load-cache >> $LOG 2>&1
 
 date +"%c: End of the script!" >> $LOG
