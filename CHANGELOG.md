@@ -1,9 +1,12 @@
 ## SDO Analysis Release Notes
 
 * ##### vm.m.p - 2021-MM-DD
-  
+
+  * Fix: JSON dictionaries rewriten each time - unnecessary modules are properly removed from JSON files
+  * Old log messages in crons-log.log no longer removed after cronjob start
+
 * ##### v3.1.0 - 2021-03-18
-  
+
   * Directory structure of cloned OpenROADM repo modified [#63](https://github.com/YangCatalog/sdo_analysis/issues/63)
   * Hashing file content with validators version to track modifications [#55](https://github.com/YangCatalog/sdo_analysis/issues/63)
   * xym tool update to version 0.5 [deployment #50](https://github.com/YangCatalog/deployment/issues/50)

@@ -567,9 +567,9 @@ if __name__ == "__main__":
     # Load compilation results from .json file, if any exists
     try:
         with open('{}/{}.json'.format(args.htmlpath, args.prefix), 'r') as f:
-            dictionary = json.load(f)
+            dictionary_existing = json.load(f)
     except FileNotFoundError as e:
-        dictionary = {}
+        dictionary_existing = {}
 
     updated_hashes = {}
     for yang_file in yang_list:
@@ -577,7 +577,7 @@ if __name__ == "__main__":
         yang_file_with_revision = get_name_with_revision(yang_file)
         file_hash = fileHasher.hash_file(yang_file)
         old_file_hash = files_hashes.get(yang_file, None)
-        yang_file_compilation = dictionary.get(yang_file_with_revision, [])
+        yang_file_compilation = dictionary_existing.get(yang_file_with_revision, None)
 
         if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             updated_hashes[yang_file] = file_hash
