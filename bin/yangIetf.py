@@ -951,16 +951,17 @@ if __name__ == "__main__":
     # Load compilation results from .json file, if any exists
     try:
         with open('{}/IETFDraft.json'.format(args.htmlpath), 'r') as f:
-            dictionary = json.load(f)
+            dictionary_existing = json.load(f)
     except FileNotFoundError as e:
-        dictionary = {}
+        dictionary_existing = {}
+    dictionary = {}
     dictionary_no_submodules = {}
     updated_modules = []
     for yang_file in yang_draft_dict:
         yang_file_path = args.yangpath + yang_file
         file_hash = fileHasher.hash_file(yang_file_path)
         old_file_hash = files_hashes.get(yang_file_path, None)
-        yang_file_compilation = dictionary.get(yang_file, [])
+        yang_file_compilation = dictionary_existing.get(yang_file, None)
 
         if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             files_hashes[yang_file_path] = file_hash
@@ -1023,15 +1024,16 @@ if __name__ == "__main__":
     # Load compilation results from .json file, if any exists
     try:
         with open('{}/IETFDraftExample.json'.format(args.htmlpath), 'r') as f:
-            dictionary_example = json.load(f)
+            dictionary_example_existing = json.load(f)
     except FileNotFoundError as e:
-        dictionary_example = {}
+        dictionary_example_existing = {}
+    dictionary_example = {}
     dictionary_no_submodules_example = {}
     for yang_file in yang_example_draft_dict:
         yang_file_path = args.allyangexamplepath + yang_file
         file_hash = fileHasher.hash_file(yang_file_path)
         old_file_hash = files_hashes.get(yang_file_path, None)
-        yang_file_compilation = dictionary_example.get(yang_file, [])
+        yang_file_compilation = dictionary_example_existing.get(yang_file, None)
 
         if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             files_hashes[yang_file_path] = file_hash
@@ -1091,15 +1093,16 @@ if __name__ == "__main__":
     # Load URLs from .json file, if any exists
     try:
         with open('{}/IETFYANGRFC.json'.format(args.htmlpath), 'r') as f:
-            dictionary_rfc = json.load(f)
+            dictionary_rfc_existing = json.load(f)
     except FileNotFoundError as e:
-        dictionary_rfc = {}
+        dictionary_rfc_existing = {}
+    dictionary_rfc = {}
     dictionary_rfc_no_submodules = {}
     for yang_file in yang_rfc_dict:
         yang_file_path = args.rfcyangpath + yang_file
         file_hash = fileHasher.hash_file(yang_file_path)
         old_file_hash = files_hashes.get(yang_file_path, None)
-        rfc_url = dictionary_rfc.get(yang_file, '')
+        rfc_url = dictionary_rfc_existing.get(yang_file, '')
 
         if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
             files_hashes[yang_file_path] = file_hash
