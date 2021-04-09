@@ -4,6 +4,7 @@
 
   * Fix: JSON dictionaries rewriten each time - unnecessary modules are properly removed from JSON files
   * Old log messages in crons-log.log no longer removed after cronjob start
+  * YumaPro validator updated to version 20.10-6 [deployment #53](https://github.com/YangCatalog/deployment/issues/53)
 
 * ##### v3.1.0 - 2021-03-18
 
