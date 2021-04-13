@@ -12,6 +12,21 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
+wait_for_processes()
+{
+  PIDS=("$@")
+  max_processes=3
+
+  if [ $running -eq $max_processes ]
+  then
+  for PID in ${PIDS[@]}
+    do
+      wait $PID || exit 1
+    done
+    running=0
+  fi
+}
+
 source configure.sh
 export LOG=$LOGS/YANGgenericstats-weekly.log
 date +"%c: Starting" > $LOG
@@ -28,18 +43,21 @@ curl -s -H "Accept: application/json" $MY_URI/api/search/modules -o "$TMP/all_mo
 # Cisco NX
 date +"%c: processing all Cisco NX modules " >> $LOG
 declare -a PIDSNX
+running=0
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/nx/*/)
 do
    meta="NX OS"
    os="NX"
    for path2 in $(ls -d $path)
    do
+      ((running=running+1))
       git=${path2##*/cisco/nx/}
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
       (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/master/vendor/cisco/nx/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
       PIDSNX+=("$!")
+      wait_for_processes "${PIDSNX[@]}"
    done
 done
 # Wait for all child-processes until move to next OS
@@ -51,18 +69,21 @@ done
 # Cisco XE
 date +"%c: processing all Cisco XE modules " >> $LOG
 declare -a PIDSXE
+running=0
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/xe/*/)
 do
    meta="IOS XE"
    os="XE"
    for path2 in $(ls -d $path)
    do
+      ((running=running+1))
       git=${path2##*/cisco/xe/}
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
       (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/master/vendor/cisco/xe/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
       PIDSXE+=("$!")
+      wait_for_processes "${PIDSXE[@]}"
    done
 done
 # Wait for all child-processes until move to next OS
@@ -74,18 +95,21 @@ done
 # Cisco XR
 date +"%c: processing all Cisco XR modules " >> $LOG
 declare -a PIDSXR
+running=0
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/xr/*/)
 do
    meta="IOS XR"
    os="XR"
    for path2 in $(ls -d $path)
    do
+      ((running=running+1))
       git=${path2##*/cisco/xr/}
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
       (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/master/vendor/cisco/xr/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
       PIDSXR+=("$!")
+      wait_for_processes "${PIDSXR[@]}"
    done
 done
 # Wait for all child-processes until move to next vendor
@@ -99,6 +123,7 @@ date +"%c: processing non Cisco modules " >> $LOG
 # Juniper
 date +"%c: processing Juniper modules " >> $LOG
 declare -a PIDJUNIPER
+running=0
 for i in {14..20}
 do
    # Juniper/14.2 does not contain subdirectories
@@ -119,12 +144,14 @@ do
       do
          for path2 in $(ls -d $path*/)
          do
+            ((running=running+1))
             git=${path2##*/juniper/}
             yang_removed=${git%/*}
             prefix=${yang_removed#*/}
             prefix2=$(echo $prefix | tr -cd '[:alnum:]')
             (python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
             PIDJUNIPER+=("$!")
+            wait_for_processes "${PIDJUNIPER[@]}"
          done
       done
       for PID in ${PIDJUNIPER[@]}
@@ -138,8 +165,10 @@ done
 # Huawei
 date +"%c: processing Huawei modules " >> $LOG
 declare -a PIDSHUAWEI
+running=0
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/huawei/network-router/*/)
 do
+   ((running=running+1))
    git=${path##*/network-router/}
    git=${git::-1}
    yang_removed=${git%/*}
@@ -147,6 +176,7 @@ do
    prefix=$(echo $prefix | tr -cd '[:alnum:]')
    (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $git https://github.com/Huawei/yang/tree/master/network-router/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path" >> $LOG 2>&1) &
    PIDSHUAWEI+=("$!")
+   wait_for_processes "${PIDSHUAWEI[@]}"
 done
 # Wait for all child-processes
 for PID in ${PIDSHUAWEI[@]}
@@ -161,14 +191,17 @@ python yangGeneric.py --allinclusive True --metadata "Ciena https://github.com/Y
 # Fujitsu
 date +"%c: processing Fujitsu modules " >> $LOG
 declare -a PIDSFUJITSU
+running=0
 for path in $(find $NONIETFDIR/yangmodels/yang/vendor/fujitsu/FSS2-API-Yang -name "yang")
 do
+   ((running=running+1))
    git=${path##*/fujitsu/}
    yang_removed=${git%/*}
    prefix=${yang_removed#*/}
    prefix=$(echo $prefix | tr -cd '[:alnum:]')
    (python yangGeneric.py --allinclusive True --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint True --prefix Fujitsu$prefix --rootdir "$path" >> $LOG 2>&1) &
    PIDSFUJITSU+=("$!")
+   wait_for_processes "${PIDSFUJITSU[@]}"
 done
 # Wait for all child-processes
 for PID in ${PIDSFUJITSU[@]}
@@ -179,16 +212,19 @@ done
 # Nokia
 date +"%c: processing Nokia modules " >> $LOG
 declare -a PIDSNOKIA
+running=0
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/nokia/*/)
 do
    for path2 in $(ls -d $path*/)
    do
+      ((running=running+1))
       git=${path2##*/7x50_YangModels/}
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]'| sed 's/latestsros//g')
       (python yangGeneric.py --allinclusive True --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint True --prefix Nokia$prefix --rootdir "$path2" >> $LOG 2>&1) &
       PIDSNOKIA+=("$!")
+      wait_for_processes "${PIDSNOKIA[@]}"
    done
 done
 # Wait for all child-processes

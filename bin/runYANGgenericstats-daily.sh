@@ -12,6 +12,21 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 
+wait_for_processes()
+{
+    PIDS=("$@")
+    max_processes=4
+
+    if [ $running -eq $max_processes ]
+    then
+        for PID in ${PIDS[@]}
+        do
+            wait $PID || exit 1
+        done
+        running=0
+    fi
+}
+
 source configure.sh
 export LOG=$LOGS/YANGgenericstats-daily.log
 date +"%c: Starting" > $LOG
@@ -80,7 +95,7 @@ PIDS+=("$!")
 # Wait for all child-processes
 for PID in ${PIDS[@]}
 do
-	wait $PID || exit 1
+  wait $PID || exit 1
 done
 
 # OpenROADM public
@@ -93,7 +108,7 @@ cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
 git pull
 branches=$(git branch -a | grep remotes)
 for b in $branches
-  do
+do
     version=${b##*/}
     first_char=${version:0:1}
     if [[ $first_char =~ ^[[:digit:]] ]]; then
@@ -106,17 +121,20 @@ done
 
 date +"%c: forking all sub-processes for OpenROADM versions" >> $LOG
 declare -a PIDS2
+running=0
 for path in $(ls -d $TMP/openroadm-public/*/)
-  do
+do
+    ((running=running+1))
     version=$(basename $path)
     (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >> $LOG 2>&1) &
     PIDS2+=("$!")
+    wait_for_processes "${PIDS2[@]}"
 done
 
 # Wait for all child-processes
 for PID in ${PIDS2[@]}
 do
-	wait $PID || exit 1
+  wait $PID || exit 1
 done
 
 cd $cur_dir
@@ -132,6 +150,6 @@ rm -rf $TMP/openroadm-public/ >> $LOG 2>&1
 
 date +"%c: reloading cache" >> $LOG
 read -ra CRED <<< $CREDENTIALS
-curl -X POST -u "${CRED[0]:1}":"${CRED[1]::-1}" $MY_URI/api/load-cache >> $LOG 2>&1
+curl -s -X POST -u "${CRED[0]:1}":"${CRED[1]::-1}" $MY_URI/api/load-cache >> $LOG 2>&1
 
 date +"%c: End of the script!" >> $LOG
