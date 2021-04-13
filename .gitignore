@@ -11,10 +11,11 @@
 # Eclipse
 .project
 
+# VS Code
+/.vscode/
+
 # Python
 .tox/
 __pycache__/
 *.pyc
 /venv/
-
-
