@@ -20,7 +20,8 @@ __email__ = "slavomir.mazur@pantheon.tech"
 import configparser as ConfigParser
 import hashlib
 import json
-import threading
+
+from filelock import FileLock
 
 from versions import ValidatorsVersions
 
@@ -32,7 +33,6 @@ class FileHasher:
         config._interpolation = ConfigParser.ExtendedInterpolation()
         config.read(config_path)
         self.cache_dir = config.get('Directory-Section', 'cache')
-        self.lock = threading.Lock()
         self.validators_versions_bytes = self.get_versions()
 
     def hash_file(self, path: str):
@@ -63,14 +63,14 @@ class FileHasher:
         """
         dst_dir = self.cache_dir if dst_dir == '' else dst_dir
 
-        self.lock.acquire()
-        try:
-            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
-                hashed_files_list = json.load(f)
-                print('Dictionary of {} hashes loaded successfully'.format(len(hashed_files_list)))
-        except FileNotFoundError as e:
-            hashed_files_list = {}
-        self.lock.release()
+        with FileLock('{}/sdo_files_modification_hashes.json.lock'.format(dst_dir)):
+            print('Lock acquired.')
+            try:
+                with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
+                    hashed_files_list = json.load(f)
+                    print('Dictionary of {} hashes loaded successfully'.format(len(hashed_files_list)))
+            except FileNotFoundError as e:
+                hashed_files_list = {}
 
         return hashed_files_list
 
@@ -81,20 +81,19 @@ class FileHasher:
         dst_dir = self.cache_dir if dst_dir == '' else dst_dir
 
         # Load existing hashes, merge with new one, then dump all to the .json file
-        self.lock.acquire()
-        try:
-            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
-                hashes_in_file = json.load(f)
-                print('Dictionary of {} hashes loaded successfully'.format(len(hashes_in_file)))
-        except FileNotFoundError as e:
-            hashes_in_file = {}
+        with FileLock('{}/sdo_files_modification_hashes.json.lock'.format(dst_dir)):
+            try:
+                with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
+                    hashes_in_file = json.load(f)
+                    print('Dictionary of {} hashes loaded successfully'.format(len(hashes_in_file)))
+            except FileNotFoundError as e:
+                hashes_in_file = {}
 
-        merged_files_hashes = {**hashes_in_file, **files_hashes}
+            merged_files_hashes = {**hashes_in_file, **files_hashes}
 
-        with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'w') as f:
-            json.dump(merged_files_hashes, f, indent=2, sort_keys=True)
-        print('Dictionary of {} hashes successfully dumped into .json file'.format(len(merged_files_hashes)))
-        self.lock.release()
+            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'w') as f:
+                json.dump(merged_files_hashes, f, indent=2, sort_keys=True)
+            print('Dictionary of {} hashes successfully dumped into .json file'.format(len(merged_files_hashes)))
 
     def get_versions(self):
         """ Return encoded validators versions dictionary.
