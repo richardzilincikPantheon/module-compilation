@@ -2,9 +2,14 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v3.2.0 - 2021-04-15
+
+  * FileLock added for protected access to hashes JSON file [#73](https://github.com/YangCatalog/sdo_analysis/issues/73)
+  * Number of spawned processes limited to optimize RAM memory load
   * Fix: JSON dictionaries rewriten each time - unnecessary modules are properly removed from JSON files
   * Old log messages in crons-log.log no longer removed after cronjob start
   * YumaPro validator updated to version 20.10-6 [deployment #53](https://github.com/YangCatalog/deployment/issues/53)
+  * jinja2 package version bumped
 
 * ##### v3.1.0 - 2021-03-18
 
