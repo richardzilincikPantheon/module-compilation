@@ -11,6 +11,7 @@
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
 import argparse
+import json
 import os
 import re
 import sys
@@ -125,3 +126,5 @@ if __name__ == "__main__":
     result = render('./resources/index.html', context)
     with open('{}/index.html'.format(private_dir), 'w') as f:
         f.write(result)
+    with open('{}/private.json'.format(private_dir), 'w') as f:
+        json.dump(context, f)
