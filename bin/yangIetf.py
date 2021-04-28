@@ -1254,6 +1254,8 @@ if __name__ == "__main__":
               'Compilation Results (yumadump-pro). Note: also generates errors for imported files.',
               'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
     generate_html_table(my_new_list, header, args.htmlpath, "IETFCiscoAuthorsYANGPageCompilation.html")
+    with open('{}/IETFCiscoAuthorsYANGPageCompilation.json'.format(args.htmlpath), 'w') as f:
+        json.dump(my_new_list, f)
     print(output_email_string_unique)
     print(get_timestamp_with_pid() + 'IETFCiscoAuthorsYANGPageCompilation.html generated', flush=True)
     print(get_timestamp_with_pid() + 'end of job', flush=True)

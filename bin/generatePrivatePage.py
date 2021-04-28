@@ -127,4 +127,15 @@ if __name__ == "__main__":
     with open('{}/index.html'.format(private_dir), 'w') as f:
         f.write(result)
     with open('{}/private.json'.format(private_dir), 'w') as f:
+        context['graphs-cisco-authors'] = ['IETFCiscoAuthorsYANGPageCompilation.json',
+                                           'figures/IETFCiscoAuthorsYANGPageCompilation.png',
+                                           'figures/IETFYANGOutOfRFC.png',
+                                           'figures/IETFYANGPageCompilation.png']
+        context['sdo-stats'] = ['IETFDraft.json', 'IETFDraftExample.json', 'IETFYANGRFC.json', 'RFCStandard.json',
+                                'BBF.json', 'MEFStandard.json', 'MEFExperimental.json', 'IEEEStandard.json',
+                                'SysrepoInternal.json', 'SysrepoApplication.json', 'ONFOpenTransport.json',
+                                'Openconfig.json']
+        context['dependency-graph'] = ['figures/modules-ietf.png', 'figures/modules-all.png',
+                                       'figures/ietf-interfaces.png', 'figures/ietf-interfaces-all.png',
+                                       'figures/ietf-routing.png']
         json.dump(context, f)
