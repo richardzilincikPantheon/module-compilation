@@ -1,9 +1,11 @@
 FROM ubuntu:18.04
 ARG YANG_ID
 ARG YANG_GID
+ARG CRON_MAIL_TO
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
+ENV CRON_MAIL_TO "$CRON_MAIL_TO"
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 
 ENV VIRTUAL_ENV=/sdo_analysis
@@ -62,6 +64,7 @@ COPY ./conf/yangdump-pro-allinclusive.conf /etc/yumapro/yangdump-pro-allinclusiv
 # Add crontab file in the cron directory
 COPY ./sdo_analysis/crontab /etc/cron.d/ietf-cron
 
+RUN sed -i "s|<MAIL_TO>|${CRON_MAIL_TO} |g" /etc/cron.d/ietf-cron
 RUN chown yang:yang /etc/cron.d/ietf-cron
 RUN chown -R yang:yang $VIRTUAL_ENV
 USER ${YANG_ID}:${YANG_GID}
