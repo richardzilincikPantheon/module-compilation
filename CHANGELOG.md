@@ -2,6 +2,11 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v3.2.1 - 2021-05-04
+
+  * Crontab MAILTO variable set during Docker image build [deployment #72](https://github.com/YangCatalog/deployment/issues/72)
+  * JSON files generating for future use in Web UI
+
 * ##### v3.2.0 - 2021-04-15
 
   * FileLock added for protected access to hashes JSON file [#73](https://github.com/YangCatalog/sdo_analysis/issues/73)
