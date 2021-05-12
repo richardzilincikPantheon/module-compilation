@@ -78,7 +78,7 @@
 </ul>
 <hr />
 
-<h2>  Cisco NX-OS</h2>
+<h2>Cisco NX-OS</h2>
 <ul>
     <li><a href="https://github.com/YangModels/yang/blob/master/vendor/cisco/nx/7.0-3-F1-1/README.md">IMPORTANT NOTE regarding the compliance of the native NX-OS models (check for the right version)</a>
         {% for os in NX %}
@@ -88,6 +88,20 @@
     {% endfor %}
 </ul>
 <hr/>
+
+<h2>Cisco IOS-SVO</h2>
+<ul>
+    <li><a href="https://github.com/YangModels/yang/blob/master/vendor/cisco/svo/README.md">IMPORTANT NOTE regarding
+            the compliance of those CISCO native IOS-SVO models</a>
+        {% for os in SVO %}
+    <li><a href="CiscoSVO{{ os.alphaNumeric }}YANGPageCompilation.html">Cisco IOS SVO {{ os.allCharacters }} native
+            models</a>
+        <a href="CiscoSVO{{ os.alphaNumeric }}YANGPageMain.html">Cisco IOS SVO {{ os.allCharacters }} native models:
+            stats</a>
+        <a href="CiscoSVO{{ os.alphaNumeric }}.json">Cisco IOS SVO {{ os.allCharacters }}: json</a>
+        {% endfor %}
+</ul>
+<hr />
 
 <h2>JUNIPER</H2>
 <ul>
