@@ -33,7 +33,7 @@ RUN apt-get -y install rsync python3.6 python3-pip openssh-client build-essentia
 RUN cd /home; git clone https://github.com/decalage2/pyhtgen.git \
   && mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen; cd /home/pyhtgen/pyhtgen;  python setup.py install
 
-RUN echo postfix postfix/mailname string yang2.amsl.com | debconf-set-selections; \
+RUN echo postfix postfix/mailname string yangcatalog.org | debconf-set-selections; \
   echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections; \
   apt-get -y install postfix rsyslog systemd
 
