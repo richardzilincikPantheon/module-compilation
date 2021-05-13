@@ -112,8 +112,34 @@ do
       wait_for_processes "${PIDSXR[@]}"
    done
 done
-# Wait for all child-processes until move to next vendor
+# Wait for all child-processes until move to next OS
 for PID in ${PIDSXR[@]}
+do
+   wait $PID || exit 1
+done
+
+# Cisco SVO
+date +"%c: processing all Cisco SVO modules " >> $LOG
+declare -a PIDSSVO
+running=0
+for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/svo/*/)
+do
+   meta="NCS"
+   os="SVO"
+   for path2 in $(ls -d $path)
+   do
+      ((running=running+1))
+      git=${path2##*/cisco/svo/}
+      yang_removed=${git%/*}
+      prefix=${yang_removed#*/}
+      prefix2=$(echo $prefix | tr -cd '[:alnum:]')
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/master/vendor/cisco/svo/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >> $LOG 2>&1) &
+      PIDSSVO+=("$!")
+      wait_for_processes "${PIDSSVO[@]}"
+   done
+done
+# Wait for all child-processes until move to next vendor
+for PID in ${PIDSSVO[@]}
 do
    wait $PID || exit 1
 done
