@@ -192,15 +192,14 @@ done
 date +"%c: processing Huawei modules " >> $LOG
 declare -a PIDSHUAWEI
 running=0
-for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/huawei/network-router/*/)
+for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/huawei/network-router/8.20.0/*/)
 do
    ((running=running+1))
-   git=${path##*/network-router/}
+   git=${path##*/network-router/8.20.0/}
    git=${git::-1}
    yang_removed=${git%/*}
    prefix=${yang_removed#*/}
-   prefix=$(echo $prefix | tr -cd '[:alnum:]')
-   (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $git https://github.com/Huawei/yang/tree/master/network-router/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path" >> $LOG 2>&1) &
+   (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $git https://github.com/Huawei/yang/tree/master/network-router/8.20.0/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path" >> $LOG 2>&1) &
    PIDSHUAWEI+=("$!")
    wait_for_processes "${PIDSHUAWEI[@]}"
 done
