@@ -159,19 +159,20 @@ def generate_html_list(l, htmlpath, file_name):
     os.chmod(htmlpath + file_name, 0o664)
 
 
-def dict_to_list(in_dict):
+def dict_to_list(in_dict: dict):
     """
-    Create a list out of a dictionary
-    :param in_dict: The input dictionary
-    :return: List
+    Create a list out of compilation results from 'in_dict' dictionary variable.
+
+    Argument:
+        :param in_dict      (dict) Dictionary of modules with compilation results
+        :return: List of compilation results
     """
     dictlist = []
     for key, value in in_dict.items():
-        temp_list = []
-        temp_list.append(key)
-        for i in range(len(value)):
-            temp_list.append(value[i])
-        dictlist.append(temp_list)
+        if value is not None:
+            temp_list = [key]
+            temp_list.extend(value)
+            dictlist.append(temp_list)
     return dictlist
 
 
@@ -239,20 +240,20 @@ def number_of_yang_modules_that_passed_compilation(in_dict, compilation_conditio
     return t
 
 
-def write_dictionary_file_in_json(in_dict, path, file_name):
+def write_dictionary_file_in_json(in_dict: dict, path: str, file_name: str):
     """
-    Create a file, in json, with my directory data
-    For testing purposes.
-    # status: in progress.
+    Create a json file by dumping compilation results store in 'in_dict' variable.
 
-    :param in_dict: The dictionary
-    :param path: The directory where the json file with be created
-    :param file_name: The file name to be created
-    :return: None
+    Arguments:
+        :param in_dict      (dict) Dictionary of modules with compilation results
+        :param path         (str) The directory where the json file will be created
+        :param file_name    (str) The json file name to be created
+        :return: None
     """
-    with open(path + file_name, 'w', encoding='utf-8') as fw:
-        fw.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
-    os.chmod(path + file_name, 0o664)
+    full_path = '{}{}'.format(path, file_name)
+    with open(full_path, 'w', encoding='utf-8') as f:
+        json.dump(in_dict, f, indent=2, sort_keys=True, separators=(',', ': '))
+    os.chmod(full_path, 0o664)
 
 
 def move_old_examples_YANG_modules_from_RFC(path, path2, debug_level):
@@ -963,8 +964,7 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file_path, None)
         yang_file_compilation = dictionary_existing.get(yang_file, None)
 
-        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
-            files_hashes[yang_file_path] = file_hash
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation or yang_file_compilation is None:
             draft_name, email, compilation = "", "", ""
             result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = "", "", "", "", ""
             ietf_flag = True
@@ -996,6 +996,8 @@ if __name__ == "__main__":
                 updated_modules = push_to_confd(updated_modules, config)
             yang_file_compilation = [draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
                                      result_yanglint]
+            files_hashes[yang_file_path] = file_hash
+
         dictionary[yang_file] = yang_file_compilation
         if module_or_submodule(args.yangpath + yang_file) == 'module':
             dictionary_no_submodules[yang_file] = yang_file_compilation
@@ -1035,8 +1037,7 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file_path, None)
         yang_file_compilation = dictionary_example_existing.get(yang_file, None)
 
-        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
-            files_hashes[yang_file_path] = file_hash
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation or yang_file_compilation is None:
             draft_name, email, compilation = "", "", ""
             result_pyang, result_no_ietf_flag = "", ""
             ietf_flag = True
@@ -1067,6 +1068,8 @@ if __name__ == "__main__":
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
             yang_file_compilation = [draft_url, email, compilation, result_pyang, result_no_ietf_flag]
+            files_hashes[yang_file_path] = file_hash
+
         dictionary_example[yang_file] = yang_file_compilation
         if module_or_submodule(args.allyangexamplepath + yang_file) == 'module':
             dictionary_no_submodules_example[yang_file] = yang_file_compilation
@@ -1104,8 +1107,7 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file_path, None)
         rfc_url = dictionary_rfc_existing.get(yang_file, '')
 
-        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
-            files_hashes[yang_file_path] = file_hash
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation or yang_file_compilation is None:
             rfc_name = yang_rfc_dict[yang_file]
             rfc_name = rfc_name.split(".")[0]
             url = "https://tools.ietf.org/html/" + rfc_name
@@ -1115,6 +1117,8 @@ if __name__ == "__main__":
                                        None, None, None, None, None, all_yang_catalog_metadata, 'ietf-rfc'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
+            files_hashes[yang_file_path] = file_hash
+
         dictionary_rfc[yang_file] = rfc_url
         # Uncomment next three lines if I want to remove the submodule from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
         # dictionary_rfc_no_submodules[yang_file] = rfc_url
