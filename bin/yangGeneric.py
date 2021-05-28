@@ -216,18 +216,20 @@ def generate_html_list(l, htmlpath, file_name):
     os.chmod(htmlpath + file_name, 0o664)
 
 
-def dict_to_list(in_dict):
+def dict_to_list(in_dict: dict):
     """
-    Create a list out of a dictionary
-    :param in_dict: The input dictionary
-    :return: List
+    Create a list out of compilation results from 'in_dict' dictionary variable.
+
+    Argument:
+        :param in_dict      (dict) Dictionary of modules with compilation results
+        :return: List of compilation results
     """
     dictlist = []
     for key, value in in_dict.items():
-        temp_list = [key]
-        for i in range(len(value)):
-            temp_list.append(value[i])
-        dictlist.append(temp_list)
+        if value is not None:
+            temp_list = [key]
+            temp_list.extend(value)
+            dictlist.append(temp_list)
     return dictlist
 
 
@@ -362,21 +364,20 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     return compilation
 
 
-def write_dictionary_file_in_json(in_dict, path, file_name):
+def write_dictionary_file_in_json(in_dict: dict, path: str, file_name: str):
     """
-    Create a file, in json, with my directory data
-    For testing purposes.
-    # status: in progress.
+    Create a json file by dumping compilation results store in 'in_dict' variable.
 
-    :param in_dict: The dictionary
-    :param path: The directory where the json file with be created
-    :param file_name: The file name to be created
-    :return: None
+    Arguments:
+        :param in_dict      (dict) Dictionary of modules with compilation results
+        :param path         (str) The directory where the json file will be created
+        :param file_name    (str) The json file name to be created
+        :return: None
     """
-    f = open(path + file_name, 'w', encoding='utf-8')
-    f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
-    f.close()
-    os.chmod(path + file_name, 0o664)
+    full_path = '{}{}'.format(path, file_name)
+    with open(full_path, 'w', encoding='utf-8') as f:
+        json.dump(in_dict, f, indent=2, sort_keys=True, separators=(',', ': '))
+    os.chmod(full_path, 0o664)
 
 
 def get_mod_rev(module):
@@ -579,20 +580,19 @@ if __name__ == "__main__":
         old_file_hash = files_hashes.get(yang_file, None)
         yang_file_compilation = dictionary_existing.get(yang_file_with_revision, None)
 
-        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation:
-            updated_hashes[yang_file] = file_hash
+        if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation or yang_file_compilation is None:
             compilation = ""
             # print "PYANG compilation of " + yang_file
             result_pyang = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, True, args.debug)
             result_no_pyang_param = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, False, args.debug)
             result_confd = run_confd(confdc_exec, args.rootdir, yang_file, args.allinclusive, args.debug)
             result_yuma = run_yumadumppro(args.rootdir, yang_file, args.allinclusive, args.debug)
-            # if want to populate the document location from github, must uncomment the following 3 lines
-            # the difficulty: find back the exact githbut location, while everything is already copied in my local
+            # if want to populate the document location from Github, must uncomment the following 3 lines
+            # the difficulty: find back the exact Github location, while everything is already copied in my local
             # directories: maybe Carl's catalog service will help
-            #        draft_name = yang_file
-            #        draft_name = "https://github.com/MEF-GIT/YANG/tree/master/src/model/draft/" + yang_file
-            #        draft_name_url = '<a href="' + draft_name + '">' + yang_file + '</a>'
+            # draft_name = yang_file
+            # draft_name = "https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft" + yang_file
+            # draft_name_url = '<a href="' + draft_name + '">' + yang_file + '</a>'
             #
             # determine the status, based on the different compilers
             # remove the draft name from result_yuma
@@ -610,6 +610,7 @@ if __name__ == "__main__":
 
             yang_file_compilation = [
                 compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
+            updated_hashes[yang_file] = file_hash
 
         if yang_file_with_revision != '':
             dictionary[yang_file_with_revision] = yang_file_compilation
