@@ -1162,6 +1162,29 @@ if __name__ == "__main__":
         number_of_example_modules_YANG_models_from_ietf_drafts)
     my_list2 = [line2, line5, line6, line7, line8, line9]
 
+    counter = 5
+    while True:
+        try:
+            if not os.path.exists('{}/stats/AllYANGPageMain.json'.format(args.htmlpath)):
+                with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
+                    f.write('{}')
+            with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'r') as f:
+                stats = json.load(f)
+                stats['ietf-yang'] = {
+                    'total-drafts': number_of_modules_YANG_models_from_ietf_drafts,
+                    'draft-passed': number_of_modules_YANG_models_from_ietf_drafts_passed_compilation_without_warnings,
+                    'draft-warnings': number_of_modules_YANG_models_from_ietf_drafts_passed_compilation_wit_warnings,
+                    'all-ietf-drafts': number_of_all_modules,
+                    'example-drafts': number_of_example_modules_YANG_models_from_ietf_drafts
+                }
+            with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
+                json.dump(stats, f)
+            break
+        except:
+            counter = counter - 1
+            if counter == 0:
+                break
+
     generate_html_list(my_list2, args.htmlpath, "IETFYANGPageMain.html")
     print(get_timestamp_with_pid() + 'IETFYANGPageMain.html generated', flush=True)
 

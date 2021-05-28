@@ -23,6 +23,7 @@ from glob import glob
 
 import HTML
 import requests
+from filelock import FileLock
 
 from fileHasher import FileHasher
 from versions import ValidatorsVersions
@@ -666,6 +667,25 @@ if __name__ == "__main__":
     line8 = "Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(
         total_number)
     my_list2 = [line2, line6, line7, line8]
+    with FileLock('{}/stats/stats.json.lock'.format(args.htmlpath)):
+        counter = 5
+        while True:
+            try:
+                if not os.path.exists('{}/stats/AllYANGPageMain.json'.format(args.htmlpath)):
+                    with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
+                        f.write('{}')
+                with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'r') as f:
+                    stats = json.load(f)
+                    stats[args.prefix] = {'passed': passed_without_warnings, 'warnings': passed_with_warnings,
+                                          'total': total_number, 'failed': failed
+                                          }
+                with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
+                    json.dump(stats, f)
+                break
+            except:
+                counter = counter - 1
+                if counter == 0:
+                    break
     generate_html_list(my_list2, args.htmlpath, args.prefix + "YANGPageMain.html")
 
     push_to_confd(updated_modules, config)
