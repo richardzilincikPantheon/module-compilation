@@ -20,7 +20,7 @@ WORKDIR $VIRTUAL_ENV
 
 ENV confd_version 7.5
 RUN apt-get -y update
-RUN apt-get -y install cron wget curl gnupg2 clang cmake libpcre3-dev git libxml2-dev \
+RUN apt-get -y install cron wget curl gnupg2 clang cmake libpcre2-dev git libxml2-dev \
   && cd /home; mkdir w3cgrep \
   && cd /home; git clone https://github.com/CESNET/libyang.git \
   && cd /home/libyang; mkdir build \
