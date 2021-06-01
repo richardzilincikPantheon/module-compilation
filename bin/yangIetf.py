@@ -112,7 +112,7 @@ def run_yanglint(model, yangpath, debug_level):
     :return: the outcome of the PYANG compilationf
     """
     os.chdir(yangpath)
-    bash_command = "yanglint -V -i -p $MODULES " + model + " 2>&1"
+    bash_command = "yanglint -i -p $MODULES " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
     return os.popen(bash_command).read()
@@ -252,7 +252,7 @@ def write_dictionary_file_in_json(in_dict: dict, path: str, file_name: str):
     """
     full_path = '{}{}'.format(path, file_name)
     with open(full_path, 'w', encoding='utf-8') as f:
-        json.dump(in_dict, f, indent=2, sort_keys=True, separators=(',', ': '))
+        f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
     os.chmod(full_path, 0o664)
 
 
@@ -585,7 +585,7 @@ def check_yangcatalog_data(confdc_exec, pyang_exec, yang_path, resutl_html_dir, 
             ths.append('Compilation Results (yangdump-pro). Note: also generates errors for imported files. {}'.format(
                 versions.get('yangdump_version')))
             ths.append(
-                'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. {}'.format(
+                'Compilation Results (yanglint -i). Note: also generates errors for imported files. {}'.format(
                     versions.get('yanglint_version')))
 
             context = {'result': result,
@@ -953,7 +953,7 @@ if __name__ == "__main__":
     try:
         with open('{}/IETFDraft.json'.format(args.htmlpath), 'r') as f:
             dictionary_existing = json.load(f)
-    except FileNotFoundError as e:
+    except:
         dictionary_existing = {}
     dictionary = {}
     dictionary_no_submodules = {}
@@ -1019,7 +1019,7 @@ if __name__ == "__main__":
               'Compilation Result (pyang). Note: also generates errors for imported files. ' + versions.get('pyang_version'),
               'Compilation Results (confdc) Note: also generates errors for imported files. ' + versions.get('confd_version'),
               'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + versions.get('yangdump_version'),
-              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
+              'Compilation Results (yanglint -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
     generate_html_table(my_new_list, header, args.htmlpath, "IETFDraftYANGPageCompilation.html")
 
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
@@ -1027,7 +1027,7 @@ if __name__ == "__main__":
     try:
         with open('{}/IETFDraftExample.json'.format(args.htmlpath), 'r') as f:
             dictionary_example_existing = json.load(f)
-    except FileNotFoundError as e:
+    except:
         dictionary_example_existing = {}
     dictionary_example = {}
     dictionary_no_submodules_example = {}
@@ -1097,7 +1097,7 @@ if __name__ == "__main__":
     try:
         with open('{}/IETFYANGRFC.json'.format(args.htmlpath), 'r') as f:
             dictionary_rfc_existing = json.load(f)
-    except FileNotFoundError as e:
+    except:
         dictionary_rfc_existing = {}
     dictionary_rfc = {}
     dictionary_rfc_no_submodules = {}
@@ -1279,7 +1279,7 @@ if __name__ == "__main__":
               'Compilation Results (pyang). Note: also generates errors for imported files.',
               'Compilation Results (confdc) Note: also generates errors for imported files',
               'Compilation Results (yumadump-pro). Note: also generates errors for imported files.',
-              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files.']
+              'Compilation Results (yanglint -i). Note: also generates errors for imported files.']
     generate_html_table(my_new_list, header, args.htmlpath, "IETFCiscoAuthorsYANGPageCompilation.html")
     with open('{}/IETFCiscoAuthorsYANGPageCompilation.json'.format(args.htmlpath), 'w') as f:
         json.dump(my_new_list, f)
