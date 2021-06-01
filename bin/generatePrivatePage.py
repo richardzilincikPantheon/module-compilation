@@ -15,6 +15,7 @@ import json
 import os
 import re
 import sys
+
 import jinja2
 
 if sys.version_info >= (3, 4):
@@ -62,7 +63,7 @@ if __name__ == "__main__":
     context = {}
     cisco_dir = '{}/vendor/cisco'.format(yang_repo_dir)
     juniper_dir = '{}/vendor/juniper'.format(yang_repo_dir)
-    huawei_dir = '{}/vendor/huawei/network-router'.format(yang_repo_dir)
+    huawei_dir = '{}/vendor/huawei/network-router/8.20.0'.format(yang_repo_dir)
     fujitsu_dir = '{}/vendor/fujitsu/FSS2-API-Yang'.format(yang_repo_dir)
     nokia_dir = '{}/vendor/nokia'.format(yang_repo_dir)
 
@@ -91,9 +92,8 @@ if __name__ == "__main__":
     huawei_all_os = [name for name in os.listdir(huawei_dir) if os.path.isdir(os.path.join(huawei_dir, name))]
     context['huawei'] = []
     for directory in huawei_all_os:
-        directory_upper = directory.upper()
-        context['huawei'].append({'alphaNumeric': re.sub(r'\W+', '', directory_upper),
-                                  'allCharacters': directory_upper})
+        context['huawei'].append({'alphaNumeric': re.sub(r'\W+', '', directory),
+                                  'allCharacters': directory})
     context['huawei'] = sorted(context['huawei'], key=lambda i: i['alphaNumeric'])
 
     fujitsu_all_os = [name for name in os.listdir(fujitsu_dir) if os.path.isdir(os.path.join(fujitsu_dir, name))]

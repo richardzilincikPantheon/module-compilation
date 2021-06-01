@@ -11,7 +11,7 @@
 # either express or implied.
 PATH=/sdo_analysis/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$PATH
 export PATH
-python_exec=$(readlink -f `command -v python`)
+python_exec=$(readlink -f $(command -v python))
 python_version="${python_exec##*/}"
 PYTHONPATH=/usr/lib/$python_version/site-packages
 export PYTHONPATH
@@ -19,30 +19,31 @@ export PYTHONIOENCODING=utf-8
 export LC_ALL=C.UTF-8
 
 export YANG=/.
-export YANGVAR=`python get_config.py --section Directory-Section --key var`
+export YANGVAR=$(python get_config.py --section Directory-Section --key var)
 export BIN=$YANG/sdo_analysis/bin
 export CONF=$YANG/sdo_analysis/conf
-export BACKUPDIR=`python get_config.py --section Directory-Section --key backup`
-export CONFD_DIR=`python get_config.py --section Tool-Section --key confd-dir`
-export PYANG=`python get_config.py --section Tool-Section --key pyang-exec`
-export CREDENTIALS=`python get_config.py --section Secrets-Section --key confd-credentials`
+export BACKUPDIR=$(python get_config.py --section Directory-Section --key backup)
+export CONFD_DIR=$(python get_config.py --section Tool-Section --key confd-dir)
+export PYANG=$(python get_config.py --section Tool-Section --key pyang-exec)
+export CREDENTIALS=$(python get_config.py --section Secrets-Section --key confd-credentials)
+export IS_PROD=$(python get_config.py --section General-Section --key is-prod)
 
 #
 # Repositories
 #
-export NONIETFDIR=`python get_config.py --section Directory-Section --key non-ietf-directory`
-export IETFDIR=`python get_config.py --section Directory-Section --key ietf-directory`
-export MODULES=`python get_config.py --section Directory-Section --key modules-directory`
+export NONIETFDIR=$(python get_config.py --section Directory-Section --key non-ietf-directory)
+export IETFDIR=$(python get_config.py --section Directory-Section --key ietf-directory)
+export MODULES=$(python get_config.py --section Directory-Section --key modules-directory)
 
 #
 # Working directories
-export LOGS=`python get_config.py --section Directory-Section --key logs`
-export TMP=`python get_config.py --section Directory-Section --key temp`
+export LOGS=$(python get_config.py --section Directory-Section --key logs)
+export TMP=$(python get_config.py --section Directory-Section --key temp)
 
 #
 # Where the HTML pages lie
 #
-export WEB_PRIVATE=`python get_config.py --section Web-Section --key private-directory`
-export WEB_DOWNLOADABLES=`python get_config.py --section Web-Section --key downloadables-directory`
-export WEB=`python get_config.py --section Web-Section --key public-directory`
-export MY_URI=`python get_config.py --section Web-Section --key my-uri`
+export WEB_PRIVATE=$(python get_config.py --section Web-Section --key private-directory)
+export WEB_DOWNLOADABLES=$(python get_config.py --section Web-Section --key downloadables-directory)
+export WEB=$(python get_config.py --section Web-Section --key public-directory)
+export MY_URI=$(python get_config.py --section Web-Section --key my-uri)

@@ -170,12 +170,17 @@ def run_yanglint(p, model, allinclu, debug_level):
     directory = os.path.dirname(model)
     os.chdir(directory)
     if allinclu:
-        bash_command = "yanglint -V -i -p " + p + " " + model + " 2>&1"
+        bash_command = "yanglint -i -p " + p + " " + model + " 2>&1"
     else:
-        bash_command = "yanglint -V -i -p " + modules_directory + "/ " + model + " 2>&1"
+        bash_command = "yanglint -i -p " + modules_directory + "/ " + model + " 2>&1"
     if debug_level:
         print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
+    try:
+        result_yanglint = os.popen(bash_command).read()
+    except:
+        result_yanglint = 'libyang err : ERROR occured while running command: {}'.format(bash_command)
+
+    return result_yanglint
 
 
 def generate_html_table(l, h, htmlpath, file_name, txt=""):
@@ -377,7 +382,7 @@ def write_dictionary_file_in_json(in_dict: dict, path: str, file_name: str):
     """
     full_path = '{}{}'.format(path, file_name)
     with open(full_path, 'w', encoding='utf-8') as f:
-        json.dump(in_dict, f, indent=2, sort_keys=True, separators=(',', ': '))
+        f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
     os.chmod(full_path, 0o664)
 
 
@@ -570,7 +575,7 @@ if __name__ == "__main__":
     try:
         with open('{}/{}.json'.format(args.htmlpath, args.prefix), 'r') as f:
             dictionary_existing = json.load(f)
-    except FileNotFoundError as e:
+    except:
         dictionary_existing = {}
 
     updated_hashes = {}
@@ -583,7 +588,7 @@ if __name__ == "__main__":
 
         if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation or yang_file_compilation is None:
             compilation = ""
-            # print "PYANG compilation of " + yang_file
+            # print('PYANG compilation of ' + yang_file)
             result_pyang = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, True, args.debug)
             result_no_pyang_param = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, False, args.debug)
             result_confd = run_confd(confdc_exec, args.rootdir, yang_file, args.allinclusive, args.debug)
@@ -621,10 +626,11 @@ if __name__ == "__main__":
     print(get_timestamp_with_pid() + 'all modules compiled/validated', flush=True)
 
     # Dictionary serialization
-    write_dictionary_file_in_json(dictionary, args.htmlpath, args.prefix + ".json")
-    print(get_timestamp_with_pid() + args.prefix + '.json file generated', flush=True)
+    json_file_name = '{}.json'.format(args.prefix)
+    write_dictionary_file_in_json(dictionary, args.htmlpath, json_file_name)
+    print(get_timestamp_with_pid() + json_file_name + ' file generated', flush=True)
 
-    # YANG modules from drafts: : make a list out of the dictionary
+    # YANG modules from drafts: make a list out of the dictionary
     # my_list = []
     my_list = sorted(dict_to_list(dictionary_no_submodules))
 
@@ -649,7 +655,7 @@ if __name__ == "__main__":
               'Compilation Result (pyang). Note: also generates errors for imported files. ' + versions.get('pyang_version'),
               'Compilation Results (confdc) Note: also generates errors for imported files. ' + versions.get('confd_version'),
               'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + versions.get('yangdump_version'),
-              'Compilation Results (yanglint -V -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
+              'Compilation Results (yanglint -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
 
     generate_html_table(my_new_list, header, args.htmlpath, args.prefix + "YANGPageCompilation.html", args.metadata)
 
