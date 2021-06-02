@@ -323,6 +323,8 @@ if [ "$IS_PROD" = "True" ]; then
    for PID in ${PIDSNOKIA[@]}; do
       wait $PID || exit 1
    done
+else
+   date +"%c: This is not PROD environment - skipping vendor modules parsing" >>$LOG
 fi
 
 date +"%c: all sub-process have ended" >>$LOG
@@ -336,7 +338,7 @@ rm -rf $TMP/bbf/ >>$LOG 2>&1
 rm -rf $TMP/openroadm-public/ >>$LOG 2>&1
 
 date +"%c: reloading cache" >>$LOG
-read -ra CRED <<<"$CREDENTIALS"
+read -ra CRED <<<$(sed 's/\"//g'<<<"$CREDENTIALS")
 curl -s -X POST -u "${CRED[0]}":"${CRED[1]}" $MY_URI/api/load-cache >>$LOG 2>&1
 
 date +"%c: End of the script!" >>$LOG
