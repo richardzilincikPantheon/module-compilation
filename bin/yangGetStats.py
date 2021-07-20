@@ -450,7 +450,7 @@ if __name__ == "__main__":
         else:
             strict = len(list_of_ietf_draft_containing_keyword(files, domain, args.draftpathstrict, debug_level))
             non_strict = len(list_of_ietf_draft_containing_keyword(files_no_strict, domain,
-                                                                args.draftpathstrict, debug_level))
+                                                                   args.draftpathnostrict, debug_level))
             print('{}: {} - non strict rules: {}'.format(name, strict, non_strict))
 
     print()
