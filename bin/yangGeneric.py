@@ -18,15 +18,16 @@ import datetime
 import json
 import os
 import re
-import time
-from glob import glob
 
-import HTML
 import requests
 from filelock import FileLock
 
 from fileHasher import FileHasher
-from versions import ValidatorsVersions
+from filesGenerator import FilesGenerator
+from parsers.confdcParser import ConfdcParser
+from parsers.pyangParser import PyangParser
+from parsers.yangdumpProParser import YangdumpProParser
+from parsers.yanglintParser import YanglintParser
 from yangIetf import check_yangcatalog_data, push_to_confd
 
 __author__ = 'Benoit Claise'
@@ -38,13 +39,6 @@ __email__ = "bclaise@cisco.com"
 # ----------------------------------------------------------------------
 # Functions
 # ----------------------------------------------------------------------
-def list_all_subdirs(dir):
-    subdirs = []
-    for direc in glob(dir + "/*/"):
-        subdirs.append(direc)
-        subdirs.extend(list_all_subdirs(direc))
-    return subdirs
-
 
 def list_of_yang_modules_in_subdir(srcdir: str, debug_level: int):
     """
@@ -56,170 +50,13 @@ def list_of_yang_modules_in_subdir(srcdir: str, debug_level: int):
         :return: list of YANG files found in all sub-directories of root directory
     """
     ll = []
-    for root, dirs, files in os.walk(srcdir):
+    for root, _, files in os.walk(srcdir):
         for f in files:
-            if f.endswith(".yang"):
+            if f.endswith('.yang'):
                 if debug_level > 0:
                     print(os.path.join(root, f))
                 ll.append(os.path.join(root, f))
     return ll
-
-
-def run_pyang(pyang_exec, p, model, pyang_param, allinclu, take_pyang_param_into_account=True, debug_level=True):
-    """
-    Run PYANG on the YANG model, with or without the --lint flag
-    :p: the path where to look for the models
-    :param model: The file name for the model
-    :param pyang_param: a boolean, True for the --lint pyang flag, False for no --lint pyang flag
-    :allinclu: if True, the YANG module path is p. If false, the default one
-    :param take_pyang_param_into_account: a boolean,
-        True: take pyang_param into account, i.e. --lint or --ietf
-        False: generate pyang without arguments
-    :param debug_level: If > 0 print some debug statements to the console
-    :return: the outcome of the PYANG compilation
-    """
-    # PYANG search path is indicated by the -p parameter which can occur multiple times
-    #    The following directories are always added to the search path:
-    #        1. current directory
-    #        2. $YANG_MODPATH
-    #        3. $HOME/yang/modules
-    #        4. $YANG_INSTALL/yang/modules OR if $YANG_INSTALL is unset <the default installation directory>/yang/modules (on Unix systems: /usr/share/yang/modules)
-    directory = os.path.dirname(model)
-    filename = model.split("/")[-1]
-    if filename.startswith('example'):
-        take_pyang_param_into_account = False
-    os.chdir(directory)
-    if pyang_param and take_pyang_param_into_account and allinclu:
-        bash_command = " --lint -p " + p + " " + filename + " 2>&1"
-    elif pyang_param and take_pyang_param_into_account and not allinclu:
-        bash_command = " --lint -p " + modules_directory + " " + filename + " 2>&1"
-    elif not pyang_param and take_pyang_param_into_account and allinclu:
-        bash_command = " --ietf -p " + p + " " + filename + " 2>&1"
-    elif not pyang_param and take_pyang_param_into_account and not allinclu:
-        bash_command = " --ietf -p " + modules_directory + " " + filename + " 2>&1"
-    elif allinclu:
-        bash_command = " -p " + p + " " + filename + " 2>&1"
-    else:
-        bash_command = " -p " + modules_directory + " " + filename + " 2>&1"
-    bash_command = pyang_exec + bash_command
-    if debug_level:
-        print("DEBUG: " + " in run_pyang: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
-
-
-def run_confd(confdc_exec, p, model, allinclu, debug_level):
-    """
-    Run confdc on the YANG model
-    :p: the path where to look for the models
-    :param model: The file name for the model
-    :allinclu: if True, the YANG module path is p. If false, the default one
-    :param debug_level: If > 0 print some debug statements to the console
-    :return: the outcome of the PYANG compilation
-    """
-    # Note: confd doesn't include YANG module recursively and doesn't follow symbolic links
-    # Every single time there is a new directory with YANG modules, I need to add it to the bash_command
-    directory = os.path.dirname(model)
-    os.chdir(directory)
-    if allinclu:
-        bash_command = confdc_exec + " --yangpath " + p + " -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-    else:
-        subdirs = list_all_subdirs(modules_directory)
-        yangpath = ':'.join(subdirs)
-        bash_command = confdc_exec + " --yangpath " + yangpath + " --yangpath " + non_ietf_directory + "/bbf/install/yang/common --yangpath " + non_ietf_directory + \
-            "/bbf/install/yang/interface --yangpath " + non_ietf_directory + "/bbf/install/yang/networking -w TAILF_MUST_NEED_DEPENDENCY -c " + model + " 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in run_confd: bash_command contains " + bash_command)
-    return os.popen(bash_command).read()
-
-
-def run_yumadumppro(p, model, allinclu, debug_level):
-    """
-    Run run_yumadump-pro on the YANG model
-    yangdump-pro  --config=/etc/yumapro/yangdump-pro.conf module.yang
-    :p: the path where to look for the models
-    :param model: The file name for the model, including the full path
-    :allinclu: if True, the YANG module path is p. If false, the default one
-    :return: the outcome of the PYANG compilation
-    """
-    directory = os.path.dirname(model)
-    os.chdir(directory)
-    if allinclu:
-        bash_command = "yangdump-pro --quiet-mode --config=/etc/yumapro/yangdump-pro-allinclusive.conf " + model + " 2>&1"
-    else:
-
-        bash_command = "yangdump-pro --quiet-mode --config=/etc/yumapro/yangdump-pro.conf " + model + " 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in yangdump-pro: bash_command contains " + bash_command)
-    result = os.popen(bash_command).read()
-    result = result.rstrip()
-    result = result.lstrip()
-    result = result.replace(model, '')
-    if "*** 0 Errors, 0 Warnings" in result:
-        result = ""
-    return result
-
-
-def run_yanglint(p, model, allinclu, debug_level):
-    """
-    Run yanglint on the YANG model
-    :p: the path where to look for the models
-    :param model: The file name for the model , including the full path
-    :allinclu: if True, the YANG module path is p. If false, the default one
-    :return: the outcome of the PYANG compilationf
-    """
-    directory = os.path.dirname(model)
-    os.chdir(directory)
-    if allinclu:
-        bash_command = "yanglint -i -p " + p + " " + model + " 2>&1"
-    else:
-        bash_command = "yanglint -i -p " + modules_directory + "/ " + model + " 2>&1"
-    if debug_level:
-        print("DEBUG: " + " in run_yanglint: bash_command contains " + bash_command)
-    try:
-        result_yanglint = os.popen(bash_command).read()
-    except:
-        result_yanglint = 'libyang err : ERROR occured while running command: {}'.format(bash_command)
-
-    return result_yanglint
-
-
-def generate_html_table(l, h, htmlpath, file_name, txt=""):
-    """
-    Create a table out of the dict and generate a HTML file
-    :param l: The value list to generate the HTML table
-    :param h: The header list to generate the HTML table
-    :param htmlpath: The directory where the HTML file will be created
-    :param file_name: The file name to be created
-    :param txt: Extra metadata text to inserted in the generated ligne
-                typically: SDO, github source, etc...
-    :return: None
-    """
-    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by the YANG Catalog: " + txt]
-    htmlcode = HTML.list(generated)
-    htmlcode1 = HTML.table(l, header_row=h)
-    f = open(htmlpath + file_name, 'w', encoding='utf-8')
-    f.write(htmlcode)
-    f.write(htmlcode1)
-    f.close()
-    os.chmod(htmlpath + file_name, 0o664)
-
-
-def generate_html_list(l, htmlpath, file_name):
-    """
-    Create a table out of the dict and generate a HTML file
-    :param l: The list to generate the HTML table
-    :param htmlpath: The directory where the HTML file will be created
-    :param file_name: The file name to be created
-    :return: None
-    """
-    generated = ["Generated on " + time.strftime("%d/%m/%Y") + " by the YANG Catalog"]
-    htmlcode = HTML.list(generated)
-    htmlcode1 = HTML.list(l)
-    f = open(htmlpath + file_name, 'w', encoding='utf-8')
-    f.write(htmlcode)
-    f.write(htmlcode1)
-    f.close()
-    os.chmod(htmlpath + file_name, 0o664)
 
 
 def dict_to_list(in_dict: dict):
@@ -239,60 +76,49 @@ def dict_to_list(in_dict: dict):
     return dictlist
 
 
-def dict_to_list_rfc(in_dict):
+def list_br_html_addition(l: list):
     """
-    Create a list out of a dictionary
-    :param in_dict: The input dictionary
-    :return: List
-    """
-    dictlist = []
-    for key, value in in_dict.items():
-        dictlist.append((key, str(value)))
-    return dictlist
+    Replace the /n by the <br> HTML tag throughout the list.
 
-
-def list_br_html_addition(l):
-    """
-    # Replace the /n by the <br> HTML tag throughout the list
-    :param l: The list
-    :return: List
+    Argument:
+        :param l    (list) List of compilation results
+    :return: updated list - <br> HTML tags added
     """
     for sublist in l:
         for i in range(len(sublist)):
             if isinstance(sublist[i], str):
-                sublist[i] = sublist[i].replace("\n", "<br>")
+                sublist[i] = sublist[i].replace('\n', '<br>')
     return l
 
 
-def number_of_yang_modules_that_passed_compilation(in_dict, pos, compilation_condition):
+def number_of_yang_modules_that_passed_compilation(in_dict: dict, position: int, compilation_condition: str):
     """
-    return the number of drafts that passed the pyang compilation
-    :param in_dict:
-    :param in_dict : dictionary
-               in the dictionary key:yang-model, list of values
-    :param pos : the position in the list where the compilation_condidtion is
-        the "PASSED" or "FAILED" is in the 2nd position of the list if the document location is included
-        the "PASSED" or "FAILED" is in the 1rd position of the list if the document location is not included
-    :param compilation_condition: a string
-                             currently 3 choices: PASSED, PASSED WITH WARNINGS, FAILED
-    :return: the number of "PASSED" YANG models
+    Return the number of the modules that have compilation status equal to the 'compilation_condition'.
+
+    Arguments:
+        :param in_dict                  (dict) Dictionary of key:yang-model, value:list of compilation results
+        :param position                 (int) Position in the list where the 'compilation_condidtion' is
+        :param compilation_condition    (str) Compilation result we are looking for - PASSED, PASSED WITH WARNINGS, FAILED
+    :return: the number of YANG models which meet the 'compilation_condition'
     """
     t = 0
     for k, v in in_dict.items():
-        if in_dict[k][pos - 1] == compilation_condition:
+        if in_dict[k][position - 1] == compilation_condition:
             t += 1
     return t
 
 
-def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, result_yanglint):
+def combined_compilation(yang_file: str, result_pyang: str, result_confd: str, result_yuma: str, result_yanglint: str):
     """
-    Determine the combined compilation results
-    :result_pyang: compilation results from pyang --ietf
-#    :result_no_ietf_flag: compilation results from pyang
-    :result_confd: compilation from confd
-    :result_yuma: compilation from yuma
-    :result_yanglint: compilation from yanglint
-    :return: the combined compilatiion result
+    Determine the combined compilation result based on individual compilation results from parsers.
+
+    Arguments:
+        :param yang_file        (str) Name of the yang files
+        :param result_pyang     (str) compilation result from pyang
+        :param result_confd     (str) compilation result from confdc
+        :param result_yuma      (str) compilation result from yumadump-pro
+        :param result_yanglint  (str) compilation result from yanglint
+    :return: the combined compilation result
     """
     if "error" in result_pyang:
         compilation_pyang = "FAILED"
@@ -311,15 +137,13 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
     #     ietf-diffserv@2016-06-15.yang:11.3: error(250): definition not found
     #   This issue is that an import module that fails => report the main module as FAILED
     #   Another issue with ietf-bgp-common-structure.yang
-    # Martin should fix confdc. See "cannot compile submodules; compile the module instead" email
-    # If the error is on the module itself, then, that's an error
     elif "warning" in result_confd:
         compilation_confd = "PASSED WITH WARNINGS"
     elif result_confd == "":
         compilation_confd = "PASSED"
     else:
         compilation_confd = "UNKNOWN"
-    # "cannot compile submodules; compile the module instead" error  message
+    # "cannot compile submodules; compile the module instead" error message
     # => still print the message, but doesn't report it as FAILED
     if "error: cannot compile submodules; compile the module instead" in result_confd:
         compilation_confd = "PASSED"
@@ -351,7 +175,7 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
         compilation_yanglint = "PASSED"
     else:
         compilation_yanglint = "UNKNOWN"
-    # "err : Unable to parse submodule, parse the main module instead." error  message
+    # "err : Unable to parse submodule, parse the main module instead." error message
     # => still print the message, but doesn't report it as FAILED
     if "err : Unable to parse submodule, parse the main module instead." in result_yanglint:
         compilation_yanglint = "PASSED"
@@ -368,22 +192,6 @@ def combined_compilation(yang_file, result_pyang, result_confd, result_yuma, res
         compilation = "UNKNOWN"
 
     return compilation
-
-
-def write_dictionary_file_in_json(in_dict: dict, path: str, file_name: str):
-    """
-    Create a json file by dumping compilation results store in 'in_dict' variable.
-
-    Arguments:
-        :param in_dict      (dict) Dictionary of modules with compilation results
-        :param path         (str) The directory where the json file will be created
-        :param file_name    (str) The json file name to be created
-        :return: None
-    """
-    full_path = '{}{}'.format(path, file_name)
-    with open(full_path, 'w', encoding='utf-8') as f:
-        f.write(json.dumps(in_dict, indent=2, sort_keys=True, separators=(',', ': ')))
-    os.chmod(full_path, 0o664)
 
 
 def get_mod_rev(module):
@@ -413,9 +221,15 @@ def get_mod_rev(module):
         return mname + '@' + mrev
 
 
-def module_or_submodule(input_file):
-    if input_file:
-        file_input = open(input_file, "r", encoding='utf-8', errors='ignore')
+def module_or_submodule(yang_file_path: str):
+    """
+    Try to find out if the given model is a submodule or a module.
+
+    Argument:
+        :param yang_file_path   (str) Full path to the yang model to check
+    """
+    if yang_file_path:
+        file_input = open(yang_file_path, 'r', encoding='utf-8', errors='ignore')
         all_lines = file_input.readlines()
         file_input.close()
         commented_out = False
@@ -436,7 +250,7 @@ def module_or_submodule(input_file):
                 return 'submodule'
             if module_position >= 0 and (module_position < cpos or cpos == -1) and not commented_out:
                 return 'module'
-        print('File ' + input_file + ' not yang file or not well formated')
+        print('File {} not yang file or not well formated'.format(yang_file_path))
         return 'wrong file'
     else:
         return None
@@ -493,15 +307,12 @@ if __name__ == "__main__":
     protocol = config.get('General-Section', 'protocol-api')
     resutl_html_dir = config.get('Web-Section', 'result-html-dir')
     web_private = config.get('Web-Section', 'private-directory') + '/'
-    non_ietf_directory = config.get('Directory-Section', 'non-ietf-directory')
-    ietf_directory = config.get('Directory-Section', 'ietf-directory')
     modules_directory = config.get('Directory-Section', 'modules-directory')
     temp_dir = config.get('Directory-Section', 'temp')
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     confdc_exec = config.get('Tool-Section', 'confdc-exec')
-    confdc_yangpath_ieee = config.get('Tool-Section', 'confdc-yangpath-ieee')
     parser = argparse.ArgumentParser(
-        description='YANG Dcoument Processor: generate tables with compilation errors/warnings')
+        description='YANG Document Processor: generate tables with compilation errors/warnings')
     parser.add_argument("--rootdir", default=".",
                         help="The root directory where to find the source YANG models. "
                              "Default is '.'")
@@ -525,19 +336,15 @@ if __name__ == "__main__":
                              "Otherwise, the YANG validators look in " + modules_directory + ". "
                                                                                              "Default is False")
     parser.add_argument("--prefix", default="", help="Prefix for generating HTML file name"
-                                                     "Example: MEF, IEEEStandards, IEEEExperimental"
-                                                     "Default is NULL")
+                                                     "Example: MEF, IEEEStandard, IEEEExperimental"
+                                                     "Default is ''")
     parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
     parser.add_argument("--forcecompilation", type=bool, default=False,
                         help="Optional flag that determines wheter compilation should be run "
                              "for all files even if they have not been changed "
                              "or even if the validators versions have not been changed.")
     args = parser.parse_args()
-    print(get_timestamp_with_pid() + 'Start of job in ' + args.rootdir, flush=True)
-
-    # Get actual validators versions
-    validators_versions = ValidatorsVersions()
-    versions = validators_versions.get_versions()
+    print('{}Start of job in {}'.format(get_timestamp_with_pid(), args.rootdir), flush=True)
 
     # Get list of hashed files
     fileHasher = FileHasher()
@@ -548,7 +355,7 @@ if __name__ == "__main__":
 
     modules = {}
     try:
-        with open("{}/all_modules_data.json".format(temp_dir), "r") as f:
+        with open('{}/all_modules_data.json'.format(temp_dir), 'r') as f:
             modules = json.load(f)
             print(get_timestamp_with_pid() + 'All the modules data loaded from JSON files', flush=True)
     except:
@@ -563,13 +370,19 @@ if __name__ == "__main__":
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
     if args.debug > 0:
         print('yang_list content:\n{}'.format(yang_list))
-    print(get_timestamp_with_pid() + 'relevant files list built, ' + str(
-        len(yang_list)) + ' modules found in ' + args.rootdir, flush=True)
+    print(get_timestamp_with_pid() +
+          'relevant files list built, {} modules found in {}'.format(len(yang_list), args.rootdir), flush=True)
 
     # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     dictionary = {}
     dictionary_no_submodules = {}
     updated_modules = []
+
+    # Initialize parsers
+    pyangParser = PyangParser(pyang_exec, modules_directory, args.debug)
+    confdcParser = ConfdcParser(confdc_exec, modules_directory, args.debug)
+    yumadumpProParser = YangdumpProParser(args.debug)
+    yanglintParser = YanglintParser(modules_directory, args.debug)
 
     # Load compilation results from .json file, if any exists
     try:
@@ -587,36 +400,34 @@ if __name__ == "__main__":
         yang_file_compilation = dictionary_existing.get(yang_file_with_revision, None)
 
         if old_file_hash is None or old_file_hash != file_hash or args.forcecompilation or yang_file_compilation is None:
-            compilation = ""
-            # print('PYANG compilation of ' + yang_file)
-            result_pyang = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, True, args.debug)
-            result_no_pyang_param = run_pyang(pyang_exec, args.rootdir, yang_file, args.lint, args.allinclusive, False, args.debug)
-            result_confd = run_confd(confdc_exec, args.rootdir, yang_file, args.allinclusive, args.debug)
-            result_yuma = run_yumadumppro(args.rootdir, yang_file, args.allinclusive, args.debug)
+            compilation = ''
+            result_pyang = pyangParser.run_pyang_lint(args.rootdir, yang_file, args.lint, args.allinclusive, True)
+            result_no_pyang_param = pyangParser.run_pyang_lint(args.rootdir, yang_file, args.lint, args.allinclusive, False)
+            result_confd = confdcParser.run_confdc(yang_file, args.rootdir, args.allinclusive)
+            result_yuma = yumadumpProParser.run_yumadumppro(yang_file, args.rootdir, args.allinclusive)
             # if want to populate the document location from Github, must uncomment the following 3 lines
             # the difficulty: find back the exact Github location, while everything is already copied in my local
             # directories: maybe Carl's catalog service will help
             # draft_name = yang_file
             # draft_name = "https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft" + yang_file
             # draft_name_url = '<a href="' + draft_name + '">' + yang_file + '</a>'
-            #
-            # determine the status, based on the different compilers
-            # remove the draft name from result_yuma
-            result_yanglint = run_yanglint(args.rootdir, yang_file, args.allinclusive, args.debug)
+            result_yanglint = yanglintParser.run_yanglint(yang_file, args.rootdir, args.allinclusive)
 
             # if want to populate the document location from github, must uncomment the following line
             #        dictionary[yang_file] = (draft_name_url, compilation, result, result_no_pyang_param)
             compilation = combined_compilation(yang_file_without_path, result_pyang, result_confd, result_yuma,
                                                result_yanglint)
             updated_modules.extend(
-                check_yangcatalog_data(confdc_exec, pyang_exec, args.rootdir, resutl_html_dir, yang_file_without_path, None, None, None, compilation,
+                check_yangcatalog_data(pyang_exec, args.rootdir, resutl_html_dir, yang_file_without_path, None, None, None, compilation,
                                        result_pyang,
                                        result_no_pyang_param, result_confd, result_yuma, result_yanglint,
                                        all_yang_catalog_metadata, None))
 
             yang_file_compilation = [
                 compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
-            updated_hashes[yang_file] = file_hash
+            # Do not store hash if compilation result is 'UNKNOWN' -> try to parse model again next time
+            if compilation != 'UNKNOWN':
+                updated_hashes[yang_file] = file_hash
 
         if yang_file_with_revision != '':
             dictionary[yang_file_with_revision] = yang_file_compilation
@@ -625,54 +436,28 @@ if __name__ == "__main__":
 
     print(get_timestamp_with_pid() + 'all modules compiled/validated', flush=True)
 
-    # Dictionary serialization
-    json_file_name = '{}.json'.format(args.prefix)
-    write_dictionary_file_in_json(dictionary, args.htmlpath, json_file_name)
-    print(get_timestamp_with_pid() + json_file_name + ' file generated', flush=True)
+    # Make a list out of the no-submodules dictionary
+    sorted_modules_list = sorted(dict_to_list(dictionary_no_submodules))
+    # Replace CR by the BR HTML tag
+    sorted_modules_list_br_tags = list_br_html_addition(sorted_modules_list)
 
-    # YANG modules from drafts: make a list out of the dictionary
-    # my_list = []
-    my_list = sorted(dict_to_list(dictionary_no_submodules))
+    filesGenerator = FilesGenerator(args.htmlpath)
+    filesGenerator.write_dictionary(dictionary, args.prefix)
+    headers = filesGenerator.getYANGPageCompilationHeaders(args.lint)
+    filesGenerator.generateYANGPageCompilationHTML(sorted_modules_list_br_tags, headers, args.prefix, args.metadata)
 
-    # YANG modules from drafts: replace CR by the BR HTML tag
-    # my_new_list = []
-    my_new_list = list_br_html_addition(my_list)
-
-    # YANG modules from drafts: HTML page generation for yang models
-    print(get_timestamp_with_pid() + args.prefix + "YANGPageCompilation.html HTML page generation in directory " + args.htmlpath,
-          flush=True)
-    print(get_timestamp_with_pid() + args.prefix + "YANGPageMain.html HTML page generation in directory " + args.htmlpath,
-          flush=True)
-    # if want to populate the document location from github, must uncomment the following line
-    # if want to populate the document location from github, must change all occurences from
-    # number_of_yang_modules_that_passed_compilation(dictionary, 1, ...
-    # to number_of_yang_modules_that_passed_compilation(dictionary, 2, ...
-    if args.lint:
-        compilation_result_text = "Compilation Result (pyang --lint). "
-    else:
-        compilation_result_text = "Compilation Result (pyang --ietf). "
-    header = ['YANG Model', 'Compilation', compilation_result_text + versions.get('pyang_version'),
-              'Compilation Result (pyang). Note: also generates errors for imported files. ' + versions.get('pyang_version'),
-              'Compilation Results (confdc) Note: also generates errors for imported files. ' + versions.get('confd_version'),
-              'Compilation Results (yangdump-pro). Note: also generates errors for imported files. ' + versions.get('yangdump_version'),
-              'Compilation Results (yanglint -i). Note: also generates errors for imported files. ' + versions.get('yanglint_version')]
-
-    generate_html_table(my_new_list, header, args.htmlpath, args.prefix + "YANGPageCompilation.html", args.metadata)
-
-    # HTML page generation for statistics
-    passed_without_warnings = number_of_yang_modules_that_passed_compilation(dictionary, 1, "PASSED")
-    passed_with_warnings = number_of_yang_modules_that_passed_compilation(dictionary, 1, "PASSED WITH WARNINGS")
+    # Generate modules compilation results statistics HTML page
+    passed = number_of_yang_modules_that_passed_compilation(dictionary, 1, 'PASSED')
+    passed_with_warnings = number_of_yang_modules_that_passed_compilation(dictionary, 1, 'PASSED WITH WARNINGS')
     total_number = len(yang_list)
-    failed = total_number - passed_without_warnings - passed_with_warnings
+    failed = total_number - passed - passed_with_warnings
+    compilation_stats = {'passed': passed,
+                         'warnings': passed_with_warnings,
+                         'total': total_number,
+                         'failed': failed
+                         }
+    filesGenerator.generateYANGPageMainHTML(args.prefix, compilation_stats)
 
-    line2 = args.prefix + " YANG MODELS"
-    line6 = "Number of YANG data models from " + args.prefix + " that passed compilation: " + str(
-        passed_without_warnings) + "/" + str(total_number)
-    line7 = "Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(
-        passed_with_warnings) + "/" + str(total_number)
-    line8 = "Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(
-        total_number)
-    my_list2 = [line2, line6, line7, line8]
     with FileLock('{}/stats/stats.json.lock'.format(args.htmlpath)):
         counter = 5
         while True:
@@ -682,9 +467,7 @@ if __name__ == "__main__":
                         f.write('{}')
                 with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'r') as f:
                     stats = json.load(f)
-                    stats[args.prefix] = {'passed': passed_without_warnings, 'warnings': passed_with_warnings,
-                                          'total': total_number, 'failed': failed
-                                          }
+                    stats[args.prefix] = compilation_stats
                 with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
                     json.dump(stats, f)
                 break
@@ -692,19 +475,17 @@ if __name__ == "__main__":
                 counter = counter - 1
                 if counter == 0:
                     break
-    generate_html_list(my_list2, args.htmlpath, args.prefix + "YANGPageMain.html")
 
     push_to_confd(updated_modules, config)
 
-    print("--------------------------")
-    print("Number of YANG data models from " + args.prefix + ": " + str(len(yang_list)))
-    print("Number of YANG data models from " + args.prefix + " that passed compilation: " + str(
-        passed_without_warnings) + "/" + str(total_number))
-    print("Number of YANG data models from " + args.prefix + " that passed compilation with warnings: " + str(
-        passed_with_warnings) + "/" + str(total_number))
-    print("Number of YANG data models from " + args.prefix + " that failed compilation: " + str(failed) + "/" + str(
-        total_number))
-    print(get_timestamp_with_pid() + 'end of job', flush=True)
+    # Print the summary of the compilation results
+    print('--------------------------')
+    print('Number of YANG data models from {}: {}'.format(args.prefix, total_number))
+    print('Number of YANG data models from {} that passed compilation: {}/{}'.format(args.prefix, passed, total_number))
+    print('Number of YANG data models from {} that passed compilation with warnings: {}/{}'.format(args.prefix, passed_with_warnings, total_number))
+    print('Number of YANG data models from {} that failed compilation: {}/{}'.format(args.prefix, failed, total_number))
+
+    print('{}end of yangGeneric.py job for {}'.format(get_timestamp_with_pid(), args.prefix), flush=True)
 
     # Update files content hashes and dump into .json file
     if len(updated_hashes) > 0:
