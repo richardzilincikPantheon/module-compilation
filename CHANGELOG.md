@@ -2,6 +2,11 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.1.0 - 2021-08-10
+
+  * Parsers and extractors moved into separate classes [#86](https://github.com/YangCatalog/sdo_analysis/issues/86)
+  * Attributions printing moved into separate method
+
 * ##### v4.0.0 - 2021-07-09
 
   * Pyang update to version 2.5.0 [deployment #85](https://github.com/YangCatalog/deployment/issues/85)
