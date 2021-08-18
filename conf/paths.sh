@@ -27,6 +27,7 @@ export CONFD_DIR=$(python get_config.py --section Tool-Section --key confd-dir)
 export PYANG=$(python get_config.py --section Tool-Section --key pyang-exec)
 export CREDENTIALS=$(python get_config.py --section Secrets-Section --key confd-credentials)
 export IS_PROD=$(python get_config.py --section General-Section --key is-prod)
+export GIT_TOKEN=$(python get_config.py --section Secrets-Section --key yang-catalog-token)
 
 #
 # Repositories

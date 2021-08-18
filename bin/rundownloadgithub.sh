@@ -19,29 +19,27 @@
 # Get the local configuration
 source configure.sh
 LOG=$LOGS/downloadGitHub.log
-date +"%c: Starting" > $LOG
-
-# Ensure master directory exists
-mkdir -p $NONIETFDIR
+date +"%c: Starting" >$LOG
 
 #
-# get the entire content of github.com/YangModels (including submodules == symbolic links)
+# Get the entire content of github.com/YangModels (including submodules == symbolic links)
 # BEWARE was nadeau/yang before
 #
 mkdir -p $NONIETFDIR/yangmodels
-if [ ! -d $NONIETFDIR/yangmodels/yang ]
-then
+if [ ! -d $NONIETFDIR/yangmodels/yang ]; then
 	cd $NONIETFDIR/yangmodels
 	git clone --recurse-submodules https://github.com/YangModels/yang.git >>$LOG 2>&1
 fi
 cd $NONIETFDIR/yangmodels/yang
-git init >>$LOG 2>&1
-git pull --recurse-submodules https://github.com/YangModels/yang.git >>$LOG 2>&1
+# Be sure that remote is also set to yang-catalog/yang fork
+git config remote.fork.url >&- || git remote add fork https://$GIT_TOKEN@github.com/yang-catalog/yang.git >>$LOG 2>&1
+git remote update >>$LOG 2>&1
+git pull origin master >>$LOG 2>&1
+git submodule update --init --recursive >>$LOG 2>&1
 
 # get the entire content of github (openconfig)
 mkdir -p $NONIETFDIR/openconfig
-if [ ! -d $NONIETFDIR/openconfig/yang ]
-then
+if [ ! -d $NONIETFDIR/openconfig/yang ]; then
 	cd $NONIETFDIR/openconfig
 	git clone --recurse-submodules https://github.com/openconfig/yang.git >>$LOG 2>&1
 fi
@@ -68,8 +66,7 @@ mv $NONIETFDIR/openconfig/public/release/models-flat $NONIETFDIR/openconfig/publ
 
 # get the entire content of github (sysrepo)
 mkdir -p $NONIETFDIR/sysrepo
-if [ ! -d $NONIETFDIR/sysrepo/yang ]
-then
+if [ ! -d $NONIETFDIR/sysrepo/yang ]; then
 	cd $NONIETFDIR/sysrepo
 	git clone --recurse-submodules https://github.com/sysrepo/yang.git >>$LOG 2>&1
 fi
@@ -79,8 +76,7 @@ git pull --recurse-submodules https://github.com/sysrepo/yang.git >>$LOG 2>&1
 
 # get the entire content of github (ONF)
 mkdir -p $NONIETFDIR/onf
-if [ ! -d $NONIETFDIR/onf/Snowmass-ONFOpenTransport ]
-then
+if [ ! -d $NONIETFDIR/onf/Snowmass-ONFOpenTransport ]; then
 	cd $NONIETFDIR/onf
 	git clone --recurse-submodules https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git >>$LOG 2>&1
 fi
@@ -90,8 +86,7 @@ git pull --recurse-submodules https://github.com/OpenNetworkingFoundation/Snowma
 
 # get the entire content of OpenROADM (ONF)
 mkdir -p $NONIETFDIR/openroadm
-if [ ! -d $NONIETFDIR/openroadm/OpenROADM_MSA_Public ]
-then
+if [ ! -d $NONIETFDIR/openroadm/OpenROADM_MSA_Public ]; then
 	cd $NONIETFDIR/openroadm
 	git clone --recurse-submodules https://github.com/OpenROADM/OpenROADM_MSA_Public.git >>$LOG 2>&1
 fi
@@ -114,8 +109,7 @@ git pull --recurse-submodules https://github.com/OpenROADM/OpenROADM_MSA_Public.
 
 # MEF
 mkdir -p $NONIETFDIR/mef
-if [ ! -d $NONIETFDIR/mef/YANG-public ]
-then
+if [ ! -d $NONIETFDIR/mef/YANG-public ]; then
 	cd $NONIETFDIR/mef
 	git clone --recurse-submodules https://github.com/MEF-GIT/YANG-public.git >>$LOG 2>&1
 fi
@@ -123,4 +117,4 @@ cd $NONIETFDIR/mef/YANG-public
 git init >>$LOG 2>&1
 git pull --recurse-submodules https://github.com/MEF-GIT/YANG-public.git >>$LOG 2>&1
 
-date +"%c: End of the script!" >> $LOG
+date +"%c: End of the script!" >>$LOG
