@@ -77,6 +77,10 @@ PIDS+=("$!")
 (python $BIN/yangGeneric.py --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint True --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/" --forcecompilation True >>$LOG 2>&1) &
 PIDS+=("$!")
 
+# Standard IANA
+(python $BIN/yangGeneric.py --metadata "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models." --lint True --prefix IANAStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/iana/" >>$LOG 2>&1) &
+PIDS+=("$!")
+
 # Openconfig
 (python $BIN/yangGeneric.py --metadata "Openconfig: YANG Data Models compilation from https://github.com/openconfig/public" --lint True --prefix Openconfig --rootdir "$NONIETFDIR/openconfig/public/release/models/" >>$LOG 2>&1) &
 PIDS+=("$!")

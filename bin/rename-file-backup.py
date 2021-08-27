@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
 name_to_backup = ['IETFYANGPageMain.html', 'HydrogenODLPageCompilation.html', 'HeliumODLPageCompilation.html', 'LithiumODLPageCompilation.html',
                   'IETFCiscoAuthorsYANGPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFDraftYANGPageCompilation.html',
-                  'IEEEStandardYANGPageCompilation.html', 'IEEEStandardDraftYANGPageCompilation.html',
+                  'IEEEStandardYANGPageCompilation.html', 'IEEEStandardDraftYANGPageCompilation.html', 'IANAStandardYANGPageCompilation.html',
                   'IEEEExperimentalYANGPageCompilation.html', 'YANGPageMain.html', 'IETFYANGRFC.html']
 # name_to_backup = ['temp.html']
 for file in name_to_backup:
