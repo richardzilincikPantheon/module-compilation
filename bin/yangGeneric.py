@@ -305,6 +305,7 @@ if __name__ == "__main__":
     web_private = config.get('Web-Section', 'private-directory') + '/'
     modules_directory = config.get('Directory-Section', 'modules-directory')
     temp_dir = config.get('Directory-Section', 'temp')
+    ietf_directory = config.get('Directory-Section', 'ietf-directory')
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     confdc_exec = config.get('Tool-Section', 'confdc-exec')
     parser = argparse.ArgumentParser(
@@ -354,7 +355,7 @@ if __name__ == "__main__":
         with open('{}/all_modules_data.json'.format(temp_dir), 'r') as f:
             modules = json.load(f)
             print(get_timestamp_with_pid() + 'All the modules data loaded from JSON files', flush=True)
-    except:
+    except Exception:
         modules = {}
     if modules == {}:
         modules = requests.get('{}/api/search/modules'.format(prefix)).json()
@@ -384,7 +385,7 @@ if __name__ == "__main__":
     try:
         with open('{}/{}.json'.format(args.htmlpath, args.prefix), 'r') as f:
             dictionary_existing = json.load(f)
-    except:
+    except Exception:
         dictionary_existing = {}
 
     updated_hashes = {}
@@ -414,7 +415,7 @@ if __name__ == "__main__":
 
             # If we are parsing RFCStandard
             ietf = 'ietf-rfc' if '/YANG-rfc' in yang_file else None
-
+            is_rfc = os.path.isfile('{}/YANG-rfc/{}.yang'.format(ietf_directory, yang_file_with_revision))
             result = {
                 'pyang_lint': result_pyang,
                 'pyang': result_no_pyang_param,
@@ -425,7 +426,7 @@ if __name__ == "__main__":
             compilation = combined_compilation(yang_file, result)
             updated_modules.extend(
                 check_yangcatalog_data(pyang_exec, args.rootdir, resutl_html_dir, yang_file_without_path, None, None, None, compilation,
-                                       result, all_yang_catalog_metadata, prefix, ietf))
+                                       result, all_yang_catalog_metadata, prefix, is_rfc, ietf))
 
             yang_file_compilation = [
                 compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
@@ -475,7 +476,7 @@ if __name__ == "__main__":
                 with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
                     json.dump(stats, f)
                 break
-            except:
+            except Exception:
                 counter = counter - 1
                 if counter == 0:
                     break

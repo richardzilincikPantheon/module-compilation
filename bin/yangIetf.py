@@ -238,7 +238,7 @@ def module_or_submodule(input_file):
 
 
 def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, datatracker_url, document_name, email, compilation,
-                           result, all_modules, prefix, ietf=None):
+                           result, all_modules, prefix, is_rfc, ietf=None):
     def __resolve_maturity_level():
         if ietf == 'ietf-rfc':
             return 'ratified'
@@ -342,8 +342,8 @@ def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, da
 
         if compilation is not None and compilation != '' and module_data.get(
                 'compilation-status') != compilation.lower().replace(' ', '-'):
-            # Module parsed with --ietf flag has higher priority
-            if module_data.get('organization') == 'ietf':
+            # Module parsed with --ietf flag (= RFC) has higher priority
+            if is_rfc:
                 if ietf is not None:
                     update = True
                     module_data['compilation-status'] = compilation.lower().replace(' ', '-')
@@ -397,7 +397,7 @@ def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, da
                 with open('{}/{}'.format(resutl_html_dir, file_url), 'r', encoding='utf-8') as f:
                     existing_output = f.read()
                 if existing_output != rendered_html:
-                    if module_data.get('organization') == 'ietf':
+                    if is_rfc:
                         if ietf is not None:
                             with open('{}/{}'.format(resutl_html_dir, file_url), 'w', encoding='utf-8') as f:
                                 f.write(rendered_html)
@@ -445,7 +445,6 @@ def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, da
 
 
 def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
-    print('creating patch request to confd with updated data')
     json_modules_data = json.dumps({'modules': {'module': updated_modules}})
     confd_protocol = config.get('General-Section', 'protocol-confd')
     confd_port = config.get('Web-Section', 'confd-port')
@@ -453,6 +452,7 @@ def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
     credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
     confd_prefix = '{}://{}:{}'.format(confd_protocol, confd_host, confd_port)
     if '{"module": []}' not in json_modules_data:
+        print('creating patch request to confd with updated data')
         url = '{}/restconf/data/yang-catalog:catalog/modules/'.format(confd_prefix)
         response = requests.patch(url, data=json_modules_data,
                                   auth=(credentials[0],
@@ -567,7 +567,7 @@ if __name__ == "__main__":
         with open('{}/all_modules_data.json'.format(temp_dir), 'r') as f:
             modules = json.load(f)
             print('All the modules data loaded from JSON files')
-    except:
+    except Exception:
         modules = {}
     if modules == {}:
         modules = requests.get('{}/api/search/modules'.format(prefix)).json()
@@ -623,7 +623,7 @@ if __name__ == "__main__":
     try:
         with open('{}/IETFDraft.json'.format(args.htmlpath), 'r') as f:
             dictionary_existing = json.load(f)
-    except:
+    except Exception:
         dictionary_existing = {}
     dictionary = {}
     dictionary_no_submodules = {}
@@ -655,6 +655,7 @@ if __name__ == "__main__":
             email = '<a href="mailto:{}">Email Authors</a>'.format(mailto)
             url2 = '{}/YANG-modules/{}'.format(web_url, yang_file)
             yang_url = '<a href="{}">Download the YANG model</a>'.format(url2)
+            is_rfc = os.path.isfile('{}{}.yang'.format(args.rfcyangpath, yang_file))
 
             result = {
                 'pyang_lint': result_pyang,
@@ -666,7 +667,7 @@ if __name__ == "__main__":
             compilation = combined_compilation(yang_file, result)
             updated_modules.extend(
                 check_yangcatalog_data(pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
-                                       result, all_yang_catalog_metadata, prefix, 'ietf-draft'))
+                                       result, all_yang_catalog_metadata, prefix, is_rfc, 'ietf-draft'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
             yang_file_compilation = [draft_url, email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd, result_yuma,
@@ -694,7 +695,7 @@ if __name__ == "__main__":
     try:
         with open('{}/IETFDraftExample.json'.format(args.htmlpath), 'r') as f:
             dictionary_example_existing = json.load(f)
-    except:
+    except Exception:
         dictionary_example_existing = {}
     dictionary_example = {}
     dictionary_no_submodules_example = {}
@@ -736,7 +737,7 @@ if __name__ == "__main__":
             }
             updated_modules.extend(
                 check_yangcatalog_data(pyang_exec, args.allyangexamplepath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
-                                       result, all_yang_catalog_metadata, prefix, 'ietf-example'))
+                                       result, all_yang_catalog_metadata, prefix, False, 'ietf-example'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
             yang_file_compilation = [draft_url, email, compilation, result_pyang, result_no_ietf_flag]
@@ -762,7 +763,7 @@ if __name__ == "__main__":
     try:
         with open('{}/IETFYANGRFC.json'.format(args.htmlpath), 'r') as f:
             dictionary_rfc_existing = json.load(f)
-    except:
+    except Exception:
         dictionary_rfc_existing = {}
     dictionary_rfc = {}
     dictionary_rfc_no_submodules = {}
@@ -781,7 +782,7 @@ if __name__ == "__main__":
             rfc_url = '<a href="{}">{}</a>'.format(url, rfc_name)
             updated_modules.extend(
                 check_yangcatalog_data(pyang_exec, args.rfcyangpath, resutl_html_dir, yang_file, url, rfc_name, None, None,
-                                       {}, all_yang_catalog_metadata, prefix, 'ietf-rfc'))
+                                       {}, all_yang_catalog_metadata, prefix, True, 'ietf-rfc'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
             files_hashes[yang_file_path] = file_hash
@@ -823,7 +824,7 @@ if __name__ == "__main__":
             with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
                 json.dump(stats, f)
             break
-        except:
+        except Exception:
             counter = counter - 1
             if counter == 0:
                 break
@@ -876,6 +877,7 @@ if __name__ == "__main__":
             cisco_email = '<a href="mailto:{}">Email Cisco Authors Only</a>'.format(cisco_email)
             url2 = '{}/YANG-modules/{}'.format(web_url, yang_file)
             yang_url = '<a href="{}">Download the YANG model</a>'.format(url2)
+            is_rfc = os.path.isfile('{}{}.yang'.format(args.rfcyangpath, yang_file))
 
             result = {
                 'pyang_lint': result_pyang,
@@ -887,7 +889,7 @@ if __name__ == "__main__":
             compilation = combined_compilation(yang_file, result)
             updated_modules.extend(
                 check_yangcatalog_data(pyang_exec, args.yangpath, resutl_html_dir, yang_file, url, draft_name, mailto, compilation,
-                                       result, all_yang_catalog_metadata, prefix, 'ietf-draft'))
+                                       result, all_yang_catalog_metadata, prefix, is_rfc, 'ietf-draft'))
             if len(updated_modules) > 100:
                 updated_modules = push_to_confd(updated_modules, config)
             yang_file_compilation = [draft_url, email, cisco_email, yang_url, compilation, result_pyang, result_no_ietf_flag, result_confd,
