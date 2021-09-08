@@ -24,12 +24,11 @@ import os
 import re
 
 import matplotlib as mpl
-
-mpl.use('Agg')
 from matplotlib.dates import date2num
 
 from create_config import create_config
 
+mpl.use('Agg')
 
 # ----------------------------------------------------------------------
 # Functions
@@ -105,7 +104,7 @@ def file_name_containing_keyword(drafts, keyword, debug_level):
                 print("DEBUG: " + f + " in file_name_containing_keyword: contains " + keyword)
             drafts_with_keyword.append(f)
     if debug_level > 0:
-        print("DEBUG: " + " in file_name_containing_keyword: drafts_with_keyword contains " + \
+        print("DEBUG: " + " in file_name_containing_keyword: drafts_with_keyword contains " +
               str(drafts_with_keyword))
     drafts_with_keyword.sort()
     return drafts_with_keyword
@@ -133,7 +132,7 @@ def list_of_ietf_draft_containing_keyword(drafts, keyword, draftpath, debug_leve
         if file_included:
             list_of_ietf_draft_with_keyword.append(f)
     if debug_level > 0:
-        print("DEBUG: " + " in list_of_ietf_draft_containing_keyword: list_of_ietf_draft_with_keyword contains " \
+        print("DEBUG: " + " in list_of_ietf_draft_containing_keyword: list_of_ietf_draft_with_keyword contains "
               + str(list_of_ietf_draft_with_keyword))
     return list_of_ietf_draft_with_keyword
 
@@ -287,15 +286,15 @@ if __name__ == "__main__":
         extracted_date = datetime.date(int(year), int(month), int(day))
         if (datetime.date.today() - extracted_date).days > 30:
             remove_old_html_files.append(args.htmlpath + f)
-            yangPageCompilationStats[date2num(extracted_date)] = {"total": total,
-                                                                            "warnings": passed_with_warnings,
-                                                                            'passed': passed,
-                                                                            "badly formated": badly_formated,
-                                                                            'examples': examples}
-        yangPageCompilationStats[date2num(extracted_date)] = {"total": total,
-                                                              "warnings": passed_with_warnings,
+            yangPageCompilationStats[date2num(extracted_date)] = {'total': total,
+                                                                  'warnings': passed_with_warnings,
+                                                                  'passed': passed,
+                                                                  'badly formated': badly_formated,
+                                                                  'examples': examples}
+        yangPageCompilationStats[date2num(extracted_date)] = {'total': total,
+                                                              'warnings': passed_with_warnings,
                                                               'passed': passed,
-                                                              "badly formated": badly_formated,
+                                                              'badly formated': badly_formated,
                                                               'examples': examples}
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
@@ -348,11 +347,12 @@ if __name__ == "__main__":
             matplot_date = date2num(extracted_date)
             if (datetime.date.today() - extracted_date).days > 30:
                 remove_old_html_files.append(args.htmlpath + f)
-                yangPageCompilationStats[matplot_date] = {"total": total_result,
-                                                                    "warning": passed_with_warning_result,
-                                                                    "success": passed_result}
-            yangPageCompilationStats[matplot_date] = {"total": total_result, "warning": passed_with_warning_result,
-                                                      "success": passed_result}
+                yangPageCompilationStats[matplot_date] = {'total': total_result,
+                                                          'warning': passed_with_warning_result,
+                                                          'success': passed_result}
+            yangPageCompilationStats[matplot_date] = {'total': total_result,
+                                                      'warning': passed_with_warning_result,
+                                                      'success': passed_result}
 
         if int(args.days) == -1:
             if prefix == "IETFDraftYANGPageCompilation_":
@@ -414,7 +414,7 @@ if __name__ == "__main__":
         ('Yumaworks', 'yumaworks.com'),
         ('Tail-f', 'tail-f.com'),
         ('Cisco', 'cisco.com'),
-        ('Huawei', 'guawei.com'),
+        ('Huawei', 'huawei.com'),
         ('Juniper', 'juniper.net'),
         ('Ericsson', 'ericsson.com'),
         ('Alcatel-Lucent', 'alcatel-lucent.com'),
@@ -425,7 +425,7 @@ if __name__ == "__main__":
         ('Intel', 'intel.com'),
         ('Infinera', 'infinera.com'),
         ('Metaswitch', 'metaswitch.com'),
-        ('',''),
+        ('', ''),
         ('Google', 'google.com'),
         ('Verizon', 'verizon.com'),
         ('AT&T', 'att.com'),
@@ -457,7 +457,7 @@ if __name__ == "__main__":
     print('Total numbers of drafts with YANG Model(s): {} - non strict rules: {}'
           .format(total_number_drafts, total_number_drafts_no_strict))
     print()
-    
+
     for company in companies:
         print_attribution(*company)
 

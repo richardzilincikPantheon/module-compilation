@@ -109,7 +109,6 @@ done
 # This allows to run the yangGeneric.py script on multiple folders in parallel
 cur_dir=$(pwd)
 cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
-git pull
 branches=$(git branch -a | grep remotes)
 for b in $branches; do
    version=${b##*/}
@@ -237,7 +236,7 @@ if [ "$IS_PROD" = "True" ]; then
    date +"%c: processing Juniper modules " >>$LOG
    declare -a PIDJUNIPER
    running=0
-   for i in {14..20}; do
+   for i in {14..21}; do
       # Juniper/14.2 does not contain subdirectories
       if [ $i -eq 14 ]; then
          path=$(ls -d $NONIETFDIR/yangmodels/yang/vendor/juniper/$i*/)
@@ -273,15 +272,18 @@ if [ "$IS_PROD" = "True" ]; then
    date +"%c: processing Huawei modules " >>$LOG
    declare -a PIDSHUAWEI
    running=0
-   for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/huawei/network-router/8.20.0/*/); do
-      ((running = running + 1))
-      git=${path##*/network-router/8.20.0/}
-      git=${git::-1}
-      yang_removed=${git%/*}
-      prefix=${yang_removed#*/}
-      (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $git https://github.com/Huawei/yang/tree/master/network-router/8.20.0/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path" >>$LOG 2>&1) &
-      PIDSHUAWEI+=("$!")
-      wait_for_processes "${PIDSHUAWEI[@]}"
+   for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/huawei/network-router/*/); do
+      for path2 in $(ls -d $path*/); do
+         ((running = running + 1))
+         git=${path2##*/network-router/}
+         yang_removed=${git%/*}
+         version=${yang_removed%/*}
+         platform=${yang_removed#*/}
+         prefix=$(echo $yang_removed | tr -cd '[:alnum:]')
+         (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path2" >>$LOG 2>&1) &
+         PIDSHUAWEI+=("$!")
+         wait_for_processes "${PIDSHUAWEI[@]}"
+      done
    done
    # Wait for all child-processes
    for PID in ${PIDSHUAWEI[@]}; do

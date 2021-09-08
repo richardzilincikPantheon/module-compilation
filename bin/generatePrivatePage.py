@@ -10,23 +10,20 @@
 # Unless required by applicable law or agreed to separately in writing, software distributed under the
 # License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 # either express or implied.
-import argparse
-import json
-import os
-import re
-import sys
-
-import jinja2
-
-if sys.version_info >= (3, 4):
-    import configparser as ConfigParser
-else:
-    import ConfigParser
 
 __author__ = 'Miroslav Kovac'
 __copyright__ = 'Copyright The IETF Trust 2020, All Rights Reserved'
 __license__ = 'Eclipse Public License v1.0'
 __email__ = 'miroslav.kovac@pantheon.tech'
+
+import argparse
+import json
+import os
+import re
+
+import jinja2
+
+from create_config import create_config
 
 
 def render(tpl_path, context):
@@ -49,21 +46,19 @@ if __name__ == '__main__':
     parser.add_argument('--config-path', type=str,
                         default='/etc/yangcatalog/yangcatalog.conf',
                         help='Set path to config file')
-    parser.add_argument('--openRoadM', help='Set list of openRoadM files. Default parameters are empty list',
+    parser.add_argument('--openRoadM', default=[],
+                        help='Set list of openRoadM files. Default parameters are empty list',
                         nargs='*')
     args = parser.parse_args()
 
-    config_path = args.config_path
-    config = ConfigParser.ConfigParser()
-    config._interpolation = ConfigParser.ExtendedInterpolation()
-    config.read(config_path)
+    config = create_config()
     private_dir = config.get('Web-Section', 'private-directory')
     yang_repo_dir = config.get('Directory-Section', 'yang-models-dir')
 
     context = {}
     cisco_dir = '{}/vendor/cisco'.format(yang_repo_dir)
     juniper_dir = '{}/vendor/juniper'.format(yang_repo_dir)
-    huawei_dir = '{}/vendor/huawei/network-router/8.20.0'.format(yang_repo_dir)
+    huawei_dir = '{}/vendor/huawei/network-router'.format(yang_repo_dir)
     fujitsu_dir = '{}/vendor/fujitsu/FSS2-API-Yang'.format(yang_repo_dir)
     nokia_dir = '{}/vendor/nokia'.format(yang_repo_dir)
 
@@ -92,8 +87,11 @@ if __name__ == '__main__':
     huawei_all_os = [name for name in os.listdir(huawei_dir) if os.path.isdir(os.path.join(huawei_dir, name))]
     context['huawei'] = []
     for directory in huawei_all_os:
-        context['huawei'].append({'alphaNumeric': re.sub(r'\W+', '', directory),
-                                  'allCharacters': directory})
+        os_dir = '{}/{}'.format(huawei_dir, directory)
+        specific_os_dir = [name for name in os.listdir(os_dir) if os.path.isdir(os.path.join(os_dir, name))]
+        for directory_specific_os in specific_os_dir:
+            context['huawei'].append({'alphaNumeric': re.sub(r'\W+', '', '{}{}'.format(directory, directory_specific_os)),
+                                      'allCharacters': '{} {}'.format(directory, directory_specific_os)})
     context['huawei'] = sorted(context['huawei'], key=lambda i: i['alphaNumeric'])
 
     fujitsu_all_os = [name for name in os.listdir(fujitsu_dir) if os.path.isdir(os.path.join(fujitsu_dir, name))]
