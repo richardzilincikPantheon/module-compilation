@@ -2,6 +2,13 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.2.0 - 2021-09-09
+
+  * Config loading simplified [deployment #96](https://github.com/YangCatalog/deployment/issues/96)
+  * Huawei modules parsing adjustments
+  * IANA modules parsing introduced
+  * Dockerfile reorganized - image build speed up [#95](https://github.com/YangCatalog/sdo_analysis/issues/95)
+  * OpenROADM versions generating fixed [#94](https://github.com/YangCatalog/sdo_analysis/issues/94)
   * Bugfix: Modules compilation status/result overwriting [#52](https://github.com/YangCatalog/sdo_analysis/issues/52)
 
 * ##### v4.1.0 - 2021-08-10
