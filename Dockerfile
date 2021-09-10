@@ -84,7 +84,7 @@ COPY ./sdo_analysis/crontab /etc/cron.d/ietf-cron
 RUN chown yang:yang /etc/cron.d/ietf-cron
 RUN chmod 0644 /etc/cron.d/ietf-cron
 RUN sed -i "s|<MAIL_TO>|${CRON_MAIL_TO}|g" /etc/cron.d/ietf-cron
-RUN sed -i "s|<YANGCATALOG_CONFIG_PATH>|${YANGCATALOG_CONFIG_PATH}|g" /etc/cron.d/yang-cron
+RUN sed -i "s|<YANGCATALOG_CONFIG_PATH>|${YANGCATALOG_CONFIG_PATH}|g" /etc/cron.d/ietf-cron
 
 RUN rm -rf /usr/bin/python
 RUN ln -s /usr/bin/python3 /usr/bin/python
