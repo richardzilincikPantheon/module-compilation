@@ -412,7 +412,7 @@ def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, da
                 with open('{}/{}'.format(resutl_html_dir, file_url), 'w', encoding='utf-8') as f:
                     f.write(rendered_html)
                 os.chmod('{}/{}'.format(resutl_html_dir, file_url), 0o664)
-            if module_data.get('compilation-status') == 'passed':
+            if module_data.get('compilation-status') == 'unknown':
                 comp_result = ''
             else:
                 comp_result = '{}/results/{}'.format(prefix, file_url)
