@@ -3,11 +3,13 @@ ARG YANG_ID
 ARG YANG_GID
 ARG CRON_MAIL_TO
 ARG YANGCATALOG_CONFIG_PATH
+ARG CONFD_VERSION
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
 ENV CRON_MAIL_TO "$CRON_MAIL_TO"
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
+ENV CONFD_VERSION "$CONFD_VERSION"
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 
 RUN echo "export PATH=$VIRTUAL_ENV/bin:$PATH" > /etc/environment
@@ -49,8 +51,6 @@ RUN groupadd -g ${YANG_GID} -r yang \
 
 WORKDIR $VIRTUAL_ENV
 
-ENV confd_version 7.5
-
 RUN echo postfix postfix/mailname string yangcatalog.org | debconf-set-selections; \
   echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections
 
@@ -76,7 +76,7 @@ COPY ./resources/* $VIRTUAL_ENV/
 COPY ./resources/main.cf /etc/postfix/main.cf
 COPY ./conf/yangdump-pro.conf /etc/yumapro/yangdump-pro.conf
 COPY ./conf/yangdump-pro-allinclusive.conf /etc/yumapro/yangdump-pro-allinclusive.conf
-RUN ./confd-${confd_version}.linux.x86_64.installer.bin /opt/confd
+RUN ./confd-${CONFD_VERSION}.linux.x86_64.installer.bin /opt/confd
 RUN dpkg -i yumapro-client-20.10-9.u1804.amd64.deb
 
 # Setup cron job
