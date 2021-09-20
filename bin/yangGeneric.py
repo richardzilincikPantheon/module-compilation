@@ -415,7 +415,7 @@ if __name__ == "__main__":
 
             # If we are parsing RFCStandard
             ietf = 'ietf-rfc' if '/YANG-rfc' in yang_file else None
-            is_rfc = os.path.isfile('{}/YANG-rfc/{}.yang'.format(ietf_directory, yang_file_with_revision))
+            is_rfc = os.path.isfile('{}/YANG-rfc/{}'.format(ietf_directory, yang_file_with_revision))
             result = {
                 'pyang_lint': result_pyang,
                 'pyang': result_no_pyang_param,

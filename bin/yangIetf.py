@@ -657,7 +657,7 @@ if __name__ == "__main__":
             email = '<a href="mailto:{}">Email Authors</a>'.format(mailto)
             url2 = '{}/YANG-modules/{}'.format(web_url, yang_file)
             yang_url = '<a href="{}">Download the YANG model</a>'.format(url2)
-            is_rfc = os.path.isfile('{}{}.yang'.format(args.rfcyangpath, yang_file))
+            is_rfc = os.path.isfile('{}{}'.format(args.rfcyangpath, yang_file))
 
             result = {
                 'pyang_lint': result_pyang,
@@ -879,7 +879,7 @@ if __name__ == "__main__":
             cisco_email = '<a href="mailto:{}">Email Cisco Authors Only</a>'.format(cisco_email)
             url2 = '{}/YANG-modules/{}'.format(web_url, yang_file)
             yang_url = '<a href="{}">Download the YANG model</a>'.format(url2)
-            is_rfc = os.path.isfile('{}{}.yang'.format(args.rfcyangpath, yang_file))
+            is_rfc = os.path.isfile('{}{}'.format(args.rfcyangpath, yang_file))
 
             result = {
                 'pyang_lint': result_pyang,
