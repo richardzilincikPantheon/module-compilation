@@ -2,6 +2,15 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.2.1 - 2021-10-06
+
+  * Hide compilation-result if compilation-status is unknown [#100](https://github.com/YangCatalog/sdo_analysis/issues/100)
+  * ConfD update to version 7.6 [deployment #99](https://github.com/YangCatalog/deployment/issues/99)
+  * Title changed for HTML page containing compilation result [#99](https://github.com/YangCatalog/sdo_analysis/issues/99)
+  * Date of validation added to module compilation results html [#98](https://github.com/YangCatalog/sdo_analysis/issues/98)
+  * Bugfix: IETFYANGRFC.json file generating fixed [#96](https://github.com/YangCatalog/sdo_analysis/issues/96)
+  * Pass YANGCATALOG_CONFIG_PATH as Docker image argument to crontab [deployment #96](https://github.com/YangCatalog/deployment/issues/96)
+
 * ##### v4.2.0 - 2021-09-09
 
   * Config loading simplified [deployment #96](https://github.com/YangCatalog/deployment/issues/96)
