@@ -2,6 +2,11 @@
 
 * ##### vm.m.p - 2021-MM-DD
 
+* ##### v4.3.0 - 2021-12-03
+
+  * Modify data also in Redis when sending patch request to ConfD [#110](https://github.com/YangCatalog/sdo_analysis/issues/110)
+  * New cronjob: script will check whether there are no missing modules from drafts [#106](https://github.com/YangCatalog/sdo_analysis/issues/106)
+
 * ##### v4.2.1 - 2021-10-06
 
   * Hide compilation-result if compilation-status is unknown [#100](https://github.com/YangCatalog/sdo_analysis/issues/100)

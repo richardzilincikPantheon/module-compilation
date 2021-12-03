@@ -20,6 +20,7 @@ __email__ = 'slavomir.mazur@pantheon.tech'
 
 import argparse
 import datetime
+import json
 import os
 import shutil
 import time
@@ -92,10 +93,15 @@ def main():
     if all_modules:
         all_modules = all_modules.get('module', [])
         all_modules_keys = ['{}@{}'.format(m.get('name'), m.get('revision')) for m in all_modules]
+ 
+    with open('{}/resources/old-rfcs.json'.format(os.path.dirname(os.path.realpath(__file__))), 'r') as f:
+        old_modules = json.load(f)
 
     missing_modules = []
     for yang_file in draftExtractor.inverted_draft_yang_dict:
         name_revision = yang_file.split('.yang')[0]
+        if yang_file in old_modules:
+            continue
         if name_revision not in all_modules_keys:
             missing_modules.append(yang_file)
             src = os.path.join(args.yangpath, yang_file)
