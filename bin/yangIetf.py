@@ -133,7 +133,7 @@ def combined_compilation(yang_file: str, result: dict):
         compilation_pyang_no_ietf = 'FAILED'
     elif 'warning' in result['pyang']:
         compilation_pyang_no_ietf = 'PASSED WITH WARNINGS'
-    elif result['pyang']:
+    elif result['pyang'] == '':
         compilation_pyang_no_ietf = 'PASSED'
     else:
         compilation_pyang_no_ietf = 'UNKNOWN'

@@ -99,8 +99,10 @@ ln -f -s $NONIETFDIR/yangmodels/yang/standard/ieee/published/802.11/ $MODULES/ie
 
 rm -f $MODULES/mef
 ln -f -s $NONIETFDIR/mef/YANG-public/src/model/standard/ $MODULES/mef
-rm -f $MODULES/open-config-main
-ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/open-config-main
+rm -f $MODULES/openconfig-main
+ln -f -s $NONIETFDIR/openconfig/public/release/models/ $MODULES/openconfig-main
+rm -f $MODULES/iana
+ln -f -s $NONIETFDIR/yangmodels/yang/standard/iana/ $MODULES/iana
 
 # Extract all YANG models from RFC and I-D
 date +"%c: Starting to extract all YANG modules from IETF documents" >>$LOG
