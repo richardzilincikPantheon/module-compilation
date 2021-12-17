@@ -50,9 +50,10 @@ def main():
     temp_dir = config.get('Directory-Section', 'temp')
     api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('General-Section', 'protocol-api')
+    var_path = config.get('Directory-Section', 'var')
 
     parser = argparse.ArgumentParser(description='Check if modules from all the Drafts are populated in YANG Catalog')
-    parser.add_argument('--draftpath', default='{}/my-id-archive-mirror/'.format(ietf_directory),
+    parser.add_argument('--draftpath', default='{}/my-id-mirror/'.format(ietf_directory),
                         help='Path to the directory where all the drafts will be stored.'
                              'Default is {}/my-id-archive-mirror/'.format(ietf_directory))
     parser.add_argument('--yangpath', default='{}/archived-drafts-modules/'.format(temp_dir),
@@ -94,8 +95,16 @@ def main():
         all_modules = all_modules.get('module', [])
         all_modules_keys = ['{}@{}'.format(m.get('name'), m.get('revision')) for m in all_modules]
 
-    with open('{}/resources/old-rfcs.json'.format(os.path.dirname(os.path.realpath(__file__))), 'r') as f:
-        old_modules = json.load(f)
+    try:
+        with open('{}/resources/old-rfcs.json'.format(os.path.dirname(os.path.realpath(__file__))), 'r') as f:
+            old_modules = json.load(f)
+    except Exception:
+        old_modules = []
+    try:
+        with open('{}/unparsable-modules.json'.format(var_path), 'r') as f:
+            unparsable_modules = json.load(f)
+    except Exception:
+        unparsable_modules = []
 
     # Prepare a directory where the missing modules will be copied
     dst_path = '{}/yangmodels/yang/experimental/ietf-extracted-YANG-modules'.format(missing_modules_directory)
@@ -106,7 +115,7 @@ def main():
     incorrect_revision_modules = []
     for yang_file in draftExtractor.inverted_draft_yang_dict:
         name_revision = yang_file.split('.yang')[0]
-        if yang_file in old_modules or yang_file.startswith('example-'):
+        if any(yang_file in module for module in (old_modules, unparsable_modules)) or yang_file.startswith('example'):
             continue
         if '@' in yang_file:
             revision = yang_file.split('@')[-1].split('.yang')[0]
