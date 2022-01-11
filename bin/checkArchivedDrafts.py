@@ -53,7 +53,7 @@ def main():
     var_path = config.get('Directory-Section', 'var')
 
     parser = argparse.ArgumentParser(description='Check if modules from all the Drafts are populated in YANG Catalog')
-    parser.add_argument('--draftpath', default='{}/my-id-mirror/'.format(ietf_directory),
+    parser.add_argument('--draftpath', default='{}/my-id-archive-mirror/'.format(ietf_directory),
                         help='Path to the directory where all the drafts will be stored.'
                              'Default is {}/my-id-archive-mirror/'.format(ietf_directory))
     parser.add_argument('--yangpath', default='{}/archived-drafts-modules/'.format(temp_dir),
