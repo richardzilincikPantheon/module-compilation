@@ -64,9 +64,10 @@ class MessageFactory:
 
     def send_missing_modules(self, modules_list: list, incorrect_revision_modules: list):
         message = ('Following modules extracted from drafts are missing in YANG Catalog:\n')
+        path = os.path.join(self._temp_dir, 'drafts-missing-modules/yangmodels/yang/experimental/ietf-extracted-YANG-modules')
         for module in modules_list:
             message += '{}\n'.format(module)
-        message += '\nAll missing modules have been copied to the folder {}/drafts-missing-modules'.format(self._temp_dir)
+        message += '\nAll missing modules have been copied to the directory: {}'.format(path)
 
         if incorrect_revision_modules:
             message += '\n\nFollowing missing modules do not have revision in the correct format:\n'

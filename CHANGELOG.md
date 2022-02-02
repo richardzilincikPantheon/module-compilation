@@ -1,6 +1,11 @@
 ## SDO Analysis Release Notes
 
-* ##### vm.m.p - 2021-MM-DD
+* ##### vm.m.p - 2022-MM-DD
+
+* ##### v5.0.0 - 2022-02-02
+
+  * Pyang update to version 2.5.2 [deployment #113](https://github.com/YangCatalog/deployment/issues/113)
+  * Minor updates to checkArchivedDrafts.py cronjob
 
 * ##### v4.3.0 - 2021-12-03
 
