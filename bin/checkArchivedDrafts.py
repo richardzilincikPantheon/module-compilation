@@ -34,12 +34,8 @@ from messageFactory.messageFactory import MessageFactory
 from remove_directory_content import remove_directory_content
 
 
-def get_timestamp_with_pid():
-    return '{} ({}):'.format(datetime.datetime.now().time(), os.getpid())
-
-
 def custom_print(message: str):
-    timestamp = get_timestamp_with_pid()
+    timestamp = '{} ({}):'.format(datetime.datetime.now().time(), os.getpid())
     print('{} {}'.format(timestamp, message), flush=True)
 
 
@@ -124,7 +120,7 @@ def main():
                 incorrect_revision_modules.append(yang_file)
                 continue
         else:
-            name_revision = yang_file.replace('.yang', '@1970-01-01.yang')
+            name_revision += '@1970-01-01'
         if name_revision not in all_modules_keys:
             missing_modules.append(yang_file)
             src = os.path.join(args.yangpath, yang_file)
