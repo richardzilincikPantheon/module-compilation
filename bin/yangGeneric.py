@@ -32,7 +32,7 @@ from yangIetf import check_yangcatalog_data, push_to_confd
 
 __author__ = 'Benoit Claise'
 __copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved'
-__license__ = 'Apache 2.0'
+__license__ = 'Apache License, Version 2.0'
 __email__ = 'bclaise@cisco.com'
 
 

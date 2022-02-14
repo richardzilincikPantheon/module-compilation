@@ -14,8 +14,8 @@
 # either express or implied.
 
 __author__ = 'Benoit Claise, Eric Vyncke'
-__copyright__ = "Copyright(c) 2015-2019, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
-__email__ = "bclaise@cisco.com, evyncke@cisco.com"
+__copyright__ = 'Copyright(c) 2015-2019, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved'
+__email__ = 'bclaise@cisco.com, evyncke@cisco.com'
 
 import argparse
 import configparser
@@ -322,9 +322,8 @@ def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, da
                 break
     if not found:
         print('Error: file {} not found in dir or subdir of {}'.format(yang_file, yang_path))
-    name_revision = \
-        os.popen(pyang_exec + ' -f' + 'name --name-print-revision --path="$MODULES" ' + pyang_module + ' 2> /dev/null').read().rstrip().split(
-            ' ')[0]
+    name_revision_command = '{} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, pyang_module)
+    name_revision = os.popen(name_revision_command).read().rstrip().split(' ')[0]
     if '@' not in name_revision:
         name_revision += '@1970-01-01'
     if name_revision in all_modules:
@@ -471,14 +470,15 @@ def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
     return []
 
 
-def get_timestamp_with_pid():
-    return str(datetime.datetime.now().time()) + ' (' + str(os.getpid()) + '): '
+def custom_print(message: str):
+    timestamp = '{} ({}):'.format(datetime.datetime.now().time(), os.getpid())
+    print('{} {}'.format(timestamp, message), flush=True)
 
 
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
-if __name__ == "__main__":
+if __name__ == '__main__':
     home = os.path.expanduser('~')
     config = create_config()
     web_url = config.get('Web-Section', 'my-uri')
@@ -554,7 +554,7 @@ if __name__ == "__main__":
                         "or even if the validators versions have not been changed.")
 
     args = parser.parse_args()
-    print('{}Start of yangIetf.py job'.format(get_timestamp_with_pid()), flush=True)
+    custom_print('Start of yangIetf.py job in {}'.format(args.draftpath))
     debug_level = args.debug
 
     # Get list of hashed files
@@ -569,14 +569,14 @@ if __name__ == "__main__":
 
     modules = {}
     try:
-        with open('{}/all_modules_data.json'.format(temp_dir), 'r') as f:
+        with open(os.path.join(temp_dir, 'all_modules_data.json'), 'r') as f:
             modules = json.load(f)
-            print('All the modules data loaded from JSON files')
+            custom_print('All the modules data loaded from JSON files')
     except Exception:
         modules = {}
     if modules == {}:
         modules = requests.get('{}/api/search/modules'.format(prefix)).json()
-        print('All the modules data loaded from API')
+        custom_print('All the modules data loaded from API')
 
     for mod in modules['module']:
         key = '{}@{}'.format(mod['name'], mod['revision'])
@@ -611,15 +611,15 @@ if __name__ == "__main__":
     rfcExtractor.invert_dict()
     rfcExtractor.remove_invalid_files()
     rfcExtractor.clean_old_RFC_YANG_modules(args.rfcyangpath, args.yangexampleoldrfcpath)
-    print(get_timestamp_with_pid() + 'Old examples YANG modules moved', flush=True)
-    print(get_timestamp_with_pid() + 'all RFCs processed', flush=True)
+    custom_print('Old examples YANG modules moved')
+    custom_print('All IETF RFCs pre-processed')
 
     # Extract YANG models from IETF draft files
     draftExtractor = DraftExtractor(draft_extractor_paths, args.debug)
     draftExtractor.extract_drafts()
     draftExtractor.invert_dict()
     draftExtractor.remove_invalid_files()
-    print(get_timestamp_with_pid() + 'all IETF Drafts processed', flush=True)
+    custom_print('All IETF Drafts pre-processed')
 
     # TODO: Remove this - make these variables as input to another classes (compilation/parser)
     yang_rfc_dict = rfcExtractor.inverted_rfc_yang_dict
@@ -634,7 +634,7 @@ if __name__ == "__main__":
 
     # Load compilation results from .json file, if any exists
     try:
-        with open('{}/IETFDraft.json'.format(args.htmlpath), 'r') as f:
+        with open(os.path.join(args.htmlpath, 'IETFDraft.json'), 'r') as f:
             dictionary_existing = json.load(f)
     except Exception:
         dictionary_existing = {}
@@ -642,7 +642,7 @@ if __name__ == "__main__":
     dictionary_no_submodules = {}
     updated_modules = []
 
-    print('{}Starting compilation in {} directory.'.format(get_timestamp_with_pid(), args.yangpath))
+    custom_print('Starting compilation in {} directory'.format(args.yangpath))
     for yang_file in yang_draft_dict:
         yang_file_path = args.yangpath + yang_file
         file_hash = fileHasher.hash_file(yang_file_path)
@@ -692,7 +692,7 @@ if __name__ == "__main__":
         dictionary[yang_file] = yang_file_compilation
         if module_or_submodule(yang_file_path) == 'module':
             dictionary_no_submodules[yang_file] = yang_file_compilation
-    print(get_timestamp_with_pid() + 'IETF drafts validated/compiled', flush=True)
+    custom_print('IETF Drafts validated/compiled')
 
     # Make a list out of the no-submodules dictionary
     sorted_modules_list = sorted(dict_to_list(dictionary_no_submodules))
@@ -706,14 +706,14 @@ if __name__ == "__main__":
     # Example- YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
     # Load compilation results from .json file, if any exists
     try:
-        with open('{}/IETFDraftExample.json'.format(args.htmlpath), 'r') as f:
+        with open(os.path.join(args.htmlpath, 'IETFDraftExample.json'), 'r') as f:
             dictionary_example_existing = json.load(f)
     except Exception:
         dictionary_example_existing = {}
     dictionary_example = {}
     dictionary_no_submodules_example = {}
 
-    print('{}Starting compilation in {} directory.'.format(get_timestamp_with_pid(), args.allyangexamplepath))
+    custom_print('Starting compilation in {} directory'.format(args.allyangexamplepath))
     for yang_file in yang_example_draft_dict:
         yang_file_path = args.allyangexamplepath + yang_file
         file_hash = fileHasher.hash_file(yang_file_path)
@@ -761,7 +761,7 @@ if __name__ == "__main__":
         dictionary_example[yang_file] = yang_file_compilation
         if module_or_submodule(args.allyangexamplepath + yang_file) == 'module':
             dictionary_no_submodules_example[yang_file] = yang_file_compilation
-    print(get_timestamp_with_pid() + 'example YANG modules in IETF drafts validated/compiled', flush=True)
+    custom_print('example YANG modules in IETF Drafts validated/compiled')
 
     # Make a list out of the no-submodules dictionary
     sorted_modules_list = sorted(dict_to_list(dictionary_no_submodules_example))
@@ -774,14 +774,14 @@ if __name__ == "__main__":
 
     # Load URLs from .json file, if any exists
     try:
-        with open('{}/IETFYANGRFC.json'.format(args.htmlpath), 'r') as f:
+        with open(os.path.join(args.htmlpath, 'IETFYANGRFC.json'), 'r') as f:
             dictionary_rfc_existing = json.load(f)
     except Exception:
         dictionary_rfc_existing = {}
     dictionary_rfc = {}
     dictionary_rfc_no_submodules = {}
 
-    print('{}Starting compilation in {} directory.'.format(get_timestamp_with_pid(), args.rfcyangpath))
+    custom_print('Starting compilation in {} directory'.format(args.rfcyangpath))
     for yang_file in yang_rfc_dict:
         yang_file_path = args.rfcyangpath + yang_file
         file_hash = fileHasher.hash_file(yang_file_path)
@@ -936,7 +936,7 @@ if __name__ == "__main__":
     with open('{}/IETFCiscoAuthorsYANGPageCompilation.json'.format(args.htmlpath), 'w') as f:
         json.dump(sorted_modules_list_br_tags, f)
     print(output_email_string_unique)
-    print('{}end of yangIetf.py job'.format(get_timestamp_with_pid()), flush=True)
+    custom_print('end of yangIetf.py job')
 
     # Update files content hashes and dump into .json file
     if len(files_hashes) > 0:

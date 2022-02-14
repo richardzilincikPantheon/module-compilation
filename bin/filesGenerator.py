@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Slavomir Mazur"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "slavomir.mazur@pantheon.tech"
+__author__ = 'Slavomir Mazur'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'slavomir.mazur@pantheon.tech'
 
 import datetime
 import json
@@ -47,7 +47,7 @@ class FilesGenerator:
             f.write(json.dumps(dictionary_data, indent=2, sort_keys=True))
         os.chmod(full_path, 0o664)
 
-        print('{}{}.json file generated'.format(self.__get_timestamp_with_pid(), file_name), flush=True)
+        self._custom_print('{}.json file generated'.format(file_name))
 
     def generateYANGPageCompilationHTML(self, modules_results: list, headers: list, file_name: str, metadata: str = ''):
         """
@@ -70,8 +70,8 @@ class FilesGenerator:
             f.write(table_html)
 
         os.chmod(HTML_filename, 0o664)
-        print('{}{}YANGPageCompilation.html HTML page generated in directory {}'
-              .format(self.__get_timestamp_with_pid(), file_name, self.__htmlpath), flush=True)
+        self._custom_print('{}YANGPageCompilation.html HTML page generated in directory {}'
+                           .format(file_name, self.__htmlpath))
 
     def generateYANGPageMainHTML(self, file_name: str, stats: dict):
         """
@@ -85,7 +85,8 @@ class FilesGenerator:
         content = [
             '{} YANG MODELS'.format(file_name),
             'Number of YANG data models from {} that passed compilation: {}/{}'.format(file_name, stats['passed'], stats['total']),
-            'Number of YANG data models from {} that passed compilation with warnings: {}/{}'.format(file_name, stats['warnings'], stats['total']),
+            'Number of YANG data models from {} that passed compilation with warnings: {}/{}'.format(
+                file_name, stats['warnings'], stats['total']),
             'Number of YANG data models from {} that failed compilation: {}/{}'.format(file_name, stats['failed'], stats['total'])
         ]
         message_html = HTML.list([generated_message])
@@ -97,8 +98,8 @@ class FilesGenerator:
             f.write(content_html)
 
         os.chmod(HTML_filename, 0o664)
-        print('{}{}YANGPageMain.html HTML page generated in directory {}'
-              .format(self.__get_timestamp_with_pid(), file_name, self.__htmlpath), flush=True)
+        self._custom_print('{}YANGPageMain.html HTML page generated in directory {}'
+                           .format(file_name, self.__htmlpath))
 
     def generateIETFYANGPageMainHTML(self, drafts_stats: dict):
         """
@@ -124,15 +125,14 @@ class FilesGenerator:
                    ]
         message_html = HTML.list([generated_message])
         content_html = HTML.list(content)
-        HTML_filename = '{}IETFYANGPageMain.html'.format(self.__htmlpath)
+        HTML_filename = os.path.join(self.__htmlpath, 'IETFYANGPageMain.html')
 
         with open(HTML_filename, 'w', encoding='utf-8') as f:
             f.write(message_html)
             f.write(content_html)
 
         os.chmod(HTML_filename, 0o664)
-        print('{}IETFYANGPageMain.html HTML page generated in directory {}'
-              .format(self.__get_timestamp_with_pid(), self.__htmlpath), flush=True)
+        self._custom_print('IETFYANGPageMain.html HTML page generated in directory {}'.format(self.__htmlpath))
 
     def generateHTMLTable(self, rfcs_list: list, headers: list, HTML_filename: str):
         """
@@ -151,8 +151,7 @@ class FilesGenerator:
             f.write(htmlcode1)
 
         os.chmod(HTML_filename, 0o664)
-        print('{}{} HTML page generated in directory {}'
-              .format(self.__get_timestamp_with_pid(), HTML_filename, self.__htmlpath), flush=True)
+        self._custom_print('{} HTML page generated in directory {}'.format(HTML_filename, self.__htmlpath))
 
     #
     # HEADERS
@@ -219,7 +218,6 @@ class FilesGenerator:
     #
     # HELPERS
     #
-    def __get_timestamp_with_pid(self):
-        timestamp = datetime.datetime.now().time()
-        pid = str(os.getpid())
-        return '{} ({}): '.format(timestamp, pid)
+    def _custom_print(self, message: str):
+        timestamp = '{} ({}):'.format(datetime.datetime.now().time(), os.getpid())
+        print('{} {}'.format(timestamp, message), flush=True)
