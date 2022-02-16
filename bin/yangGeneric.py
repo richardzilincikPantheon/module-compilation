@@ -375,10 +375,10 @@ if __name__ == "__main__":
     updated_modules = []
 
     # Initialize parsers
-    pyangParser = PyangParser(pyang_exec, modules_directory, args.debug)
-    confdcParser = ConfdcParser(confdc_exec, modules_directory, args.debug)
+    pyangParser = PyangParser(args.debug)
+    confdcParser = ConfdcParser(args.debug)
     yumadumpProParser = YangdumpProParser(args.debug)
-    yanglintParser = YanglintParser(modules_directory, args.debug)
+    yanglintParser = YanglintParser(args.debug)
 
     # Load compilation results from .json file, if any exists
     try:

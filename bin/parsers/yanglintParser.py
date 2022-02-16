@@ -12,19 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Slavomir Mazur"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "slavomir.mazur@pantheon.tech"
+__author__ = 'Slavomir Mazur'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'slavomir.mazur@pantheon.tech'
 
 import os
 
+from create_config import create_config
+
 
 class YanglintParser:
-    def __init__(self, modules_directory: str, debug_level: int = 0):
-        self.__debug_level = debug_level
-        self.__modules_directory = modules_directory
-        self.__yanglint_exec = 'yanglint'
+    def __init__(self, debug_level: int = 0):
+        self._config = create_config()
+        self._modules_directory = self._config.get('Directory-Section', 'modules-directory')
+
+        self._debug_level = debug_level
+        self._yanglint_exec = 'yanglint'
 
     def run_yanglint(self, yang_file_path: str, workdir: str, allinclusive: bool = False):
         """
@@ -41,11 +45,11 @@ class YanglintParser:
         if allinclusive:
             path_command = '-p {}'.format(workdir)
         else:
-            path_command = '-p {}/'.format(self.__modules_directory)
+            path_command = '-p {}/'.format(self._modules_directory)
 
-        bash_command = [self.__yanglint_exec, '-i', path_command, yang_file_path, '2>&1']
+        bash_command = [self._yanglint_exec, '-i', path_command, yang_file_path, '2>&1']
 
-        if self.__debug_level > 0:
+        if self._debug_level > 0:
             print('DEBUG: running command {}'.format(' '.join(bash_command)))
 
         try:
@@ -55,7 +59,7 @@ class YanglintParser:
             splitted_result_yanglint = result_yanglint.split('\n')
             unique_results_list = sorted(set(splitted_result_yanglint), key=splitted_result_yanglint.index)
             result_yanglint = '\n'.join(unique_results_list)
-        except:
+        except Exception:
             result_yanglint = 'libyang err : Problem occured while running command: {}'.format(' '.join(bash_command))
 
         return result_yanglint

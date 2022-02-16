@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__author__ = "Slavomir Mazur"
-__copyright__ = "Copyright The IETF Trust 2021, All Rights Reserved"
-__license__ = "Apache License, Version 2.0"
-__email__ = "slavomir.mazur@pantheon.tech"
+__author__ = 'Slavomir Mazur'
+__copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
+__license__ = 'Apache License, Version 2.0'
+__email__ = 'slavomir.mazur@pantheon.tech'
 
 import os
 
@@ -55,7 +55,7 @@ class YangdumpProParser:
 
             if '*** 0 Errors, 0 Warnings' in final_result:
                 final_result = ''
-        except:
+        except Exception:
             final_result = 'Problem occured while running command: {}'.format(' '.join(bash_command))
 
         return final_result

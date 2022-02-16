@@ -19,13 +19,17 @@ __email__ = 'slavomir.mazur@pantheon.tech'
 
 import os
 
+from create_config import create_config
+
 
 class PyangParser:
-    def __init__(self, pyang_exec: str, modules_directory: str, debug_level: int = 0):
-        self._pyang_exec = pyang_exec
-        self._modules_directory = modules_directory
+    def __init__(self, debug_level: int = 0):
+        self._config = create_config()
+        self._pyang_exec = self._config.get('Tool-Section', 'pyang-exec')
+        self._modules_directory = self._config.get('Directory-Section', 'modules-directory')
+
         self._debug_level = debug_level
-        self._modules_directories = [os.path.join(modules_directory, sym) for sym in os.listdir(modules_directory)]
+        self._modules_directories = [os.path.join(self._modules_directory, sym) for sym in os.listdir(self._modules_directory)]
 
     def run_pyang_ietf(self, yang_file_path: str, ietf: bool):
         """

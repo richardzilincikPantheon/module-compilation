@@ -20,11 +20,15 @@ __email__ = 'slavomir.mazur@pantheon.tech'
 import glob
 import os
 
+from create_config import create_config
+
 
 class ConfdcParser:
-    def __init__(self, confdc_exec: str, modules_directory: str, debug_level: int = 0):
-        self._confdc_exec = confdc_exec
-        self._modules_directory = modules_directory
+    def __init__(self, debug_level: int = 0):
+        self._config = create_config()
+        self._confdc_exec = self._config.get('Tool-Section', 'confdc-exec')
+        self._modules_directory = self._config.get('Directory-Section', 'modules-directory')
+
         self._debug_level = debug_level
         self._symlink_paths = self.get_symlink_paths()
         self._tail_warning = '-w TAILF_MUST_NEED_DEPENDENCY'  # Treat ErrorCode as a warning, even if --fail-onwarnings is given
@@ -67,7 +71,7 @@ class ConfdcParser:
             for sym_link in self._symlink_paths:
                 result_confdc = result_confdc.replace('{}/'.format(sym_link), '')
         except Exception:
-            result_confdc = 'Problem occured while running command: {}'.format(' '.join(bash_command))            
+            result_confdc = 'Problem occured while running command: {}'.format(' '.join(bash_command))
 
         return result_confdc
 
