@@ -134,18 +134,19 @@ class FilesGenerator:
         os.chmod(HTML_filename, 0o664)
         self._custom_print('IETFYANGPageMain.html HTML page generated in directory {}'.format(self.__htmlpath))
 
-    def generateHTMLTable(self, rfcs_list: list, headers: list, HTML_filename: str):
+    def generateHTMLTable(self, rfcs_list: list, headers: list):
         """
         Create IETFYANGRFC HTML with links to RFC documents.
 
         Argument:
             :param rfcs_list        (list) List of modules with links to the RFC documents
             :param headers          (list) Headers list to generate the HTML table
-            :param HTML_filename    (str) Full path to the HTML file which will be created
         """
         generated_message = 'Generated on {} by the YANG Catalog.'.format(time.strftime('%d/%m/%Y'))
         htmlcode = HTML.list(generated_message)
         htmlcode1 = HTML.table(rfcs_list, header_row=headers)
+
+        HTML_filename = os.path.join(self.__htmlpath, 'IETFYANGRFC.html')
         with open(HTML_filename, 'w', encoding='utf-8') as f:
             f.write(htmlcode)
             f.write(htmlcode1)

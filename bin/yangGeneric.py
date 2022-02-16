@@ -429,6 +429,9 @@ if __name__ == "__main__":
 
             yang_file_compilation = [
                 compilation, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
+            if len(updated_modules) > 100:
+                updated_modules = push_to_confd(updated_modules, config)
+
             # Do not store hash if compilation result is 'UNKNOWN' -> try to parse model again next time
             if compilation != 'UNKNOWN':
                 updated_hashes[yang_file] = file_hash

@@ -114,14 +114,16 @@ def number_of_yang_modules_that_passed_compilation(in_dict: dict, compilation_co
 def combined_compilation(yang_file: str, result: dict):
     """
     Determine the combined compilation result based on individual compilation results from parsers.
+
+    Arguments:
         :param yang_file    (str) Name of the yang files
         :param result       (dict) Dictionary of compilation results with following keys:
                                     pyang_lint, pyang, confdrc, yumadump, yanglint
     :return: the combined compilation result
     """
-    if 'error' in result['pyang_lint']:
+    if 'error:' in result['pyang_lint']:
         compilation_pyang = 'FAILED'
-    elif 'warning' in result['pyang_lint']:
+    elif 'warning:' in result['pyang_lint']:
         compilation_pyang = 'PASSED WITH WARNINGS'
     elif result['pyang_lint'] == '':
         compilation_pyang = 'PASSED'
@@ -129,9 +131,9 @@ def combined_compilation(yang_file: str, result: dict):
         compilation_pyang = 'UNKNOWN'
 
     # logic for pyang compilation result:
-    if 'error' in result['pyang']:
+    if 'error:' in result['pyang']:
         compilation_pyang_no_ietf = 'FAILED'
-    elif 'warning' in result['pyang']:
+    elif 'warning:' in result['pyang']:
         compilation_pyang_no_ietf = 'PASSED WITH WARNINGS'
     elif result['pyang'] == '':
         compilation_pyang_no_ietf = 'PASSED'
@@ -140,7 +142,7 @@ def combined_compilation(yang_file: str, result: dict):
 
     # logic for confdc compilation result:
     # if 'error' in result['confdrc'] and yang_file in result['confdrc']:
-    if 'error' in result['confdrc']:
+    if 'error:' in result['confdrc']:
         compilation_confd = 'FAILED'
     #   The following doesn't work. For example, ietf-diffserv@2016-06-15.yang, now PASSED (TBC):
     #     Error: 'ietf-diffserv@2016-06-15.yang' import of module 'ietf-qos-policy' failed
@@ -148,7 +150,7 @@ def combined_compilation(yang_file: str, result: dict):
     #   This issue is that an import module that fails => report the main module as FAILED
     #   Another issue with ietf-bgp-common-structure.yang
     # If the error is on the module itself, then, that's an error
-    elif 'warning' in result['confdrc']:
+    elif 'warning:' in result['confdrc']:
         compilation_confd = 'PASSED WITH WARNINGS'
     elif result['confdrc'] == '':
         compilation_confd = 'PASSED'
@@ -159,8 +161,7 @@ def combined_compilation(yang_file: str, result: dict):
     if 'error: cannot compile submodules; compile the module instead' in result['confdrc']:
         compilation_confd = 'PASSED'
 
-    # logic for yumaworks compilation result:
-    # remove the draft name from result['yumadump']
+    # logic for yumadump-pro compilation result:
     if result['yumadump'] == '':
         compilation_yuma = 'PASSED'
     elif '0 Errors, 0 Warnings' in result['yumadump']:
@@ -170,9 +171,9 @@ def combined_compilation(yang_file: str, result: dict):
         # then it will report the module as FAILED
         # Solution: look at line by line comparision of Error and yang_file
         compilation_yuma = 'FAILED'
-    elif 'Warning' in result['yumadump'] and yang_file in result['yumadump']:
+    elif 'Warning:' in result['yumadump'] and yang_file in result['yumadump']:
         compilation_yuma = 'PASSED WITH WARNINGS'
-    elif 'Warning' in result['yumadump'] and yang_file not in result['yumadump']:
+    elif 'Warning:' in result['yumadump'] and yang_file not in result['yumadump']:
         compilation_yuma = 'PASSED'
     else:
         compilation_yuma = 'UNKNOWN'
@@ -190,10 +191,6 @@ def combined_compilation(yang_file: str, result: dict):
     # => still print the message, but doesn't report it as FAILED
     if 'err : Input data contains submodule which cannot be parsed directly without its main module.' in result['yanglint']:
         compilation_yanglint = 'PASSED'
-    # Next three lines could be removed when mount-point is supported by yanglint
-    # result['yanglint'] = result['yanglint'].rstrip()
-    # if result['yanglint'].endswith('extension statement found, ignoring.'):
-    #     compilation_yanglint = 'PASSED'
 
     # determine the combined compilation status, based on the different compilers
     compilation_list = [compilation_pyang, compilation_pyang_no_ietf, compilation_confd, compilation_yuma,
@@ -605,7 +602,7 @@ if __name__ == '__main__':
     remove_directory_content(args.rfcextractionyangpath, debug_level)
     remove_directory_content(args.draftelementspath, debug_level)
 
-    # Extract YANG models from RFCs files
+    # Extract YANG models from IETF RFCs files
     rfcExtractor = RFCExtractor(args.rfcpath, args.rfcyangpath, args.rfcextractionyangpath, args.debug)
     rfcExtractor.extract_rfcs()
     rfcExtractor.invert_dict()
@@ -644,7 +641,7 @@ if __name__ == '__main__':
 
     custom_print('Starting compilation in {} directory'.format(args.yangpath))
     for yang_file in yang_draft_dict:
-        yang_file_path = args.yangpath + yang_file
+        yang_file_path = os.path.join(args.yangpath, yang_file)
         file_hash = fileHasher.hash_file(yang_file_path)
         old_file_hash = files_hashes.get(yang_file_path, None)
         yang_file_compilation = dictionary_existing.get(yang_file, None)
@@ -812,7 +809,7 @@ if __name__ == '__main__':
 
     filesGenerator.write_dictionary(dictionary_rfc, 'IETFYANGRFC')
     headers = ['YANG Model (and submodel)', 'RFC']
-    filesGenerator.generateHTMLTable(sorted_modules_list, headers, 'IETFYANGRFC.html')
+    filesGenerator.generateHTMLTable(sorted_modules_list, headers)
 
     # Create IETF drafts extraction and compilation statistics
     drafts_stats = {
@@ -856,22 +853,22 @@ if __name__ == '__main__':
           .format(drafts_stats.get('example-drafts')), flush=True)
 
     # YANG modules from drafts, for CiscoAuthors: HTML page generation for yang models
-    output_email = ""
+    output_email = ''
     dictionary = {}
     dictionary_no_submodules = {}
     for yang_file in yang_draft_dict:
-        yang_file_path = args.allyangpath + yang_file
-        cisco_email = extract_email_string(args.draftpath + yang_draft_dict[yang_file], "@cisco.com", debug_level)
-        tailf_email = extract_email_string(args.draftpath + yang_draft_dict[yang_file], "@tail-f.com", debug_level)
+        yang_file_path = os.path.join(args.allyangpath, yang_file)
+        cisco_email = extract_email_string(args.draftpath + yang_draft_dict[yang_file], '@cisco.com', debug_level)
+        tailf_email = extract_email_string(args.draftpath + yang_draft_dict[yang_file], '@tail-f.com', debug_level)
         if tailf_email:
             if cisco_email:
-                cisco_email = cisco_email + "," + tailf_email
+                cisco_email += ',{}'.format(tailf_email)
             else:
                 cisco_email = tailf_email
         if cisco_email:
-            output_email = output_email + cisco_email + ", "
-            draft_name, email, compilation = "", "", "",
-            result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = "", "", "", "", ""
+            output_email = output_email + cisco_email + ', '
+            draft_name, email, compilation = '', '', ''
+            result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint = '', '', '', '', ''
             ietf_flag = True
             result_pyang = pyangParser.run_pyang_ietf(yang_file_path, ietf_flag)
             ietf_flag = False
@@ -883,7 +880,7 @@ if __name__ == '__main__':
             url = draft_name.split('.')[0]
             rev_num = url.split('-')[-1]
             url = url.rstrip('-0123456789')
-            mailto = url + "@ietf.org"
+            mailto = '{}@ietf.org'.format(url)
             url = 'https://datatracker.ietf.org/doc/{}/{}'.format(url, rev_num)
             draft_url = '<a href="{}">{}</a>'.format(url, draft_name)
             email = '<a href="mailto:{}">Email All Authors</a>'.format(mailto)
@@ -911,16 +908,11 @@ if __name__ == '__main__':
             if module_or_submodule(args.yangpath + yang_file) == 'module':
                 dictionary_no_submodules[yang_file] = yang_file_compilation
     output_email = output_email.rstrip(', ')
-    # output_email is a string, comma separated, of cisco email address
-    # want to, via a list, remove the duplicate, then re-generate a string
+
+    # Get list of unique email, then join them using comma into one string
     output_email_list = [i.strip() for i in output_email.split(',')]
-    output_email_list_unique = []
-    for i in output_email_list:
-        if i not in output_email_list_unique:
-            output_email_list_unique.append(i)
-    output_email_string_unique = ''
-    for i in output_email_list_unique:
-        output_email_string_unique = output_email_string_unique + ', ' + i
+    output_email_list_unique = list(set(output_email_list))
+    output_email_string_unique = ', '.join(output_email_list_unique)
 
     updated_modules = push_to_confd(updated_modules, config)
 
