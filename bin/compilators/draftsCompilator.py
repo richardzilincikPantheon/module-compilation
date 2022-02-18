@@ -90,7 +90,7 @@ class DraftsCompilator:
 
             should_parse, file_hash = fileHasher.should_parse(yang_file_path)
 
-            if should_parse or yang_file_compilation is None or yang_file_compilation_authors is None:
+            if should_parse or yang_file_compilation is None or (draft_emails and yang_file_compilation_authors is None):
                 result_pyang = pyangParser.run_pyang_ietf(yang_file_path, ietf=True)
                 result_no_ietf_flag = pyangParser.run_pyang_ietf(yang_file_path, ietf=False)
                 result_confd = confdcParser.run_confdc(yang_file_path, self.extracted_drafts_dir)
@@ -136,7 +136,8 @@ class DraftsCompilator:
                     fileHasher.updated_hashes[yang_file_path] = file_hash
 
             self.results_dict[yang_file] = yang_file_compilation
-            self.results_dict_authors[yang_file] = yang_file_compilation_authors
+            if draft_emails:
+                self.results_dict_authors[yang_file] = yang_file_compilation_authors
             if module_or_submodule(yang_file_path) == 'module':
                 self.results_no_submodules_dict[yang_file] = yang_file_compilation
                 self.results_no_submodules_dict_authors[yang_file] = yang_file_compilation

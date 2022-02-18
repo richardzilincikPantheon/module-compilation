@@ -285,3 +285,20 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
     else:
         print('WARN: {} not in confd yet'.format(name_revision))
     return updated_modules
+
+
+def number_that_passed_compilation(in_dict: dict, position: int, compilation_condition: str):
+    """
+    Return the number of the modules that have compilation status equal to the 'compilation_condition'.
+
+    Arguments:
+        :param in_dict                  (dict) Dictionary of key:yang-model, value:list of compilation results
+        :param position                 (int) Position in the list where the 'compilation_condidtion' is
+        :param compilation_condition    (str) Compilation result we are looking for - PASSED, PASSED WITH WARNINGS, FAILED
+    :return: the number of YANG models which meet the 'compilation_condition'
+    """
+    total = 0
+    for results in in_dict.values():
+        if results[position] == compilation_condition:
+            total += 1
+    return total

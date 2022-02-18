@@ -21,27 +21,24 @@ import argparse
 import datetime
 import json
 import os
-import time
 from operator import itemgetter
 
-import jinja2
 import requests
 
 from compilators.draftsCompilator import DraftsCompilator
 from compilators.examplesCompilator import ExamplesCompilator
 from compilators.rfcsCompilator import RfcsCompilator
 from create_config import create_config
-from extract_emails import extract_email_string
 from extractors.dratfExtractor import DraftExtractor
 from extractors.rfcExtractor import RFCExtractor
-from fileHasher import FileHasher
 from filesGenerator import FilesGenerator
 from parsers.confdcParser import ConfdcParser
 from parsers.pyangParser import PyangParser
 from parsers.yangdumpProParser import YangdumpProParser
 from parsers.yanglintParser import YanglintParser
 from remove_directory_content import remove_directory_content
-from utility.utility import dict_to_list, list_br_html_addition
+from utility.utility import (dict_to_list, list_br_html_addition,
+                             number_that_passed_compilation)
 from versions import ValidatorsVersions
 
 # ----------------------------------------------------------------------
@@ -54,22 +51,6 @@ versions = validators_versions.get_versions()
 # ----------------------------------------------------------------------
 # Functions
 # ----------------------------------------------------------------------
-
-
-def number_of_yang_modules_that_passed_compilation(in_dict: dict, compilation_condition: str):
-    """
-    Return the number of the modules that have compilation status equal to the 'compilation_condition'.
-
-    Arguments:
-        :param in_dict                  (dict) Dictionary of key:yang-model, value:list of compilation results
-        :param compilation_condition    (str) Compilation result we are looking for - PASSED, PASSED WITH WARNINGS, FAILED
-    :return: the number of YANG models which meet the 'compilation_condition'
-    """
-    t = 0
-    for k, v in in_dict.items():
-        if in_dict[k][3] == compilation_condition:
-            t += 1
-    return t
 
 
 def combined_compilation(yang_file: str, result: dict):
@@ -168,213 +149,6 @@ def combined_compilation(yang_file: str, result: dict):
     return compilation
 
 
-def check_yangcatalog_data(pyang_exec, yang_path, resutl_html_dir, yang_file, datatracker_url, document_name, email, compilation,
-                           result, all_modules, prefix, is_rfc, ietf=None):
-    def __resolve_maturity_level():
-        if ietf == 'ietf-rfc':
-            return 'ratified'
-        elif ietf in ['ietf-draft', 'ietf-example']:
-            maturity_level = document_name.split('-')[1]
-            if 'ietf' in maturity_level:
-                return 'adopted'
-            else:
-                return 'initial'
-        else:
-            return 'not-applicable'
-
-    def __resolve_working_group():
-        IETF_RFC_MAP = {
-            "iana-crypt-hash@2014-08-06.yang": "NETMOD",
-            "iana-if-type@2014-05-08.yang": "NETMOD",
-            "ietf-complex-types@2011-03-15.yang": "N/A",
-            "ietf-inet-types@2010-09-24.yang": "NETMOD",
-            "ietf-inet-types@2013-07-15.yang": "NETMOD",
-            "ietf-interfaces@2014-05-08.yang": "NETMOD",
-            "ietf-ip@2014-06-16.yang": "NETMOD",
-            "ietf-ipfix-psamp@2012-09-05.yang": "IPFIX",
-            "ietf-ipv4-unicast-routing@2016-11-04.yang": "NETMOD",
-            "ietf-ipv6-router-advertisements@2016-11-04.yang": "NETMOD",
-            "ietf-ipv6-unicast-routing@2016-11-04.yang": "NETMOD",
-            "ietf-key-chain@2017-06-15.yang": "RTGWG",
-            "ietf-l3vpn-svc@2017-01-27.yang": "L3SM",
-            "ietf-lmap-common@2017-08-08.yang": "LMAP",
-            "ietf-lmap-control@2017-08-08.yang": "LMAP",
-            "ietf-lmap-report@2017-08-08.yang": "LMAP",
-            "ietf-netconf-acm@2012-02-22.yang": "NETCONF",
-            "ietf-netconf-monitoring@2010-10-04.yang": "NETCONF",
-            "ietf-netconf-notifications@2012-02-06.yang": "NETCONF",
-            "ietf-netconf-partial-lock@2009-10-19.yang": "NETCONF",
-            "ietf-netconf-time@2016-01-26.yang": "N/A",
-            "ietf-netconf-with-defaults@2011-06-01.yang": "NETCONF",
-            "ietf-netconf@2011-06-01.yang": "NETCONF",
-            "ietf-restconf-monitoring@2017-01-26.yang": "NETCONF",
-            "ietf-restconf@2017-01-26.yang": "NETCONF",
-            "ietf-routing@2016-11-04.yang": "NETMOD",
-            "ietf-snmp-common@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-community@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-engine@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-notification@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-proxy@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-ssh@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-target@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-tls@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-tsm@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-usm@2014-12-10.yang": "NETMOD",
-            "ietf-snmp-vacm@2014-12-10.yang": "NETMOD",
-            "ietf-snmp@2014-12-10.yang": "NETMOD",
-            "ietf-system@2014-08-06.yang": "NETMOD",
-            "ietf-template@2010-05-18.yang": "NETMOD",
-            "ietf-x509-cert-to-name@2014-12-10.yang": "NETMOD",
-            "ietf-yang-library@2016-06-21.yang": "NETCONF",
-            "ietf-yang-metadata@2016-08-05.yang": "NETMOD",
-            "ietf-yang-patch@2017-02-22.yang": "NETCONF",
-            "ietf-yang-smiv2@2012-06-22.yang": "NETMOD",
-            "ietf-yang-types@2010-09-24.yang": "NETMOD",
-            "ietf-yang-types@2013-07-15.yang": "NETMOD"
-        }
-        if ietf == 'ietf-rfc':
-            return IETF_RFC_MAP.get('{}.yang'.format(name_revision))
-        else:
-            return document_name.split('-')[2]
-
-    updated_modules = []
-    pyang_module = os.path.join(yang_path, yang_file)
-    found = False
-    for root, _, files in os.walk(yang_path):
-        if found:
-            break
-        for ff in files:
-            if ff == yang_file:
-                pyang_module = os.path.join(root, ff)
-                found = True
-            if found:
-                break
-    if not found:
-        print('Error: file {} not found in dir or subdir of {}'.format(yang_file, yang_path))
-    name_revision_command = '{} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, pyang_module)
-    name_revision = os.popen(name_revision_command).read().rstrip().split(' ')[0]
-    if '@' not in name_revision:
-        name_revision += '@1970-01-01'
-    if name_revision in all_modules:
-        module_data = all_modules[name_revision].copy()
-        update = False
-        if module_data.get('document-name') != document_name and document_name is not None and document_name != '':
-            update = True
-            module_data['document-name'] = document_name
-
-        if module_data.get('reference') != datatracker_url and datatracker_url is not None and datatracker_url != '':
-            update = True
-            module_data['reference'] = datatracker_url
-
-        if module_data.get('author-email') != email and email is not None and email != '':
-            update = True
-            module_data['author-email'] = email
-
-        if compilation is not None and compilation != '' and module_data.get(
-                'compilation-status') != compilation.lower().replace(' ', '-'):
-            # Module parsed with --ietf flag (= RFC) has higher priority
-            if is_rfc:
-                if ietf is not None:
-                    update = True
-                    module_data['compilation-status'] = compilation.lower().replace(' ', '-')
-            else:
-                update = True
-                module_data['compilation-status'] = compilation.lower().replace(' ', '-')
-
-        if compilation is not None:
-
-            def render(tpl_path, context):
-                """Render jinja html template
-                    Arguments:
-                        :param tpl_path: (str) path to a file
-                        :param context: (dict) dictionary containing data to render jinja
-                            template file
-                        :return: string containing rendered html file
-                """
-
-                path, filename = os.path.split(tpl_path)
-                return jinja2.Environment(
-                    loader=jinja2.FileSystemLoader(path or './')
-                ).get_template(filename).render(context)
-
-            name = module_data['name']
-            rev = module_data['revision']
-            org = module_data['organization']
-            file_url = '{}@{}_{}.html'.format(name, rev, org)
-            result['name'] = name
-            result['revision'] = rev
-            result['generated'] = time.strftime('%d/%m/%Y')
-
-            ths = list()
-            option = '--lint'
-            if ietf is not None:
-                option = '--ietf'
-            ths.append('Compilation Results (pyang {}). {}'.format(option, versions.get('pyang_version')))
-            ths.append('Compilation Results (pyang). Note: also generates errors for imported files. {}'.format(
-                versions.get('pyang_version')))
-            ths.append('Compilation Results (confdc). Note: also generates errors for imported files. {}'.format(
-                versions.get('confd_version')))
-            ths.append('Compilation Results (yangdump-pro). Note: also generates errors for imported files. {}'.format(
-                versions.get('yangdump_version')))
-            ths.append(
-                'Compilation Results (yanglint -i). Note: also generates errors for imported files. {}'.format(
-                    versions.get('yanglint_version')))
-
-            context = {'result': result,
-                       'ths': ths}
-            template = os.path.dirname(os.path.realpath(__file__)) + '/resources/compilationStatusTemplate.html'
-            rendered_html = render(template, context)
-            result_html_file = os.path.join(resutl_html_dir, file_url)
-            if os.path.isfile(result_html_file):
-                with open(result_html_file, 'r', encoding='utf-8') as f:
-                    existing_output = f.read()
-                if existing_output != rendered_html:
-                    if is_rfc:
-                        if ietf is not None:
-                            with open(result_html_file, 'w', encoding='utf-8') as f:
-                                f.write(rendered_html)
-                            os.chmod(result_html_file, 0o664)
-                    else:
-                        with open(result_html_file, 'w', encoding='utf-8') as f:
-                            f.write(rendered_html)
-                        os.chmod(result_html_file, 0o664)
-            else:
-                with open(result_html_file, 'w', encoding='utf-8') as f:
-                    f.write(rendered_html)
-                os.chmod(result_html_file, 0o664)
-            if module_data.get('compilation-status') == 'unknown':
-                comp_result = ''
-            else:
-                comp_result = '{}/results/{}'.format(prefix, file_url)
-            if module_data.get('compilation-result') != comp_result:
-                update = True
-                module_data['compilation-result'] = comp_result
-
-        if ietf is not None and module_data.get('organization') == 'ietf':
-            wg = __resolve_working_group()
-            if (module_data.get('ietf') is None or module_data['ietf']['ietf-wg'] != wg) and wg is not None:
-                update = True
-                module_data['ietf'] = {}
-                module_data['ietf']['ietf-wg'] = wg
-
-        mat_level = __resolve_maturity_level()
-        if module_data.get('maturity-level') != mat_level:
-            if mat_level == 'not-applicable':
-                if module_data.get('maturity-level') is None or module_data.get('maturity-level') == '':
-                    update = True
-                    module_data['maturity-level'] = mat_level
-            else:
-                update = True
-                module_data['maturity-level'] = mat_level
-
-        if update:
-            updated_modules.append(module_data)
-            print('DEBUG: updated_modules: {}'.format(name_revision))
-    else:
-        print('WARN: {} not in confd yet'.format(name_revision))
-    return updated_modules
-
-
 def custom_print(message: str):
     timestamp = '{} ({}):'.format(datetime.datetime.now().time(), os.getpid())
     print('{} {}'.format(timestamp, message), flush=True)
@@ -384,17 +158,14 @@ def custom_print(message: str):
 # Main
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
-    home = os.path.expanduser('~')
     config = create_config()
     web_url = config.get('Web-Section', 'my-uri')
     web_private = config.get('Web-Section', 'private-directory')
-
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
     temp_dir = config.get('Directory-Section', 'temp')
     modules_directory = config.get('Directory-Section', 'modules-directory')
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     confdc_exec = config.get('Tool-Section', 'confdc-exec')
-
     api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('General-Section', 'protocol-api')
     resutl_html_dir = config.get('Web-Section', 'result-html-dir')
@@ -405,10 +176,6 @@ if __name__ == '__main__':
                              "Default is '" + ietf_directory + "/my-id-mirror/' but could also be '" + ietf_directory + "/my-id-archive-mirror/' to get expired drafts as well")
     parser.add_argument("--rfcpath", default=ietf_directory + "/rfc/",
                         help="The optional directory where to find the source RFCs. Default is '" + ietf_directory + "/rfc/'")
-    parser.add_argument("--binpath", default=home + "/bin/", help="Optional directory where to find the "
-                                                                  "script executables. Default is '" + home + "/bin/'")
-    parser.add_argument("--htmlpath", default=web_private + '/',
-                        help="The path to create the HTML file (optional). Default is '" + web_private + "/'")
     parser.add_argument("--yangpath", default=ietf_directory + "/YANG/", help="The optional directory where to put the "
                                                                               "correctly extracted models. "
                                                                               "Default is " + ietf_directory + "'/YANG/'")
@@ -462,12 +229,8 @@ if __name__ == '__main__':
     custom_print('Start of yangIetf.py job in {}'.format(args.draftpath))
     debug_level = args.debug
 
-    # Get list of hashed files
-    fileHasher = FileHasher()
-    files_hashes = fileHasher.load_hashed_files_list()
-
     # Initialize files generator -> used in creating JSON/HTML results files
-    filesGenerator = FilesGenerator(args.htmlpath)
+    filesGenerator = FilesGenerator(web_private)
 
     all_yang_catalog_metadata = {}
     prefix = '{}://{}'.format(protocol, api_ip)
@@ -614,29 +377,32 @@ if __name__ == '__main__':
 
     output_email_list_unique = list(set(draftsCompilator.output_cisco_emails))
     output_email_string_unique = ', '.join(output_email_list_unique)
-    custom_print('List of emails of Cisco autthors:\n{}'.format(output_email_string_unique))
+    custom_print('List of emails of Cisco authors:\n{}'.format(output_email_string_unique))
 
     # Create IETF drafts extraction and compilation statistics
     drafts_stats = {
         'total-drafts': len(yang_draft_dict.keys()),
-        'draft-passed': number_of_yang_modules_that_passed_compilation(draftsCompilator.results_dict, 'PASSED'),
-        'draft-warnings': number_of_yang_modules_that_passed_compilation(draftsCompilator.results_dict, 'PASSED WITH WARNINGS'),
+        'draft-passed': number_that_passed_compilation(draftsCompilator.results_dict, 3, 'PASSED'),
+        'draft-warnings': number_that_passed_compilation(draftsCompilator.results_dict, 3, 'PASSED WITH WARNINGS'),
         'all-ietf-drafts': len([f for f in os.listdir(args.allyangpath) if os.path.isfile(os.path.join(args.allyangpath, f))]),
         'example-drafts': len(yang_example_draft_dict.keys())
     }
     filesGenerator.generateIETFYANGPageMainHTML(drafts_stats)
 
-    # Store IETF drafts statistics into AllYANGPageMain.json files
+    # ----------------------------------------------------------------------
+    # Store IETF drafts statistics into AllYANGPageMain.json files
+    # ----------------------------------------------------------------------
+    stats_file_path = os.path.join(web_private, 'stats/AllYANGPageMain.json')
     counter = 5
     while True:
         try:
-            if not os.path.exists('{}/stats/AllYANGPageMain.json'.format(args.htmlpath)):
-                with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
+            if not os.path.exists(stats_file_path):
+                with open(stats_file_path, 'w') as f:
                     f.write('{}')
-            with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'r') as f:
+            with open(stats_file_path, 'r') as f:
                 stats = json.load(f)
                 stats['ietf-yang'] = drafts_stats
-            with open('{}/stats/AllYANGPageMain.json'.format(args.htmlpath), 'w') as f:
+            with open(stats_file_path, 'w') as f:
                 json.dump(stats, f)
             break
         except Exception:
@@ -644,7 +410,9 @@ if __name__ == '__main__':
             if counter == 0:
                 break
 
+    # ----------------------------------------------------------------------
     # Print the summary of the IETF Drafts extraction and compilation results
+    # ----------------------------------------------------------------------
     print('--------------------------')
     print('Number of correctly extracted YANG models from IETF drafts: {}'
           .format(drafts_stats.get('total-drafts')))

@@ -29,10 +29,10 @@ from versions import ValidatorsVersions
 
 class FilesGenerator:
     def __init__(self, htmlpath: str):
-        self.__htmlpath = htmlpath
+        self._htmlpath = htmlpath
         self.__imported_note = 'Note: also generates errors for imported files.'
         validators_versions = ValidatorsVersions()
-        self.__versions = validators_versions.get_versions()
+        self._versions = validators_versions.get_versions()
 
     def write_dictionary(self, dictionary_data: dict, file_name: str):
         """
@@ -42,12 +42,13 @@ class FilesGenerator:
             :param dictionary_data  (dict) Dictionary of modules with compilation results
             :param file_name        (str) The json file name to be created
         """
-        full_path = '{}{}.json'.format(self.__htmlpath, file_name)
+        file_name += '.json'
+        full_path = os.path.join(self._htmlpath, file_name)
         with open(full_path, 'w', encoding='utf-8') as f:
             f.write(json.dumps(dictionary_data, indent=2, sort_keys=True))
         os.chmod(full_path, 0o664)
 
-        self._custom_print('{}.json file generated'.format(file_name))
+        self._custom_print('{} file generated'.format(file_name))
 
     def generateYANGPageCompilationHTML(self, modules_results: list, headers: list, file_name: str, metadata: str = ''):
         """
@@ -63,15 +64,15 @@ class FilesGenerator:
         generated_message = 'Generated on {} by the YANG Catalog. {}'.format(time.strftime('%d/%m/%Y'), metadata)
         message_html = HTML.list([generated_message])
         table_html = HTML.table(modules_results, header_row=headers)
-        HTML_filename = '{}{}YANGPageCompilation.html'.format(self.__htmlpath, file_name)
+        file_name += 'YANGPageCompilation.html'
+        HTML_filename = os.path.join(self._htmlpath, file_name)
 
         with open(HTML_filename, 'w', encoding='utf-8') as f:
             f.write(message_html)
             f.write(table_html)
 
         os.chmod(HTML_filename, 0o664)
-        self._custom_print('{}YANGPageCompilation.html HTML page generated in directory {}'
-                           .format(file_name, self.__htmlpath))
+        self._custom_print('{} HTML page generated in directory {}'.format(file_name, self._htmlpath))
 
     def generateYANGPageMainHTML(self, file_name: str, stats: dict):
         """
@@ -91,15 +92,15 @@ class FilesGenerator:
         ]
         message_html = HTML.list([generated_message])
         content_html = HTML.list(content)
-        HTML_filename = '{}{}YANGPageMain.html'.format(self.__htmlpath, file_name)
+        file_name += 'YANGPageMain.html'
+        HTML_filename = os.path.join(self._htmlpath, file_name)
 
         with open(HTML_filename, 'w', encoding='utf-8') as f:
             f.write(message_html)
             f.write(content_html)
 
         os.chmod(HTML_filename, 0o664)
-        self._custom_print('{}YANGPageMain.html HTML page generated in directory {}'
-                           .format(file_name, self.__htmlpath))
+        self._custom_print('{} HTML page generated in directory {}'.format(file_name, self._htmlpath))
 
     def generateIETFYANGPageMainHTML(self, drafts_stats: dict):
         """
@@ -125,14 +126,14 @@ class FilesGenerator:
                    ]
         message_html = HTML.list([generated_message])
         content_html = HTML.list(content)
-        HTML_filename = os.path.join(self.__htmlpath, 'IETFYANGPageMain.html')
+        HTML_filename = os.path.join(self._htmlpath, 'IETFYANGPageMain.html')
 
         with open(HTML_filename, 'w', encoding='utf-8') as f:
             f.write(message_html)
             f.write(content_html)
 
         os.chmod(HTML_filename, 0o664)
-        self._custom_print('IETFYANGPageMain.html HTML page generated in directory {}'.format(self.__htmlpath))
+        self._custom_print('IETFYANGPageMain.html HTML page generated in directory {}'.format(self._htmlpath))
 
     def generateHTMLTable(self, rfcs_list: list, headers: list):
         """
@@ -146,13 +147,13 @@ class FilesGenerator:
         htmlcode = HTML.list([generated_message])
         htmlcode1 = HTML.table(rfcs_list, header_row=headers)
 
-        HTML_filename = os.path.join(self.__htmlpath, 'IETFYANGRFC.html')
+        HTML_filename = os.path.join(self._htmlpath, 'IETFYANGRFC.html')
         with open(HTML_filename, 'w', encoding='utf-8') as f:
             f.write(htmlcode)
             f.write(htmlcode1)
 
         os.chmod(HTML_filename, 0o664)
-        self._custom_print('{} HTML page generated in directory {}'.format(HTML_filename, self.__htmlpath))
+        self._custom_print('{} HTML page generated in directory {}'.format(HTML_filename, self._htmlpath))
 
     #
     # HEADERS
@@ -168,11 +169,11 @@ class FilesGenerator:
 
         return ['YANG Model',
                 'Compilation',
-                'Compilation Results (pyang {}). {}'.format(pyang_flag, self.__versions.get('pyang_version')),
-                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self.__versions.get('pyang_version')),
-                'Compilation Results (confdc). {} {}'.format(self.__imported_note, self.__versions.get('confd_version')),
-                'Compilation Results (yangdump-pro). {} {}'.format(self.__imported_note, self.__versions.get('yangdump_version')),
-                'Compilation Results (yanglint -i). {} {}'.format(self.__imported_note, self.__versions.get('yanglint_version'))]
+                'Compilation Results (pyang {}). {}'.format(pyang_flag, self._versions.get('pyang_version')),
+                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self._versions.get('pyang_version')),
+                'Compilation Results (confdc). {} {}'.format(self.__imported_note, self._versions.get('confd_version')),
+                'Compilation Results (yangdump-pro). {} {}'.format(self.__imported_note, self._versions.get('yangdump_version')),
+                'Compilation Results (yanglint -i). {} {}'.format(self.__imported_note, self._versions.get('yanglint_version'))]
 
     def getIETFDraftYANGPageCompilationHeaders(self):
         """
@@ -183,11 +184,11 @@ class FilesGenerator:
                 'Email',
                 'Download the YANG model',
                 'Compilation',
-                'Compilation Results (pyang --ietf). {}'.format(self.__versions.get('pyang_version')),
-                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self.__versions.get('pyang_version')),
-                'Compilation Results (confdc). {} {}'.format(self.__imported_note, self.__versions.get('confd_version')),
-                'Compilation Results (yangdump-pro). {} {}'.format(self.__imported_note, self.__versions.get('yangdump_version')),
-                'Compilation Results (yanglint -i). {} {}'.format(self.__imported_note, self.__versions.get('yanglint_version'))]
+                'Compilation Results (pyang --ietf). {}'.format(self._versions.get('pyang_version')),
+                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self._versions.get('pyang_version')),
+                'Compilation Results (confdc). {} {}'.format(self.__imported_note, self._versions.get('confd_version')),
+                'Compilation Results (yangdump-pro). {} {}'.format(self.__imported_note, self._versions.get('yangdump_version')),
+                'Compilation Results (yanglint -i). {} {}'.format(self.__imported_note, self._versions.get('yanglint_version'))]
 
     def getIETFDraftExampleYANGPageCompilationHeaders(self):
         """
@@ -197,8 +198,8 @@ class FilesGenerator:
                 'Draft Name',
                 'Email',
                 'Compilation',
-                'Compilation Results (pyang --ietf). {}'.format(self.__versions.get('pyang_version')),
-                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self.__versions.get('pyang_version'))]
+                'Compilation Results (pyang --ietf). {}'.format(self._versions.get('pyang_version')),
+                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self._versions.get('pyang_version'))]
 
     def getIETFCiscoAuthorsYANGPageCompilationHeaders(self):
         """
@@ -210,11 +211,11 @@ class FilesGenerator:
                 'Only Cisco Email',
                 'Download the YANG model',
                 'Compilation',
-                'Compilation Results (pyang --ietf). {}'.format(self.__versions.get('pyang_version')),
-                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self.__versions.get('pyang_version')),
-                'Compilation Results (confdc). {} {}'.format(self.__imported_note, self.__versions.get('confd_version')),
-                'Compilation Results (yangdump-pro). {} {}'.format(self.__imported_note, self.__versions.get('yangdump_version')),
-                'Compilation Results (yanglint -i). {} {}'.format(self.__imported_note, self.__versions.get('yanglint_version'))]
+                'Compilation Results (pyang --ietf). {}'.format(self._versions.get('pyang_version')),
+                'Compilation Results (pyang). {} {}'.format(self.__imported_note, self._versions.get('pyang_version')),
+                'Compilation Results (confdc). {} {}'.format(self.__imported_note, self._versions.get('confd_version')),
+                'Compilation Results (yangdump-pro). {} {}'.format(self.__imported_note, self._versions.get('yangdump_version')),
+                'Compilation Results (yanglint -i). {} {}'.format(self.__imported_note, self._versions.get('yanglint_version'))]
 
     #
     # HELPERS
