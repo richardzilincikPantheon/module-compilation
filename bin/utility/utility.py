@@ -148,7 +148,8 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
                     template file
                 :return: string containing rendered html file
         """
-
+        for key in context['result']:
+            context['result'][key] = context['result'][key].replace('\n', '<br>')
         path, filename = os.path.split(tpl_path)
         return jinja2.Environment(
             loader=jinja2.FileSystemLoader(path or './')
@@ -211,11 +212,9 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
             rev = module_data['revision']
             org = module_data['organization']
             file_url = '{}@{}_{}.html'.format(name, rev, org)
-            result = {
-                'name': name,
-                'revision': rev,
-                'generated': time.strftime('%d/%m/%Y')
-            }
+            result['name'] = name
+            result['revision'] = rev
+            result['generated'] = time.strftime('%d/%m/%Y')
 
             ths = list()
             option = '--lint'
