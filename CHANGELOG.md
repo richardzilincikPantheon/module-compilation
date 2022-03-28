@@ -2,6 +2,17 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.1.0 - 2022-03-28
+
+  * Various changes after YangModels/yang default branch rename [#129](https://github.com/YangCatalog/sdo_analysis/issues/129)
+  * extract_emails.py script refactored [#128](https://github.com/YangCatalog/sdo_analysis/issues/128)
+  * Compilation functionality moved into separate classes [#127](https://github.com/YangCatalog/sdo_analysis/issues/127)
+  * Shared methods/variables moved to the separate files [#126](https://github.com/YangCatalog/sdo_analysis/issues/126)
+  * Run yangIetf.py over all the archived drafts once a week [#125](https://github.com/YangCatalog/sdo_analysis/issues/125)
+  * Absolute paths removed from validators output [#124](https://github.com/YangCatalog/sdo_analysis/issues/124)
+  * Formatting imporved for compilation results files [#119](https://github.com/YangCatalog/sdo_analysis/issues/119)
+  * Various pip packages updated
+
 * ##### v5.0.0 - 2022-02-02
 
   * Pyang update to version 2.5.2 [deployment #113](https://github.com/YangCatalog/deployment/issues/113)
