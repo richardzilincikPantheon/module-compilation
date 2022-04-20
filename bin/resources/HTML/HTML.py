@@ -29,7 +29,7 @@ __author__  = 'Philippe Lagadec'
 # "http://www.cecill.info".
 #
 # A copy of the CeCILL license is also provided in these attached files:
-# Licence_CeCILL_V2-en.html and Licence_CeCILL_V2-fr.html
+# Licence_CeCILL_V2-en.txt
 #
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
