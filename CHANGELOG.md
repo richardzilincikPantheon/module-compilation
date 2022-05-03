@@ -2,6 +2,11 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.2.0 - 2022-05-03
+
+  * Pyang update to version 2.5.3 [deployment #124](https://github.com/YangCatalog/deployment/issues/124)
+  * Type checking fixes with pyright [deployment #126](https://github.com/YangCatalog/deployment/issues/126)
+
 * ##### v5.1.0 - 2022-03-28
 
   * Various changes after YangModels/yang default branch rename [#129](https://github.com/YangCatalog/sdo_analysis/issues/129)
