@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+This file contains FileHasher class which defines the functionality
+for hashing the contents of files. SHA256 hash is created from the content
+of the file, and also versions of the validators which were used
+for validation. Every time either content of the file or a version
+of one of the validators used is changed - hash will be completely different.
+Different hash means that the file needs to be re-validated.
+"""
+
 __author__ = 'Slavomir Mazur'
 __copyright__ = 'Copyright The IETF Trust 2021, All Rights Reserved'
 __license__ = 'Apache License, Version 2.0'
@@ -20,18 +29,20 @@ __email__ = 'slavomir.mazur@pantheon.tech'
 import hashlib
 import json
 
-from filelock import FileLock
+import filelock
 
 from create_config import create_config
 from versions import ValidatorsVersions
 
+BLOCK_SIZE = 65536  # The size of each read from the file
+
 
 class FileHasher:
-    def __init__(self, forcecompilation: bool = False):
+    def __init__(self, force_compilation: bool = False):
         config = create_config()
         self.cache_dir = config.get('Directory-Section', 'cache')
 
-        self.forcecompilation = forcecompilation
+        self.force_compilation = force_compilation
         self.validators_versions_bytes = self.get_versions()
         self.files_hashes = self.load_hashed_files_list()
         self.updated_hashes = {}
@@ -45,14 +56,12 @@ class FileHasher:
         :return         SHA256 hash of the content of the given file
         :rtype          str
         """
-        BLOCK_SIZE = 65536  # The size of each read from the file
-
         file_hash = hashlib.sha256()
-        with open(path, 'rb') as f:
-            fb = f.read(BLOCK_SIZE)
-            while len(fb) > 0:
-                file_hash.update(fb)
-                fb = f.read(BLOCK_SIZE)
+        with open(path, 'rb') as reader:
+            file_block = reader.read(BLOCK_SIZE)
+            while len(file_block) > 0:
+                file_hash.update(file_block)
+                file_block = reader.read(BLOCK_SIZE)
 
         file_hash.update(self.validators_versions_bytes)
 
@@ -60,40 +69,42 @@ class FileHasher:
 
     def load_hashed_files_list(self, dst_dir: str = ''):
         """ Load dumped list of files content hashes from .json file.
-        Several threads can access this file at once, so locking the file while accessing is necessary.
+        Several threads can access this file at once, so locking the file
+        while accessing is necessary.
         """
         dst_dir = self.cache_dir if dst_dir == '' else dst_dir
 
-        with FileLock('{}/sdo_files_modification_hashes.json.lock'.format(dst_dir)):
+        with filelock.FileLock('{}/sdo_files_modification_hashes.json.lock'.format(dst_dir)):
             print('Lock acquired.')
             try:
-                with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
-                    hashed_files_list = json.load(f)
+                with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as reader:
+                    hashed_files_list = json.load(reader)
                     print('Dictionary of {} hashes loaded successfully'.format(len(hashed_files_list)))
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 hashed_files_list = {}
 
         return hashed_files_list
 
     def dump_hashed_files_list(self, files_hashes: dict, dst_dir: str = ''):
         """ Dumped updated list of files content hashes into .json file.
-        Several threads can access this file at once, so locking the file while accessing is necessary.
+        Several threads can access this file at once, so locking the file
+        while accessing is necessary.
         """
         dst_dir = self.cache_dir if dst_dir == '' else dst_dir
 
         # Load existing hashes, merge with new one, then dump all to the .json file
-        with FileLock('{}/sdo_files_modification_hashes.json.lock'.format(dst_dir)):
+        with filelock.FileLock('{}/sdo_files_modification_hashes.json.lock'.format(dst_dir)):
             try:
-                with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as f:
-                    hashes_in_file = json.load(f)
+                with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'r') as reader:
+                    hashes_in_file = json.load(reader)
                     print('Dictionary of {} hashes loaded successfully'.format(len(hashes_in_file)))
-            except FileNotFoundError as e:
+            except FileNotFoundError:
                 hashes_in_file = {}
 
             merged_files_hashes = {**hashes_in_file, **files_hashes}
 
-            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'w') as f:
-                json.dump(merged_files_hashes, f, indent=2, sort_keys=True)
+            with open('{}/sdo_files_modification_hashes.json'.format(dst_dir), 'w') as writer:
+                json.dump(merged_files_hashes, writer, indent=2, sort_keys=True)
             print('Dictionary of {} hashes successfully dumped into .json file'.format(len(merged_files_hashes)))
 
     def get_versions(self):
@@ -116,4 +127,4 @@ class FileHasher:
         if old_file_hash is None or old_file_hash != file_hash:
             hash_changed = True
 
-        return [self.forcecompilation or hash_changed, file_hash]
+        return [self.force_compilation or hash_changed, file_hash]
