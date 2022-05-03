@@ -104,7 +104,7 @@ done
 
 # OpenROADM public
 #
-# OpenROADM directory structure need to be flatten
+# OpenROADM directory structure need to be flattened
 # Each branch representing the version is copied to a separate folder
 # This allows to run the yangGeneric.py script on multiple folders in parallel
 cur_dir=$(pwd)
@@ -145,16 +145,14 @@ if [ "$IS_PROD" = "True" ]; then
    for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/nx/*/); do
       meta="NX OS"
       os="NX"
-      for path2 in $(ls -d $path); do
-         ((running = running + 1))
-         git=${path2##*/cisco/nx/}
-         yang_removed=${git%/*}
-         prefix=${yang_removed#*/}
-         prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/nx/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
-         PIDSNX+=("$!")
-         wait_for_processes "${PIDSNX[@]}"
-      done
+      ((running = running + 1))
+      git=${path##*/cisco/nx/}
+      slash_removed=${git%/}
+      prefix=${slash_removed#*/}
+      prefix2=$(echo $prefix | tr -cd '[:alnum:]')
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/nx/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+      PIDSNX+=("$!")
+      wait_for_processes "${PIDSNX[@]}"
    done
    # Wait for all child-processes until move to next OS
    for PID in ${PIDSNX[@]}; do
@@ -168,16 +166,14 @@ if [ "$IS_PROD" = "True" ]; then
    for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/xe/*/); do
       meta="IOS XE"
       os="XE"
-      for path2 in $(ls -d $path); do
-         ((running = running + 1))
-         git=${path2##*/cisco/xe/}
-         yang_removed=${git%/*}
-         prefix=${yang_removed#*/}
-         prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xe/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
-         PIDSXE+=("$!")
-         wait_for_processes "${PIDSXE[@]}"
-      done
+      ((running = running + 1))
+      git=${path##*/cisco/xe/}
+      slash_removed=${git%/}
+      prefix=${slash_removed#*/}
+      prefix2=$(echo $prefix | tr -cd '[:alnum:]')
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xe/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
+      PIDSXE+=("$!")
+      wait_for_processes "${PIDSXE[@]}"
    done
    # Wait for all child-processes until move to next OS
    for PID in ${PIDSXE[@]}; do
@@ -191,16 +187,14 @@ if [ "$IS_PROD" = "True" ]; then
    for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/xr/*/); do
       meta="IOS XR"
       os="XR"
-      for path2 in $(ls -d $path); do
-         ((running = running + 1))
-         git=${path2##*/cisco/xr/}
-         yang_removed=${git%/*}
-         prefix=${yang_removed#*/}
-         prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xr/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
-         PIDSXR+=("$!")
-         wait_for_processes "${PIDSXR[@]}"
-      done
+      ((running = running + 1))
+      git=${path##*/cisco/xr/}
+      slash_removed=${git%/}
+      prefix=${yang_removed#*/}
+      prefix2=$(echo $prefix | tr -cd '[:alnum:]')
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xr/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+      PIDSXR+=("$!")
+      wait_for_processes "${PIDSXR[@]}"
    done
    # Wait for all child-processes until move to next OS
    for PID in ${PIDSXR[@]}; do
@@ -214,16 +208,14 @@ if [ "$IS_PROD" = "True" ]; then
    for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/svo/*/); do
       meta="NCS"
       os="SVO"
-      for path2 in $(ls -d $path); do
-         ((running = running + 1))
-         git=${path2##*/cisco/svo/}
-         yang_removed=${git%/*}
-         prefix=${yang_removed#*/}
-         prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/svo/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
-         PIDSSVO+=("$!")
-         wait_for_processes "${PIDSSVO[@]}"
-      done
+      ((running = running + 1))
+      git=${path2##*/cisco/svo/}
+      slash_removed=${git%/}
+      prefix=${slash_removed#*/}
+      prefix2=$(echo $prefix | tr -cd '[:alnum:]')
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/svo/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+      PIDSSVO+=("$!")
+      wait_for_processes "${PIDSSVO[@]}"
    done
    # Wait for all child-processes until move to next vendor
    for PID in ${PIDSSVO[@]}; do
@@ -241,8 +233,8 @@ if [ "$IS_PROD" = "True" ]; then
       if [ $i -eq 14 ]; then
          path=$(ls -d $NONIETFDIR/yangmodels/yang/vendor/juniper/$i*/)
          git=${path##*/juniper/}
-         yang_removed=${git%/*}
-         prefix=${yang_removed#*/}
+         slash_removed=${git%/}
+         prefix=${slash_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
          python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path" >>$LOG 2>&1
       # Juniper/15* does not exist
@@ -253,8 +245,8 @@ if [ "$IS_PROD" = "True" ]; then
             for path2 in $(ls -d $path*/); do
                ((running = running + 1))
                git=${path2##*/juniper/}
-               yang_removed=${git%/*}
-               prefix=${yang_removed#*/}
+               slash_removed=${git%/}
+               prefix=${slash_removed#*/}
                prefix2=$(echo $prefix | tr -cd '[:alnum:]')
                (python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
                PIDJUNIPER+=("$!")
@@ -276,9 +268,9 @@ if [ "$IS_PROD" = "True" ]; then
       for path2 in $(ls -d $path*/); do
          ((running = running + 1))
          git=${path2##*/network-router/}
-         yang_removed=${git%/*}
-         version=${yang_removed%/*}
-         platform=${yang_removed#*/}
+         slash_removed=${git%/}
+         version=${slash_removed%/*}
+         platform=${salsh_removed#*/}
          prefix=$(echo $yang_removed | tr -cd '[:alnum:]')
          (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path2" >>$LOG 2>&1) &
          PIDSHUAWEI+=("$!")
@@ -321,8 +313,8 @@ if [ "$IS_PROD" = "True" ]; then
       for path2 in $(ls -d $path*/); do
          ((running = running + 1))
          git=${path2##*/7x50_YangModels/}
-         yang_removed=${git%/*}
-         prefix=${yang_removed#*/}
+         slash_removed=${git%/}
+         prefix=${slash_removed#*/}
          prefix=$(echo $prefix | tr -cd '[:alnum:]' | sed 's/latestsros//g')
          (python yangGeneric.py --allinclusive True --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint True --prefix Nokia$prefix --rootdir "$path2" >>$LOG 2>&1) &
          PIDSNOKIA+=("$!")
