@@ -29,14 +29,14 @@ if __name__ == '__main__':
     config = create_config()
     web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
-    parser = argparse.ArgumentParser(description='Move file to the their creation time')
+    parser = argparse.ArgumentParser(description='Append creation timestamps to filenames')
     parser.add_argument('--documentpath',
-                        help='The optional directory where to find the file to backup. '
+                        help='Directory containing the file to backup. '
                              'Default is "{}"'.format(web_private),
                         type=str,
                         default=web_private + '/',)
     parser.add_argument('--backuppath',
-                        help='The optional directory where to backup the file. '
+                        help='Directory where to backup the file. '
                              'Default is "{}"'.format(backup_directory),
                         type=str,
                         default=backup_directory + '/')

@@ -465,13 +465,13 @@ if __name__ == '__main__':
                    help='For a single yang module, print the impacting and impacted modules',
                    type=str)
     g.add_argument('--dependency-tree',
-                   help='For each scanned yang module, print to stdout its dependency tree, '
-                        '(i.e. show all the modules that it depends on.',
+                   help='For each scanned yang module, print its dependency tree to stdout '
+                        '(i.e. show all the modules that it depends on).',
                    action='store_true',
                    default=False)
     g.add_argument('--single-dependency-tree',
-                   help='For a single yang module, print to stdout its dependency tree, '
-                        '(i.e. show all the modules that it depends on)',
+                   help='For a single yang module, print its dependency tree to stdout '
+                        '(i.e. show all the modules that it depends on).',
                    type=str)
     args = parser.parse_args()
 

@@ -43,12 +43,13 @@ def render(tpl_path, context):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate yangcatalog main private page.')
-    parser.add_argument('--config-path',
-                        help='Set path to config file',
+    parser.add_argument('--config',
+                        help='Path to the config file '
+                             'Default is {}'.format(os.environ['YANGCATALOG_CONFIG_PATH']),
                         type=str,
-                        default='/etc/yangcatalog/yangcatalog.conf')
+                        default=os.environ['YANGCATALOG_CONFIG_PATH'])
     parser.add_argument('--openRoadM',
-                        help='Set list of openRoadM files. Default parameters are empty list',
+                        help='List of openRoadM files',
                         type=str,
                         nargs='*',
                         default=[])

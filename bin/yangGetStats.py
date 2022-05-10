@@ -157,7 +157,6 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
 # Main
 # ----------------------------------------------------------------------
 if __name__ == '__main__':
-    bin_directory = os.environ['BIN']
     config = create_config()
     web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
@@ -165,30 +164,30 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
     parser.add_argument('--htmlpath',
-                        help='The path to get the HTML file (optional). Default is "{}/"'.format(backup_directory),
+                        help='Path to get the HTML file (optional). Default is "{}/"'.format(backup_directory),
                         type=str,
                         default=backup_directory + '/')
     parser.add_argument('--days',
-                        help='The numbers of days to get back in history. Default is all',
+                        help='Numbers of days to get back in history. Default is unlimited',
                         type=int,
                         default=-1)
     parser.add_argument('--draftpathstrict',
-                        help='The path to get the ietf drafts containing YANG model(s), with xym strict flag = True. '
+                        help='Path to get the ietf drafts containing YANG model(s), with xym strict flag = True. '
                              'Default is "{}/draft-with-YANG-strict/"'.format(ietf_directory),
                         type=str,
                         default=ietf_directory + '/draft-with-YANG-strict/')
     parser.add_argument('--draftpathnostrict',
-                        help='The path to get the ietf drafts containing YANG model(s), with xym strict flag = False. '
-                             'Default is "/draft-with-YANG-no-strict/"'.format(ietf_directory),
+                        help='Path to get the ietf drafts containing YANG model(s), with xym strict flag = False. '
+                             'Default is "{}/draft-with-YANG-no-strict/"'.format(ietf_directory),
                         type=str,
                         default=ietf_directory + '/draft-with-YANG-no-strict/')
     parser.add_argument('--draftpathdiff',
-                        help='The path to put the ietf drafts containing YANG model(s), diff from flag = True and False. '
+                        help='Path where to put the ietf drafts containing YANG model(s), diff from flag = True and False. '
                              'Default is "{}/draft-with-YANG-diff/"'.format(ietf_directory),
                         type=str,
                         default=ietf_directory + '/draft-with-YANG-diff/')
     parser.add_argument('--statspath',
-                        help='The optional directory where to put the stats files. '
+                        help='Directory where to put the stat files. '
                              'Default is "{}/stats/"'.format(web_private),
                         type=str,
                         default=web_private + '/stats/')

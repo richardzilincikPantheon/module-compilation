@@ -101,12 +101,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='YANG 1.1 Processing Tool. Either test if a YANG module is YANG 1.1 (test option), or copy all YANG 1.1 modules to yangpath')
     parser.add_argument('--srcpath',
-                        help='The optional directory where to find the source YANG data models. '
+                        help='Directory where to find the source YANG data models. '
                              'Default is "{}/YANG/"'.format(ietf_directory),
                         type=str,
                         default= ietf_directory + '/YANG/')
     parser.add_argument('--rfcpath',
-                        help='The optional directory where to find the source RFC-produced YANG data models. '
+                        help='Directory where to find the source RFC-produced YANG data models. '
                              'Default is "{}/YANG-rfc/"'.format(ietf_directory),
                         type=str,
                         default= ietf_directory + '/YANG-rfc/')
@@ -115,14 +115,14 @@ if __name__ == '__main__':
                         type=str,
                         default='')
     parser.add_argument('--yangpath',
-                        help='The path to store the version 1.1 YANG data models. '
+                        help='Path to store the version 1.1 YANG data models. '
                              'Default is "{}/YANG-v11/"'.format(ietf_directory),
                         type=str,
                         default=ietf_directory + '/YANG-v11/')
     # Following should be improve so that we don't need to enter a boolean
     # bug: whatever I enter in 'script --test' results in True
     parser.add_argument('--test',
-                        help='--test tests whether a YANG data model is based on version 1.1. '
+                        help='Test whether a YANG data model is based on version 1.1. '
                              'If this is the case, return "true"',
                         type=bool,
                         default=False)

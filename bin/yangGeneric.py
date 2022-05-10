@@ -236,32 +236,32 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='YANG Document Processor: generate tables with compilation errors/warnings')
     parser.add_argument('--rootdir',
-                        help='The root directory where to find the source YANG models. '
+                        help='Root directory where to find the source YANG models. '
                              'Default is "."',
                         type=str,
                         default='.',)
     parser.add_argument('--metadata',
                         help='Metadata text (such as SDOs, github location, etc.) '
-                             'to be displayed on the generated HTML page'
+                             'to be displayed on the generated HTML page. '
                              'Default is NULL',
                         type=str,
                         default='')
     parser.add_argument('--lint',
                         help='Optional flag that determines pyang syntax enforcement; '
-                             'If set to "True", pyang --lint is run'
-                             'Otherwise, pyang --ietf is run'
+                             'If set to "True", pyang --lint is run. '
+                             'Otherwise, pyang --ietf is run. '
                              'Default is False',
                         type=bool,
                         default=False)
     parser.add_argument('--allinclusive',
                         help='Optional flag that determines whether the rootdir directory contains all imported YANG modules; '
-                             'If set to "True", the YANG validators only look in the rootdir directory. '
-                             'Otherwise, the YANG validators look in {}.'
+                             'If set to "True", the YANG validators will only look in the rootdir directory. '
+                             'Otherwise, the YANG validators look in {}. '
                              'Default is False'.format(modules_directory),
                         type=bool,
                         default=False)
     parser.add_argument('--prefix',
-                        help='Prefix for generating HTML file name. Example: MEF, IEEEStandard, IEEEExperimental.'
+                        help='Prefix for generating HTML file names. Example: MEF, IEEEStandard, IEEEExperimental. '
                              'Default is ""',
                         default='')
     parser.add_argument('--debug',
@@ -271,7 +271,7 @@ if __name__ == '__main__':
     parser.add_argument('--forcecompilation',
                         help='Optional flag that determines wheter compilation should be run '
                              'for all files even if they have not been changed '
-                             'or even if the validators versions have not been changed.',
+                             'or even if the validators\' versions have not been changed.',
                         type=bool,
                         default=False)
     args = parser.parse_args()

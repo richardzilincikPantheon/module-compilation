@@ -49,9 +49,9 @@ if __name__ == '__main__':
     """
     Testing functions
     """
-    parser = argparse.ArgumentParser(description='Remove Directory Content')
+    parser = argparse.ArgumentParser(description='Remove directory content')
     parser.add_argument('dir',
-                        help='The directory content to remove',
+                        help='Directory the content of which to remove',
                         type=str)
     parser.add_argument('--debug',
                         help='Debug level; default is 0',
