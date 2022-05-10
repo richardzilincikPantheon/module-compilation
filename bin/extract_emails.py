@@ -87,16 +87,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='YANG RFC/Draft Processor')
     parser.add_argument('--draftpath',
-                        default='{}/my-id-mirror/'.format(ietf_directory),
                         help='Path to the directory where all the drafts will be stored.'
-                             'Default is {}/my-id-archive-mirror/'.format(ietf_directory))
-    parser.add_argument('--yangpath',
-                        default='{}/YANG/'.format(ietf_directory),
-                        help='Path to the directory where all the modules should be extracted.'
-                        'Default is {}/YANG'.format(ietf_directory))
-    parser.add_argument('--debug', type=int,
-                        default=0,
-                        help='Debug level; the default is 0')
+                             'Default is {}/my-id-archive-mirror/'.format(ietf_directory),
+                        type=str,
+                        default='{}/my-id-mirror/'.format(ietf_directory))
+    parser.add_argument('--debug',
+                        help='Debug level; the default is 0',
+                        type=int,
+                        default=0)
     args = parser.parse_args()
 
     debug_level = args.debug

@@ -90,12 +90,19 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Remove drafts known as having xym errors, '
                                                   'but that do not contain YANG models')
-    parser.add_argument("--source", default= '/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt', 
-                                   help="The full path + file containing the drafts to be removed"
-                                   "Default is '/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt'")
-    parser.add_argument("--dstdir", default=ietf_directory + '/my-id-mirror/', help="Optional directory where to remove the drafts from)"
-                                                      "Default is '" + ietf_directory + "/my-id-mirror/'")
-    parser.add_argument("--debug", type=int, default=0, help="Debug level; default is 0")
+    parser.add_argument('--source', 
+                        help='The full path + file containing the drafts to be removed'
+                             'Default is "/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt"',
+                        type=str,
+                        default= '/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt')
+    parser.add_argument('--dstdir', default=ietf_directory + '/my-id-mirror/',
+                        help='Optional directory where to remove the drafts from'
+                             ' Default is "{}/my-id-mirror/"'.format(ietf_directory),
+                        type=str)
+    parser.add_argument('--debug',
+                        help='Debug level; default is 0',
+                        type=int,
+                        default=0)
     args = parser.parse_args()
     
     ll = list_lines_from_file(args.source, args.debug)

@@ -428,31 +428,51 @@ def plot_module_dependency_graph(graph):
 ##############################################################################
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Set matplotlib into non-interactive mode
     plt.interactive(False)
 
     parser = argparse.ArgumentParser(description='Show the dependency graph for a set of yang models.')
-    parser.add_argument("--draft-repos", default=["./"], nargs='+',
-                        help="List of local directories where models defined in IETF drafts are located.")
-    parser.add_argument("--rfc-repos", default=["./"], nargs='+',
-                        help="List of local directories where models defined in IETF RFC are located.")
-    parser.add_argument('-r', '--recurse', action='store_true', default=False,
-                        help='Recurse into directories specified to find yang models')
+    parser.add_argument('--draft-repos',
+                        help='List of local directories where models defined in IETF drafts are located.',
+                        type=str,
+                        nargs='+',
+                        default=['./'])
+    parser.add_argument('--rfc-repos',
+                        help='List of local directories where models defined in IETF RFC are located.',
+                        tyep=str,
+                        nargs='+',
+                        default=['./'])
+    parser.add_argument('-r', '--recurse',
+                        help='Recurse into directories specified to find yang models',
+                        action='store_true',
+                        default=False)
     g = parser.add_mutually_exclusive_group()
-    g.add_argument("--graph", dest='graph', action='store_true', default=False,
-                   help="Plot the overall dependency graph.")
-    g.add_argument("--sub-graphs", nargs='+', default=[],
-                   help="Plot the dependency graphs for the specified modules.")
-    g.add_argument("--impact-analysis", dest='impact_analysis', action='store_true', default=False,
-                   help="For each scanned yang module, print the impacting and impacted modules.")
-    g.add_argument("--single-impact-analysis", type=str,
-                   help="For a single yang module, print the impacting and impacted modules")
-    g.add_argument("--dependency-tree", dest='dependency_tree', action='store_true', default=False,
-                   help="For each scanned yang module, print to stdout its dependency tree, "
-                   "(i.e. show all the modules that it depends on.")
-    g.add_argument("--single-dependency-tree", type=str,
-                   help="For a single yang module, print to stdout its dependency tree, (i.e. show all the modules that it depends on)")
+    g.add_argument('--graph',
+                   help='Plot the overall dependency graph.',
+                   action='store_true',
+                   default=False)
+    g.add_argument('--sub-graphs',
+                   help='Plot the dependency graphs for the specified modules.',
+                   type=str,
+                   nargs='+',
+                   default=[])
+    g.add_argument('--impact-analysis',
+                   help='For each scanned yang module, print the impacting and impacted modules.',
+                   action='store_true',
+                   default=False)
+    g.add_argument('--single-impact-analysis',
+                   help='For a single yang module, print the impacting and impacted modules',
+                   type=str)
+    g.add_argument('--dependency-tree',
+                   help='For each scanned yang module, print to stdout its dependency tree, '
+                        '(i.e. show all the modules that it depends on.',
+                   action='store_true',
+                   default=False)
+    g.add_argument('--single-dependency-tree',
+                   help='For a single yang module, print to stdout its dependency tree, '
+                        '(i.e. show all the modules that it depends on)',
+                   type=str)
     args = parser.parse_args()
 
     init(args.rfc_repos, args.draft_repos, recurse=args.recurse)

@@ -13,9 +13,9 @@
 # either express or implied.
 
 __author__ = 'Benoit Claise'
-__copyright__ = "Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved"
-__license__ = "Apache V2.0"
-__email__ = "bclaise@cisco.com"
+__copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved'
+__license__ = 'Apache V2.0'
+__email__ = 'bclaise@cisco.com'
 
 import argparse
 import os
@@ -25,26 +25,35 @@ from datetime import datetime
 
 from create_config import create_config
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     config = create_config()
     web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
     parser = argparse.ArgumentParser(description='Move file to the their creation time')
-    parser.add_argument("--documentpath", default=web_private + '/',
-                        help="The optional directory where to find the file to backup. "
-                             "Default is '" + web_private + "'")
-    parser.add_argument("--backuppath", default=backup_directory + '/',
-                        help="The optional directory where to backup the file. "
-                             "Default is '" + backup_directory + "'")
-    parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
+    parser.add_argument('--documentpath',
+                        help='The optional directory where to find the file to backup. '
+                             'Default is "{}"'.format(web_private),
+                        type=str,
+                        default=web_private + '/',)
+    parser.add_argument('--backuppath',
+                        help='The optional directory where to backup the file. '
+                             'Default is "{}"'.format(backup_directory),
+                        type=str,
+                        default=backup_directory + '/')
+    parser.add_argument('--debug',
+                        help='Debug level; the default is 0',
+                        type=int,
+                        default=0)
 
     args = parser.parse_args()
     debug_level = args.debug
 
-    name_to_backup = ['IETFYANGPageMain.html', 'HydrogenODLPageCompilation.html', 'HeliumODLPageCompilation.html', 'LithiumODLPageCompilation.html',
-                    'IETFCiscoAuthorsYANGPageCompilation.html', 'IETFYANGOutOfRFC.html', 'IETFDraftYANGPageCompilation.html',
-                    'IEEEStandardYANGPageCompilation.html', 'IEEEStandardDraftYANGPageCompilation.html', 'IANAStandardYANGPageCompilation.html',
-                    'IEEEExperimentalYANGPageCompilation.html', 'YANGPageMain.html', 'IETFYANGRFC.html']
+    name_to_backup = ['IETFYANGPageMain.html', 'HydrogenODLPageCompilation.html', 'HeliumODLPageCompilation.html',
+                      'LithiumODLPageCompilation.html', 'IETFCiscoAuthorsYANGPageCompilation.html',
+                      'IETFYANGOutOfRFC.html', 'IETFDraftYANGPageCompilation.html',
+                      'IEEEStandardYANGPageCompilation.html', 'IEEEStandardDraftYANGPageCompilation.html',
+                      'IANAStandardYANGPageCompilation.html', 'IEEEExperimentalYANGPageCompilation.html',
+                      'YANGPageMain.html', 'IETFYANGRFC.html']
     # name_to_backup = ['temp.html']
     for file in name_to_backup:
         file_no_extension = file.split(".")[0]

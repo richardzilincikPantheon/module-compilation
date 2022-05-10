@@ -43,15 +43,18 @@ def render(tpl_path, context):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate yangcatalog main private page.')
-    parser.add_argument('--config-path', type=str,
-                        default='/etc/yangcatalog/yangcatalog.conf',
-                        help='Set path to config file')
-    parser.add_argument('--openRoadM', default=[],
+    parser.add_argument('--config-path',
+                        help='Set path to config file',
+                        type=str,
+                        default='/etc/yangcatalog/yangcatalog.conf')
+    parser.add_argument('--openRoadM',
                         help='Set list of openRoadM files. Default parameters are empty list',
-                        nargs='*')
+                        type=str,
+                        nargs='*',
+                        default=[])
     args = parser.parse_args()
 
-    config = create_config()
+    config = create_config(args.config_path)
     private_dir = config.get('Web-Section', 'private-directory')
     yang_repo_dir = config.get('Directory-Section', 'yang-models-dir')
 
