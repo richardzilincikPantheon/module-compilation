@@ -4,12 +4,14 @@ ARG YANG_GID
 ARG CRON_MAIL_TO
 ARG YANGCATALOG_CONFIG_PATH
 ARG CONFD_VERSION
+ARG YANGLINT_VERSION
 
 ENV YANG_ID "$YANG_ID"
 ENV YANG_GID "$YANG_GID"
 ENV CRON_MAIL_TO "$CRON_MAIL_TO"
 ENV YANGCATALOG_CONFIG_PATH "$YANGCATALOG_CONFIG_PATH"
 ENV CONFD_VERSION "$CONFD_VERSION"
+ENV YANGLINT_VERSION "$YANGLINT_VERSION"
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 
 RUN echo "export PATH=$VIRTUAL_ENV/bin:$PATH" >/etc/environment
@@ -58,7 +60,7 @@ RUN apt-get -y install build-essential clang cmake cron curl git gnupg2 libpcre2
   libssl-dev libxml2-dev openssh-client postfix python3.6 python3-pip rsync rsyslog systemd wget
 
 WORKDIR /home
-RUN git clone https://github.com/CESNET/libyang.git
+RUN git clone -b ${YANGLINT_VERSION} --single-branch --depth 1 https://github.com/CESNET/libyang.git
 RUN git clone https://github.com/decalage2/pyhtgen.git
 RUN mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen
 RUN python /home/pyhtgen/pyhtgen/setup.py install
