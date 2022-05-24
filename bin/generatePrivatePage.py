@@ -55,7 +55,7 @@ if __name__ == '__main__':
                         default=[])
     args = parser.parse_args()
 
-    config = create_config(args.config_path)
+    config = create_config(args.config)
     private_dir = config.get('Web-Section', 'private-directory')
     yang_repo_dir = config.get('Directory-Section', 'yang-models-dir')
 

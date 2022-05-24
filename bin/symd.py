@@ -440,7 +440,7 @@ if __name__ == '__main__':
                         default=['./'])
     parser.add_argument('--rfc-repos',
                         help='List of local directories where models defined in IETF RFC are located.',
-                        tyep=str,
+                        type=str,
                         nargs='+',
                         default=['./'])
     parser.add_argument('-r', '--recurse',

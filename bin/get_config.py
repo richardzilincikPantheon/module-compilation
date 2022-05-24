@@ -42,6 +42,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
-    config.read(args.configuration)
+    config.read(args.config)
     print(config.get(args.section, args.key))
 
