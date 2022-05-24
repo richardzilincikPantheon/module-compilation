@@ -235,31 +235,45 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
         description='YANG Document Processor: generate tables with compilation errors/warnings')
-    parser.add_argument("--rootdir", default=".",
-                        help="The root directory where to find the source YANG models. "
-                             "Default is '.'")
-    parser.add_argument("--metadata", default="",
-                        help="Metadata text (such as SDOs, github location, etc.) "
-                             "to be displayed on the generated HTML page"
-                             "Default is NULL")
-    parser.add_argument("--lint", type=bool, default=False,
-                        help="Optional flag that determines pyang syntax enforcement; "
-                             "If set to 'True', pyang --lint is run"
-                             "Otherwise, pyang --ietf is run"
-                             "Default is False")
-    parser.add_argument("--allinclusive", type=bool, default=False,
-                        help="Optional flag that determines whether the rootdir directory contains all imported YANG modules; "
-                             "If set to 'True', the YANG validators only look in the rootdir directory. "
-                             "Otherwise, the YANG validators look in " + modules_directory + ". "
-                                                                                             "Default is False")
-    parser.add_argument("--prefix", default="", help="Prefix for generating HTML file name"
-                                                     "Example: MEF, IEEEStandard, IEEEExperimental"
-                                                     "Default is ''")
-    parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
-    parser.add_argument("--forcecompilation", type=bool, default=False,
-                        help="Optional flag that determines wheter compilation should be run "
-                             "for all files even if they have not been changed "
-                             "or even if the validators versions have not been changed.")
+    parser.add_argument('--rootdir',
+                        help='Root directory where to find the source YANG models. '
+                             'Default is "."',
+                        type=str,
+                        default='.',)
+    parser.add_argument('--metadata',
+                        help='Metadata text (such as SDOs, github location, etc.) '
+                             'to be displayed on the generated HTML page. '
+                             'Default is NULL',
+                        type=str,
+                        default='')
+    parser.add_argument('--lint',
+                        help='Optional flag that determines pyang syntax enforcement; '
+                             'If set to "True", pyang --lint is run. '
+                             'Otherwise, pyang --ietf is run. '
+                             'Default is False',
+                        type=bool,
+                        default=False)
+    parser.add_argument('--allinclusive',
+                        help='Optional flag that determines whether the rootdir directory contains all imported YANG modules; '
+                             'If set to "True", the YANG validators will only look in the rootdir directory. '
+                             'Otherwise, the YANG validators look in {}. '
+                             'Default is False'.format(modules_directory),
+                        type=bool,
+                        default=False)
+    parser.add_argument('--prefix',
+                        help='Prefix for generating HTML file names. Example: MEF, IEEEStandard, IEEEExperimental. '
+                             'Default is ""',
+                        default='')
+    parser.add_argument('--debug',
+                        help="Debug level; the default is 0",
+                        type=int,
+                        default=0)
+    parser.add_argument('--forcecompilation',
+                        help='Optional flag that determines wheter compilation should be run '
+                             'for all files even if they have not been changed '
+                             'or even if the validators\' versions have not been changed.',
+                        type=bool,
+                        default=False)
     args = parser.parse_args()
     custom_print('Start of job in {}'.format(args.rootdir))
 

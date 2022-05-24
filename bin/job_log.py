@@ -57,10 +57,26 @@ if __name__ == '__main__':
     config = create_config()
     temp_dir = config.get('Directory-Section', 'temp')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--start', default=0, help='Cronjob start time', required=True)
-    parser.add_argument('--end', default=0, help='Cronjob end time', required=True)
-    parser.add_argument('--status', default='Fail', help='Result of cronjob run', required=True)
-    parser.add_argument('--filename', default='', help='Name of job', required=True)
+    parser.add_argument('--start',
+                        help='Cronjob start time',
+                        type=int,
+                        default=0,
+                        required=True)
+    parser.add_argument('--end',
+                        help='Cronjob end time',
+                        type=int,
+                        default=0,
+                        required=True)
+    parser.add_argument('--status',
+                        help='Result of cronjob run',
+                        type=str,
+                        default='Fail',
+                        required=True)
+    parser.add_argument('--filename',
+                        help='Name of job',
+                        type=str,
+                        default='',
+                        required=True)
     args = parser.parse_args()
 
     job_log(int(args.start), int(args.end), temp_dir, args.filename, status=args.status)

@@ -95,25 +95,41 @@ def YANGversion11(srcpath, rfcpath, YANGmodel, yangpath, test, debug):
 # ----------------------------------------------------------------------
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     config = create_config()
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
     parser = argparse.ArgumentParser(description='YANG 1.1 Processing Tool. Either test if a YANG module is YANG 1.1 (test option), or copy all YANG 1.1 modules to yangpath')
-    parser.add_argument("--srcpath", default= ietf_directory + "/YANG/",
-                        help="The optional directory where to find the source YANG data models. "
-                             "Default is '" + ietf_directory + "/YANG/'")
-    parser.add_argument("--rfcpath", default= ietf_directory + "/YANG-rfc/",
-                        help="The optional directory where to find the source RFC-produced YANG data models. Default is '" + ietf_directory + "/YANG-rfc/'")
-    parser.add_argument("--YANGmodule", default="",
-                        help="A specific YANG module, to be tested for YANG version 1.1 compliance, with the --test option")
-    parser.add_argument("--yangpath", default= ietf_directory + "/YANG-v11/",
-                        help="The path to store the version 1.1 YANG data models. Default is '" + ietf_directory + "/YANG-v11/'") 
+    parser.add_argument('--srcpath',
+                        help='Directory where to find the source YANG data models. '
+                             'Default is "{}/YANG/"'.format(ietf_directory),
+                        type=str,
+                        default= ietf_directory + '/YANG/')
+    parser.add_argument('--rfcpath',
+                        help='Directory where to find the source RFC-produced YANG data models. '
+                             'Default is "{}/YANG-rfc/"'.format(ietf_directory),
+                        type=str,
+                        default= ietf_directory + '/YANG-rfc/')
+    parser.add_argument('--YANGmodule',
+                        help='A specific YANG module, to be tested for YANG version 1.1 compliance, with the --test option',
+                        type=str,
+                        default='')
+    parser.add_argument('--yangpath',
+                        help='Path to store the version 1.1 YANG data models. '
+                             'Default is "{}/YANG-v11/"'.format(ietf_directory),
+                        type=str,
+                        default=ietf_directory + '/YANG-v11/')
     # Following should be improve so that we don't need to enter a boolean
     # bug: whatever I enter in 'script --test' results in True
-    parser.add_argument("--test", type=bool, default=False,
-                        help="--test tests whether a YANG data model is based on version 1.1. In which case, it returns 'true'")
-    parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
+    parser.add_argument('--test',
+                        help='Test whether a YANG data model is based on version 1.1. '
+                             'If this is the case, return "true"',
+                        type=bool,
+                        default=False)
+    parser.add_argument('--debug',
+                        help='Debug level; the default is 0',
+                        type=int,
+                        default=0)
 
     args = parser.parse_args()
         

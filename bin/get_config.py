@@ -21,19 +21,27 @@ __email__ = "evyncke@cisco.com"
 Extract a single value out of the main /etc/yangcatalog/yangcatalog.conf file
 """
 
-import configparser
 import argparse
+import configparser
+import os
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract the value for a single key from a configuration file')
-    parser.add_argument("--configuration", default= '/etc/yangcatalog/yangcatalog.conf',
-        help="The optional file location for the configuration file. Default is /etc/yangcatalog/yangcatalog.conf")
-    parser.add_argument("--section", help="The mandatory configuration section.") 
-    parser.add_argument("--key", help="The mandatory key to seach.")
+    parser.add_argument('--config',
+                        help='Path to the config file '
+                             'Default is {}'.format(os.environ['YANGCATALOG_CONFIG_PATH']),
+                        type=str,
+                        default=os.environ['YANGCATALOG_CONFIG_PATH'])
+    parser.add_argument('--section',
+                        help='Mandatory configuration section.',
+                        type=str)
+    parser.add_argument('--key',
+                        help='Mandatory key to seach.',
+                        type=str)
 
     args = parser.parse_args()
 
     config = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
-    config.read(args.configuration)
+    config.read(args.config)
     print(config.get(args.section, args.key))
 

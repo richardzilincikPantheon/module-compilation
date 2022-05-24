@@ -156,29 +156,45 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
-if __name__ == "__main__":
-    bin_directory = os.environ['BIN']
+if __name__ == '__main__':
     config = create_config()
     web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
-    parser.add_argument("--htmlpath", default=backup_directory + '/',
-                        help="The path to get the HTML file (optional). Default is '" + backup_directory + "/'")
-    parser.add_argument("--days", default="-1",
-                        help="The numbers of days to get back in history. Default is all")
-    parser.add_argument("--draftpathstrict", default=ietf_directory + "/draft-with-YANG-strict/",
-                        help="The path to get the ietf drafts containing YANG model(s), with xym strict flag = True. Default is '" + ietf_directory + "/draft-with-YANG-strict/'")
-    parser.add_argument("--draftpathnostrict", default=ietf_directory + "/draft-with-YANG-no-strict/",
-                        help="The path to get the ietf drafts containing YANG model(s), with xym strict flag = False. Default is '" + ietf_directory + "/draft-with-YANG-no-strict/'")
-    parser.add_argument("--draftpathdiff", default=ietf_directory + "/draft-with-YANG-diff/",
-                        help="The path to put the ietf drafts containing YANG model(s), diff from flag = True and False. Default is '" + ietf_directory + "/draft-with-YANG-diff/'")
-    parser.add_argument("--statspath", default=web_private + "/stats/",
-                        help="The optional directory where to put the stats files . Default is '" + web_private + "/stats/'")
-    parser.add_argument("--binpath", default=bin_directory,
-                        help="Optional directory where to find the script executables. Default is '" + bin_directory + "'")
-    parser.add_argument("--debug", type=int, default=0, help="Debug level; the default is 0")
+    parser.add_argument('--htmlpath',
+                        help='Path to get the HTML file (optional). Default is "{}/"'.format(backup_directory),
+                        type=str,
+                        default=backup_directory + '/')
+    parser.add_argument('--days',
+                        help='Numbers of days to get back in history. Default is unlimited',
+                        type=int,
+                        default=-1)
+    parser.add_argument('--draftpathstrict',
+                        help='Path to get the ietf drafts containing YANG model(s), with xym strict flag = True. '
+                             'Default is "{}/draft-with-YANG-strict/"'.format(ietf_directory),
+                        type=str,
+                        default=ietf_directory + '/draft-with-YANG-strict/')
+    parser.add_argument('--draftpathnostrict',
+                        help='Path to get the ietf drafts containing YANG model(s), with xym strict flag = False. '
+                             'Default is "{}/draft-with-YANG-no-strict/"'.format(ietf_directory),
+                        type=str,
+                        default=ietf_directory + '/draft-with-YANG-no-strict/')
+    parser.add_argument('--draftpathdiff',
+                        help='Path where to put the ietf drafts containing YANG model(s), diff from flag = True and False. '
+                             'Default is "{}/draft-with-YANG-diff/"'.format(ietf_directory),
+                        type=str,
+                        default=ietf_directory + '/draft-with-YANG-diff/')
+    parser.add_argument('--statspath',
+                        help='Directory where to put the stat files. '
+                             'Default is "{}/stats/"'.format(web_private),
+                        type=str,
+                        default=web_private + '/stats/')
+    parser.add_argument('--debug',
+                        help='Debug level; the default is 0',
+                        type=int,
+                        default=0)
 
     args = parser.parse_args()
     debug_level = args.debug
