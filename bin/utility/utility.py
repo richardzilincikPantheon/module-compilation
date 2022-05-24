@@ -32,7 +32,7 @@ from utility.staticVariables import IETF_RFC_MAP
 
 def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
     json_modules_data = json.dumps({'modules': {'module': updated_modules}})
-    confd_protocol = config.get('General-Section', 'protocol-confd')
+    confd_protocol = config.get('Web-Section', 'protocol-confd')
     confd_port = config.get('Web-Section', 'confd-port')
     confd_host = config.get('Web-Section', 'confd-ip')
     credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
@@ -158,7 +158,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
 
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     result_html_dir = config.get('Web-Section', 'result-html-dir')
-    protocol = config.get('General-Section', 'protocol-api')
+    protocol = config.get('Web-Section', 'protocol-api')
     api_ip = config.get('Web-Section', 'ip')
 
     prefix = '{}://{}'.format(protocol, api_ip)
