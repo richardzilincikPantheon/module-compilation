@@ -35,7 +35,6 @@ from versions import ValidatorsVersions
 class DraftsCompilator:
     def __init__(self, extracted_drafts_dir: str, drafts_dict: dict, debug_level: int = 0):
         self.config = create_config()
-        self.pyang_exec = self.config.get('Tool-Section', 'pyang-exec')
         self.html_path = self.config.get('Web-Section', 'private-directory')
         self.result_html_dir = self.config.get('Web-Section', 'result-html-dir')
         self.protocol = self.config.get('Web-Section', 'protocol-api')

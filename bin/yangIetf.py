@@ -67,8 +67,6 @@ if __name__ == '__main__':
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
     temp_dir = config.get('Directory-Section', 'temp')
     modules_directory = config.get('Directory-Section', 'modules-directory')
-    pyang_exec = config.get('Tool-Section', 'pyang-exec')
-    confdc_exec = config.get('Tool-Section', 'confdc-exec')
     api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('Web-Section', 'protocol-api')
     resutl_html_dir = config.get('Web-Section', 'result-html-dir')
