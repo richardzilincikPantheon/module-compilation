@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM python:3.9-bullseye
 ARG YANG_ID
 ARG YANG_GID
 ARG CRON_MAIL_TO
@@ -56,14 +56,14 @@ RUN echo postfix postfix/mailname string yangcatalog.org | debconf-set-selection
 RUN echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections
 
 RUN apt-get -y update
-RUN apt-get -y install build-essential clang cmake cron curl git gnupg2 libpcre2-dev libssl1.0.0 \
-  libssl-dev libxml2-dev openssh-client postfix python3.6 python3-pip rsync rsyslog systemd wget
+RUN apt-get -y install build-essential clang cmake cron gnupg2 libpcre2-dev libssl1.1 \
+  libssl-dev libxml2-dev postfix python2.7 python3-pip rsync rsyslog systemd pypy3
 
 WORKDIR /home
 RUN git clone -b ${YANGLINT_VERSION} --single-branch --depth 1 https://github.com/CESNET/libyang.git
 RUN git clone https://github.com/decalage2/pyhtgen.git
 RUN mv /home/pyhtgen/setup.py /home/pyhtgen/pyhtgen
-RUN python /home/pyhtgen/pyhtgen/setup.py install
+RUN python2.7 /home/pyhtgen/pyhtgen/setup.py install
 RUN mkdir -p /home/libyang/build
 WORKDIR /home/libyang/build
 RUN cmake -D CMAKE_BUILD_TYPE:String="Release" .. && make && make install
