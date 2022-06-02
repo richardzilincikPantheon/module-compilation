@@ -74,6 +74,7 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN pip3 install --upgrade pip
 COPY ./sdo_analysis/requirements.txt .
 RUN pip3 install -r requirements.txt
+RUN pypy3 -mpip install pyang==2.5.3
 
 RUN mkdir /opt/confd
 COPY ./resources/* $VIRTUAL_ENV/
