@@ -150,7 +150,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/nx/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/nx/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSNX+=("$!")
       wait_for_processes "${PIDSNX[@]}"
    done
@@ -192,7 +192,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xr/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xr/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSXR+=("$!")
       wait_for_processes "${PIDSXR[@]}"
    done
@@ -209,11 +209,11 @@ if [ "$IS_PROD" = "True" ]; then
       meta="NCS"
       os="SVO"
       ((running = running + 1))
-      git=${path2##*/cisco/svo/}
+      git=${path##*/cisco/svo/}
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/svo/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/svo/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSSVO+=("$!")
       wait_for_processes "${PIDSSVO[@]}"
    done

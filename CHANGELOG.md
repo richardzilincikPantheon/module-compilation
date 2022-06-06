@@ -2,6 +2,13 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.3.0 - 2022-06-06
+
+  * Python scripts arguments refactored [#141](https://github.com/YangCatalog/sdo_analysis/issues/141)
+  * Duplicate messages removed from validators output [#137](https://github.com/YangCatalog/sdo_analysis/issues/137)
+  * Yanglint version passed as argument into Docker image build [deployment #137](https://github.com/YangCatalog/deployment/issues/137)
+  * Various code adjustments after config file update [deployment #135](https://github.com/YangCatalog/deployment/issues/135)
+
 * ##### v5.2.0 - 2022-05-03
 
   * Pyang update to version 2.5.3 [deployment #124](https://github.com/YangCatalog/deployment/issues/124)
