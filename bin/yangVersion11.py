@@ -44,8 +44,8 @@ def YANGversion11(src_path, dest_path, debug):
     yang_model_list = [f for f in os.listdir(src_path) if os.path.isfile(os.path.join(src_path, f))]
     yang_model_list_v11 = []
     
-    for yang_model in yang_model_list:      
-        bash_command = "grep yang-version " + src_path  + yang_model + " | grep 1.1"
+    for yang_model in yang_model_list:
+        bash_command = "grep yang-version {} | grep 1.1".format(os.path.join(src_path, yang_model) )
         if debug > 0:
             print("bash command: " + bash_command)
         temp_result = os.popen(bash_command).read()
@@ -54,7 +54,7 @@ def YANGversion11(src_path, dest_path, debug):
                 print("DEBUG: " + yang_model + " is version 1.1 ")
             yang_model_list_v11.append(yang_model)
             # copy function below could be improved with python command, as opposed to a bash
-            bash_command = "cp  " + src_path + "/" + yang_model + " " + dest_path + "/" + yang_model
+            bash_command = "cp  {} {}".format(os.path.join(src_path, yang_model), os.path.join(dest_path, yang_model))
             temp_result = os.popen(bash_command).read()
     if debug > 0:
         print("DEBUG: YANG Model list with YANG version 1.1: " )

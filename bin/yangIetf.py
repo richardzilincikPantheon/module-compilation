@@ -79,7 +79,7 @@ if __name__ == '__main__':
     parser.add_argument('--archived',
                         help='Extract expired drafts as well',
                         action='store_true',
-                        default='{}/my-id-mirror/'.format(ietf_directory))
+                        default=False)
     parser.add_argument('--yangpath',
                         help='Path to the directory where to extract models (only correct). '
                              'Default is "{}/YANG/"'.format(ietf_directory),
@@ -145,7 +145,8 @@ if __name__ == '__main__':
                         help='Optional flag that determines wheter compilation should be run '
                              'for all files even if they have not been changed '
                              'or even if the validators versions have not been changed.',
-                        action='store_true')
+                        action='store_true',
+                        default=False)
 
     args = parser.parse_args()
     if args.archived:

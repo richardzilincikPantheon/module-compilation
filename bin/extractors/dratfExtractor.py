@@ -71,7 +71,7 @@ class DraftExtractor:
 
     def extract_drafts(self):
         for draft_file in self.ietf_drafts:
-            draft_file_path = '{}{}'.format(self.draft_path, draft_file)
+            draft_file_path = os.path.join(self.draft_path, draft_file)
 
             # Extract the correctly formatted YANG Models into yang_path
             extracted_yang_models = self.extract_from_draft_file(draft_file, self.draft_path, self.yang_path, strict=True)
@@ -163,7 +163,7 @@ class DraftExtractor:
         for extracted_model in extracted_yang_models:
             if not extracted_model.startswith('example-'):
                 print('Identifier definition extraction for {}'.format(extracted_model))
-                module_fname = '{}{}'.format(self.yang_path, extracted_model)
+                module_fname = os.path.join(self.yang_path, extracted_model)
                 extract_elem(module_fname, self.draft_elements_path, 'typedef')
                 extract_elem(module_fname, self.draft_elements_path, 'grouping')
                 extract_elem(module_fname, self.draft_elements_path, 'identity')
