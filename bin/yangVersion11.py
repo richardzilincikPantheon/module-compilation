@@ -27,51 +27,25 @@ __license__ = "Apache v2.0"
 __email__ = "bclaise@cisco.com"
 
 
-def YANGversion11(srcpath, rfcpath, YANGmodel, yangpath, test, debug):
+def YANGversion11(src_path, dest_path, debug):
     """
     YANG 1.1 Processing Tool.
     This is the main (external) API entry for the module.
-    if the test argument is True, the function tests whether a module is YANG 1.1\
-    if the test arugment is False, the functions copies all YANG 1.1 modules to a yangpath
-    :param srcpath: The optional directory where to find the source YANG data models
-    :param rfcpath: The optional directory where to find the source RFC-produced YANG data models
-    :param YANGmodel: A specific YANG model, to be tested for YANG version 1.1 compliance, with the --test option
-    :param yangpath: The path to store the version 1.1 YANG data models
+    The functions copies all YANG 1.1 modules to a yangpath
+    :param src_path: The optional directory where to find the source YANG data models
+    :param dest_path: The path to store the version 1.1 YANG data models
     :param debug: Determines how much debug output is printed to the console
-    :return: True/False with the --test. Return None otherwise
     """ 
-    # test action
-    if debug > 0:
-        print("Should I do the test?: " + str(test))
-    # bug: whatever I enter in 'script --test' results in True
-    if test is True:
-        if YANGmodel == "":
-            print("   --test MUST be used with the -- YANGmodel filename option.")
-            return False
-        else:
-            print("we're good")
-            bash_command = "grep yang-version " + srcpath  + YANGmodel + " | grep 1.1"
-            temp_result = os.popen(bash_command).read()
-            if debug > 0:
-                print("bash command: " + bash_command)
-            if "1.1" in temp_result :
-                if debug > 0:
-                    print("DEBUG: " + YANGmodel + " is version 1.1 ")
-                return True
-            else:
-                if debug > 0:
-                    print("DEBUG: " + YANGmodel + " is NOT version 1.1 ")
-                return False
 
     if debug > 0:
         print("No test condition")
     
-    remove_directory_content(yangpath, debug)
-    yang_model_list = [f for f in os.listdir(srcpath) if os.path.isfile(os.path.join(srcpath, f))]
+    remove_directory_content(dest_path, debug)
+    yang_model_list = [f for f in os.listdir(src_path) if os.path.isfile(os.path.join(src_path, f))]
     yang_model_list_v11 = []
     
     for yang_model in yang_model_list:      
-        bash_command = "grep yang-version " + srcpath  + yang_model + " | grep 1.1"
+        bash_command = "grep yang-version " + src_path  + yang_model + " | grep 1.1"
         if debug > 0:
             print("bash command: " + bash_command)
         temp_result = os.popen(bash_command).read()
@@ -80,7 +54,7 @@ def YANGversion11(srcpath, rfcpath, YANGmodel, yangpath, test, debug):
                 print("DEBUG: " + yang_model + " is version 1.1 ")
             yang_model_list_v11.append(yang_model)
             # copy function below could be improved with python command, as opposed to a bash
-            bash_command = "cp  " + srcpath + "/" + yang_model + " " + yangpath + "/" + yang_model
+            bash_command = "cp  " + src_path + "/" + yang_model + " " + dest_path + "/" + yang_model
             temp_result = os.popen(bash_command).read()
     if debug > 0:
         print("DEBUG: YANG Model list with YANG version 1.1: " )
@@ -99,33 +73,14 @@ if __name__ == '__main__':
     config = create_config()
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
-    parser = argparse.ArgumentParser(description='YANG 1.1 Processing Tool. Either test if a YANG module is YANG 1.1 (test option), or copy all YANG 1.1 modules to yangpath')
-    parser.add_argument('--srcpath',
-                        help='Directory where to find the source YANG data models. '
-                             'Default is "{}/YANG/"'.format(ietf_directory),
-                        type=str,
-                        default='{}/YANG/'.format(ietf_directory))
-    parser.add_argument('--rfcpath',
-                        help='Path to the directory where all the RFCs will be stored. '
-                             'Default is "{}/rfc/"'.format(ietf_directory),
-                        type=str,
-                        default='{}/rfc/'.format(ietf_directory))
-    parser.add_argument('--YANGmodule',
-                        help='A specific YANG module, to be tested for YANG version 1.1 compliance, with the --test option',
-                        type=str,
-                        default='')
-    parser.add_argument('--yangpath',
+    src_path = os.path.join(ietf_directory, 'YANG')
+
+    parser = argparse.ArgumentParser(description='YANG 1.1 Processing Tool. Copy all YANG 1.1 modules to destpath')
+    parser.add_argument('--destpath',
                         help='Path to store the version 1.1 YANG data models. '
                              'Default is "{}/YANG-v11/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG-v11/'.format(ietf_directory))
-    # Following should be improve so that we don't need to enter a boolean
-    # bug: whatever I enter in 'script --test' results in True
-    parser.add_argument('--test',
-                        help='Test whether a YANG data model is based on version 1.1. '
-                             'If this is the case, return "true"',
-                        type=bool,
-                        default=False)
     parser.add_argument('--debug',
                         help='Debug level - default is 0',
                         type=int,
@@ -133,4 +88,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
         
-    YANGversion11(args.srcpath, args.rfcpath, args.YANGmodule, args.yangpath, args.test, args.debug)
+    YANGversion11(src_path, args.destpath,args.debug)

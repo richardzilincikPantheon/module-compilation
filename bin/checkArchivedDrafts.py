@@ -48,17 +48,10 @@ def main():
     protocol = config.get('Web-Section', 'protocol-api')
     var_path = config.get('Directory-Section', 'var')
 
+    archived_draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
+    yang_path = os.path.join(ietf_directory, 'archived-drafts-modules')
+
     parser = argparse.ArgumentParser(description='Check if modules from all the Drafts are populated in YANG Catalog')
-    parser.add_argument('--draftpath',
-                        help='Path to the directory where all the drafts will be stored. '
-                             'Default is {}/my-id-archive-mirror/'.format(ietf_directory),
-                        type=str,
-                        default='{}/my-id-archive-mirror/'.format(ietf_directory))
-    parser.add_argument('--yangpath',
-                        help='Path to the directory where all the modules should be extracted. '
-                             'Default is {}/archived-drafts-modules'.format(temp_dir),
-                        type=str,
-                        default='{}/archived-drafts-modules/'.format(temp_dir))
     parser.add_argument('--debug',
                         help='Debug level - default is 0',
                         type=int,
@@ -70,18 +63,18 @@ def main():
     all_yang_drafts_strict = os.path.join(temp_dir, 'draft-with-YANG-strict')
     missing_modules_directory = os.path.join(temp_dir, 'drafts-missing-modules')
     draft_extractor_paths = {
-        'draft_path': args.draftpath,
-        'yang_path': args.yangpath,
+        'draft_path': archived_draft_path,
+        'yang_path': yang_path,
         'all_yang_draft_path_strict': all_yang_drafts_strict,
         'all_yang_path': '{}/YANG-ALL'.format(temp_dir)
     }
 
     try:
-        remove_directory_content(args.yangpath, args.debug)
+        remove_directory_content(yang_path, args.debug)
         remove_directory_content(missing_modules_directory, args.debug)
         remove_directory_content(all_yang_drafts_strict, args.debug)
 
-        custom_print('Extracting modules from drafts stored in {}'.format(args.draftpath))
+        custom_print('Extracting modules from drafts stored in {}'.format(archived_draft_path))
         draftExtractor = DraftExtractor(draft_extractor_paths, args.debug, extract_elements=False, extract_examples=False)
         draftExtractor.extract_drafts()
         draftExtractor.invert_dict()
@@ -132,7 +125,7 @@ def main():
             name_revision += '@1970-01-01'
         if name_revision not in all_modules_keys:
             missing_modules.append(yang_file)
-            src = os.path.join(args.yangpath, yang_file)
+            src = os.path.join(yang_path, yang_file)
             dst = os.path.join(dst_path, yang_file)
             shutil.copy2(src, dst)
 
@@ -140,7 +133,7 @@ def main():
     for module in missing_modules:
         print(module)
 
-    shutil.rmtree(args.yangpath)
+    shutil.rmtree(yang_path)
     shutil.rmtree(all_yang_drafts_strict)
 
     if missing_modules:

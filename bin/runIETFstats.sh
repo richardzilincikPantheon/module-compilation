@@ -108,10 +108,9 @@ ln -f -s $NONIETFDIR/yangmodels/yang/standard/iana/ $MODULES/iana
 date +"%c: Starting to extract all YANG modules from IETF documents" >>$LOG
 # Using --draftpath $IETFDIR/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
 if [ $(date +%u) -eq 6 ]; then
-	python $BIN/yangIetf.py --draftpath $IETFDIR/my-id-archive-mirror/ >>$LOG 2>&1
+	python $BIN/yangIetf.py --archived >>$LOG 2>&1
 fi
 python $BIN/yangIetf.py >>$LOG 2>&1
-# python $BIN/yangIetf.py --draftpath $IETFDIR/my-id-archive-mirror/ >>$LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >>$LOG
 
 # Clean up of the .fxs files created by confdc
