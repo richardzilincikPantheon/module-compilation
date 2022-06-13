@@ -73,6 +73,7 @@ if __name__ == '__main__':
     resutl_html_dir = config.get('Web-Section', 'result-html-dir')
     draft_path = config.get('Directory-Section', 'ietf-drafts')
     rfc_path = config.get('Directory-Section', 'ietf-rfcs')
+    public_directory = config.get('Web-Section', 'public-directory')
 
     parser = argparse.ArgumentParser(description='YANG RFC/Draft Processor')
     parser.add_argument('--archived',
@@ -216,6 +217,7 @@ if __name__ == '__main__':
     draftExtractor.extract_drafts()
     draftExtractor.invert_dict()
     draftExtractor.remove_invalid_files()
+    draftExtractor.dump_incorrect_drafts(public_directory)
     custom_print('All IETF Drafts pre-processed')
 
     # TODO: Remove this - make these variables as input to another classes (compilation/parser)
