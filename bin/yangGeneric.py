@@ -251,7 +251,7 @@ if __name__ == '__main__':
                              'If set to "True", pyang --lint is run. '
                              'Otherwise, pyang --ietf is run. '
                              'Default is False',
-                        type=bool,
+                        action='store_true',
                         default=False)
     parser.add_argument('--allinclusive',
                         help='Optional flag that determines whether the rootdir directory '

@@ -61,7 +61,7 @@ class RFCExtractor:
                 for extracted_model in extracted_yang_models:
                     if not extracted_model.startswith('example-'):
                         print('Identifier definition extraction for {}'.format(extracted_model))
-                        module_fname = '{}{}'.format(self.rfc_yang_path, extracted_model)
+                        module_fname = os.path.join(self.rfc_yang_path, extracted_model)
                         extract_elem(module_fname, self.rfc_extraction_yang_path, 'typedef')
                         extract_elem(module_fname, self.rfc_extraction_yang_path, 'grouping')
                         extract_elem(module_fname, self.rfc_extraction_yang_path, 'identity')
@@ -92,8 +92,8 @@ class RFCExtractor:
             old_modules = json.load(f)
 
         for old_module in old_modules:
-            src_path = '{}{}'.format(srcdir, old_module)
-            dst_path = '{}{}'.format(dstdir, old_module)
+            src_path = os.path.join(srcdir, old_module)
+            dst_path = os.path.join(dstdir, old_module)
             if not os.path.isfile(src_path):
                 continue
             try:

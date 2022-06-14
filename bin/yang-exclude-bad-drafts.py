@@ -20,6 +20,9 @@ from create_config import create_config
 __author__ = 'bclaise@cisco.com'
 
 
+SOURCE = '/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt'
+
+
 def list_lines_from_file(f, debug_level):
     """
     Returns a list of all the lines in the file
@@ -90,11 +93,6 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Remove drafts well-known as having xym errors, '
                                                  'but that do not contain YANG models')
-    parser.add_argument('--source', 
-                        help='Full path to the file containing the drafts to be removed. '
-                             'Default is "/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt"',
-                        type=str,
-                        default= '/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt')
     parser.add_argument('--dstdir',
                         help='Directory from which to remove the drafts. '
                              'Default is "{}/my-id-mirror/"'.format(ietf_directory),
@@ -106,7 +104,7 @@ if __name__ == '__main__':
                         default=0)
     args = parser.parse_args()
     
-    ll = list_lines_from_file(args.source, args.debug)
+    ll = list_lines_from_file(SOURCE, args.debug)
     llasterix = replace_draft_version_by_asterix(ll, args.debug)
-    dir = os.path.dirname(args.source)
+    dir = os.path.dirname(SOURCE)
     remove_files(llasterix, args.dstdir, args.debug)

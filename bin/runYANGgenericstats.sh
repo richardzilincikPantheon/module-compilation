@@ -47,47 +47,47 @@ date +"%c: forking all sub-processes" >>$LOG
 declare -a PIDS
 
 # BBF
-(python $BIN/yangGeneric.py --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/BroadbandForum/yang/tree/master" --lint True --prefix BBF --rootdir "$TMP/bbf/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/BroadbandForum/yang/tree/master" --lint --prefix BBF --rootdir "$TMP/bbf/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Standard MEF
-(python $BIN/yangGeneric.py --metadata "MEF: Standard YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/standard/" --lint True --prefix MEFStandard --rootdir "$NONIETFDIR/mef/YANG-public/src/model/standard/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "MEF: Standard YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/standard/" --lint --prefix MEFStandard --rootdir "$NONIETFDIR/mef/YANG-public/src/model/standard/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Experimental MEF
-(python $BIN/yangGeneric.py --metadata "MEF: Draft YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft/" --lint True --prefix MEFExperimental --rootdir "$NONIETFDIR/mef/YANG-public/src/model/draft/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "MEF: Draft YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft/" --lint --prefix MEFExperimental --rootdir "$NONIETFDIR/mef/YANG-public/src/model/draft/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Standard IEEE published
-(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/published: The 'standard/ieee/published' branch is intended for published standards modules (with approved PARs)." --lint True --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/published/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/published: The 'standard/ieee/published' branch is intended for published standards modules (with approved PARs)." --lint --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/published/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Standard IEEE drafts
-(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/draft: The 'standard/ieee/draft' branch is intended for draft modules with an approved Project Authorization Request (PAR)." --lint True --prefix IEEEStandardDraft --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/draft/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/draft: The 'standard/ieee/draft' branch is intended for draft modules with an approved Project Authorization Request (PAR)." --lint --prefix IEEEStandardDraft --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/draft/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Experimental IEEE
-(python $BIN/yangGeneric.py --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint True --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/" --forcecompilation True >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/" --forcecompilation True >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Standard IANA
-(python $BIN/yangGeneric.py --metadata "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models." --lint True --prefix IANAStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/iana/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models." --lint --prefix IANAStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/iana/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Openconfig
-(python $BIN/yangGeneric.py --metadata "Openconfig: YANG Data Models compilation from https://github.com/openconfig/public" --lint True --prefix Openconfig --rootdir "$NONIETFDIR/openconfig/public/release/models/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "Openconfig: YANG Data Models compilation from https://github.com/openconfig/public" --lint --prefix Openconfig --rootdir "$NONIETFDIR/openconfig/public/release/models/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # ONF Open Transport
-(python $BIN/yangGeneric.py --metadata "ONF Open Transport: YANG Data Models compilation from https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport" --lint True --prefix ONFOpenTransport --rootdir "$NONIETFDIR/onf/Snowmass-ONFOpenTransport" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "ONF Open Transport: YANG Data Models compilation from https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport" --lint --prefix ONFOpenTransport --rootdir "$NONIETFDIR/onf/Snowmass-ONFOpenTransport" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # sysrepo internal
-(python $BIN/yangGeneric.py --metadata "Sysrepo: internal YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/internal" --lint True --prefix SysrepoInternal --rootdir "$NONIETFDIR/sysrepo/yang/internal/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "Sysrepo: internal YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/internal" --lint --prefix SysrepoInternal --rootdir "$NONIETFDIR/sysrepo/yang/internal/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # sysrepo applications
-(python $BIN/yangGeneric.py --metadata "Sysrepo: applications YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/applications" --lint True --prefix SysrepoApplication --rootdir "$NONIETFDIR/sysrepo/yang/applications/" >>$LOG 2>&1) &
+(python $BIN/yangGeneric.py --metadata "Sysrepo: applications YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/applications" --lint --prefix SysrepoApplication --rootdir "$NONIETFDIR/sysrepo/yang/applications/" >>$LOG 2>&1) &
 PIDS+=("$!")
 
 # Wait for all child-processes
@@ -101,7 +101,7 @@ for path in $(ls -d $NONIETFDIR/yangmodels/yang/standard/etsi/*); do
    version=${path##*/etsi/NFV-SOL006-}
    version_number=${version##*v}
    version_alnum=$(echo $version_number | tr -cd '[:alnum:]')
-   (python $BIN/yangGeneric.py --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/etsi-forge/nfv-sol006/tree/$version" --lint True --prefix ETSI$version_alnum --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-$version/src/yang" >>$LOG 2>&1) &
+   (python $BIN/yangGeneric.py --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/etsi-forge/nfv-sol006/tree/$version" --lint --prefix ETSI$version_alnum --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-$version/src/yang" >>$LOG 2>&1) &
    PIDSETSI+=("$!")
 done
 # Wait for all child-processes
@@ -134,7 +134,7 @@ if [ "$IS_PROD" = "True" ]; then
    for path in $(ls -d $TMP/openroadm-public/*/); do
       ((running = running + 1))
       version=$(basename $path)
-      (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint True --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >>$LOG 2>&1) &
+      (python $BIN/yangGeneric.py --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/" >>$LOG 2>&1) &
       PIDS2+=("$!")
       wait_for_processes "${PIDS2[@]}"
    done
@@ -156,7 +156,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/nx/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/nx/$git" --lint --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSNX+=("$!")
       wait_for_processes "${PIDSNX[@]}"
    done
@@ -177,7 +177,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xe/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xe/$git" --lint --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSXE+=("$!")
       wait_for_processes "${PIDSXE[@]}"
    done
@@ -198,7 +198,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xr/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/xr/$git" --lint --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSXR+=("$!")
       wait_for_processes "${PIDSXR[@]}"
    done
@@ -219,7 +219,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/svo/$git" --lint True --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/svo/$git" --lint --prefix Cisco$os$prefix2 --rootdir "$path" >>$LOG 2>&1) &
       PIDSSVO+=("$!")
       wait_for_processes "${PIDSSVO[@]}"
    done
@@ -242,7 +242,7 @@ if [ "$IS_PROD" = "True" ]; then
          slash_removed=${git%/}
          prefix=${slash_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path" >>$LOG 2>&1
+         python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path" >>$LOG 2>&1
       # Juniper/15* does not exist
       elif [ $i -eq 15 ]; then
          continue
@@ -254,7 +254,7 @@ if [ "$IS_PROD" = "True" ]; then
                slash_removed=${git%/}
                prefix=${slash_removed#*/}
                prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-               (python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint True --prefix Juniper$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
+               (python yangGeneric.py --allinclusive True --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path2" >>$LOG 2>&1) &
                PIDJUNIPER+=("$!")
                wait_for_processes "${PIDJUNIPER[@]}"
             done
@@ -278,7 +278,7 @@ if [ "$IS_PROD" = "True" ]; then
          version=${slash_removed%/*}
          platform=${slash_removed#*/}
          prefix=$(echo $slash_removed | tr -cd '[:alnum:]')
-         (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint True --prefix NETWORKROUTER$prefix --rootdir "$path2" >>$LOG 2>&1) &
+         (python yangGeneric.py --allinclusive True --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint --prefix NETWORKROUTER$prefix --rootdir "$path2" >>$LOG 2>&1) &
          PIDSHUAWEI+=("$!")
          wait_for_processes "${PIDSHUAWEI[@]}"
       done
@@ -290,7 +290,7 @@ if [ "$IS_PROD" = "True" ]; then
 
    # Ciena
    date +"%c: processing Ciena modules " >>$LOG
-   python yangGeneric.py --allinclusive True --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint True --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena" >>$LOG 2>&1
+   python yangGeneric.py --allinclusive True --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena" >>$LOG 2>&1
 
    # Fujitsu
    date +"%c: processing Fujitsu modules " >>$LOG
@@ -302,7 +302,7 @@ if [ "$IS_PROD" = "True" ]; then
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]')
-      (python yangGeneric.py --allinclusive True --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint True --prefix Fujitsu$prefix --rootdir "$path" >>$LOG 2>&1) &
+      (python yangGeneric.py --allinclusive True --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint --prefix Fujitsu$prefix --rootdir "$path" >>$LOG 2>&1) &
       PIDSFUJITSU+=("$!")
       wait_for_processes "${PIDSFUJITSU[@]}"
    done
@@ -322,7 +322,7 @@ if [ "$IS_PROD" = "True" ]; then
          slash_removed=${git%/}
          prefix=${slash_removed#*/}
          prefix=$(echo $prefix | tr -cd '[:alnum:]' | sed 's/latestsros//g')
-         (python yangGeneric.py --allinclusive True --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint True --prefix Nokia$prefix --rootdir "$path2" >>$LOG 2>&1) &
+         (python yangGeneric.py --allinclusive True --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint --prefix Nokia$prefix --rootdir "$path2" >>$LOG 2>&1) &
          PIDSNOKIA+=("$!")
          wait_for_processes "${PIDSNOKIA[@]}"
       done
