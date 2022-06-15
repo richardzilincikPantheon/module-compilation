@@ -33,18 +33,12 @@ from parsers.yanglintParser import YanglintParser
 from utility.utility import (check_yangcatalog_data, dict_to_list,
                              list_br_html_addition, module_or_submodule,
                              number_that_passed_compilation, push_to_confd)
-from versions import ValidatorsVersions
 
 __author__ = 'Benoit Claise'
 __copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved'
 __license__ = 'Apache License, Version 2.0'
 __email__ = 'bclaise@cisco.com'
 
-# ----------------------------------------------------------------------
-# Validators versions
-# ----------------------------------------------------------------------
-validators_versions = ValidatorsVersions()
-versions = validators_versions.get_versions()
 
 # ----------------------------------------------------------------------
 # Functions
@@ -301,11 +295,13 @@ def validate(yang_list: t.List[str], fileHasher: FileHasher, config: configparse
             ietf = 'ietf-rfc' if '/YANG-rfc' in yang_file else None
             is_rfc = os.path.isfile(os.path.join(ietf_directory, 'YANG-rfc', yang_file_with_revision))
 
+            new_module_data = {
+                'compilation-status': compilation_status
+            }
             updated_modules.extend(
                 check_yangcatalog_data(
-                    config, yang_file, None, None, None,
-                    compilation_status, module_compilation_results, all_yang_catalog_metadata, is_rfc,
-                    versions, ietf))
+                    config, yang_file, new_module_data, module_compilation_results,
+                    all_yang_catalog_metadata, is_rfc, ietf))
             yang_file_compilation = [compilation_status, *[result for result in compilation_results.values()]]
             if len(updated_modules) > 100:
                 push_to_confd(updated_modules, config)

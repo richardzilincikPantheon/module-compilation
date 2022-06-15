@@ -24,7 +24,6 @@ from create_config import create_config
 from fileHasher import FileHasher
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
                              push_to_confd)
-from versions import ValidatorsVersions
 
 
 class RfcsCompilator:
@@ -45,8 +44,6 @@ class RfcsCompilator:
 
     def compile_rfcs(self, all_yang_catalog_metadata: dict, force_compilation: bool):
         fileHasher = FileHasher(force_compilation)
-        validators_versions = ValidatorsVersions()
-        versions = validators_versions.get_versions()
 
         updated_modules = []
 
@@ -68,11 +65,18 @@ class RfcsCompilator:
                 datatracker_url = 'https://datatracker.ietf.org/doc/html/{}'.format((rfc_name))
                 rfc_url_anchor = '<a href="{}">{}</a>'.format(datatracker_url, rfc_name)
                 compilation_status = None
+                new_module_data = {
+                    'reference': datatracker_url,
+                    'document-name': document_name,
+                    'author-email': mailto,
+                    'compilation-status': compilation_status
+                }
                 updated_modules.extend(
-                    check_yangcatalog_data(self.config, yang_file_path, datatracker_url, document_name, mailto,
-                                           compilation_status, {}, all_yang_catalog_metadata, True, versions, 'ietf-rfc'))
+                    check_yangcatalog_data(self.config, yang_file_path, new_module_data, {},
+                                           all_yang_catalog_metadata, True, 'ietf-rfc'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    push_to_confd(updated_modules, self.config)
+                    updated_modules.clear()
                 fileHasher.updated_hashes[yang_file_path] = file_hash
 
             self.results_dict[yang_file] = rfc_url_anchor

@@ -25,7 +25,6 @@ from fileHasher import FileHasher
 from parsers.pyangParser import PyangParser
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
                              push_to_confd)
-from versions import ValidatorsVersions
 
 
 class ExamplesCompilator:
@@ -55,8 +54,6 @@ class ExamplesCompilator:
     def compile_examples(self, all_yang_catalog_metadata: dict, force_compilation: bool):
         fileHasher = FileHasher(force_compilation)
         pyangParser = PyangParser(self.debug_level)
-        validators_versions = ValidatorsVersions()
-        versions = validators_versions.get_versions()
 
         updated_modules = []
 
@@ -88,12 +85,18 @@ class ExamplesCompilator:
                     'pyang_lint': pyang_result,
                     'pyang': pyang_result_no_ietf_flag
                 }
+                new_module_data = {
+                    'reference': datatracker_url,
+                    'document-name': document_name,
+                    'author-email': mailto,
+                    'compilation-status': compilation_status
+                }
                 updated_modules.extend(
-                    check_yangcatalog_data(self.config, yang_file_path, datatracker_url, document_name, mailto,
-                                           compilation_status, compilation_results, all_yang_catalog_metadata, False,
-                                           versions, 'ietf-example'))
+                    check_yangcatalog_data(self.config, yang_file_path, new_module_data, compilation_results,
+                                           all_yang_catalog_metadata, False, 'ietf-example'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    push_to_confd(updated_modules, self.config)
+                    updated_modules.clear()
                 yang_file_compilation = [draft_url_anchor, email_anchor, compilation_status, pyang_result, pyang_result_no_ietf_flag]
 
                 # Do not store hash if compilation result is 'UNKNOWN' -> try to parse model again next time
