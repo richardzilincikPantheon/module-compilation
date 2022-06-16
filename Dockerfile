@@ -14,7 +14,7 @@ ENV CONFD_VERSION "$CONFD_VERSION"
 ENV YANGLINT_VERSION "$YANGLINT_VERSION"
 ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 PYTHONUNBUFFERED=1
 
-RUN echo "export PATH=$VIRTUAL_ENV/bin:$PATH" >/etc/environment
+RUN echo "export PATH=$SDO_ANALYSIS/bin:$PATH" >/etc/environment
 ENV GIT_PYTHON_GIT_EXECUTABLE=/usr/bin/git
 
 ENV YANG=/.
@@ -46,11 +46,11 @@ ENV WEB_PRIVATE="get_config.py --section Web-Section --key private-directory"
 ENV WEB_DOWNLOADABLES="get_config.py --section Web-Section --key downloadables-directory"
 ENV WEB="get_config.py --section Web-Section --key public-directory"
 
-ENV VIRTUAL_ENV=/sdo_analysis
+ENV SDO_ANALYSIS=/sdo_analysis
 
-RUN groupadd -g ${YANG_GID} -r yang && useradd --no-log-init -r -g yang -u ${YANG_ID} -d $VIRTUAL_ENV yang
+RUN groupadd -g ${YANG_GID} -r yang && useradd --no-log-init -r -g yang -u ${YANG_ID} -d $SDO_ANALYSIS yang
 
-WORKDIR $VIRTUAL_ENV
+WORKDIR $SDO_ANALYSIS
 
 RUN echo postfix postfix/mailname string yangcatalog.org | debconf-set-selections
 RUN echo postfix postfix/main_mailer_type string 'Internet Site' | debconf-set-selections
@@ -68,7 +68,7 @@ RUN mkdir -p /home/libyang/build
 WORKDIR /home/libyang/build
 RUN cmake -D CMAKE_BUILD_TYPE:String="Release" .. && make && make install
 
-WORKDIR $VIRTUAL_ENV
+WORKDIR $SDO_ANALYSIS
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade pip
@@ -76,7 +76,7 @@ COPY ./sdo_analysis/requirements.txt .
 RUN pip3 install -r requirements.txt
 
 RUN mkdir /opt/confd
-COPY ./resources/* $VIRTUAL_ENV/
+COPY ./resources/* $SDO_ANALYSIS/
 COPY ./resources/main.cf /etc/postfix/main.cf
 COPY ./conf/yangdump-pro.conf /etc/yumapro/yangdump-pro.conf
 COPY ./conf/yangdump-pro-allinclusive.conf /etc/yumapro/yangdump-pro-allinclusive.conf
@@ -93,12 +93,12 @@ RUN sed -i "/imklog/s/^/#/" /etc/rsyslog.conf
 
 RUN rm -rf /usr/bin/python
 RUN ln -s /usr/bin/python3 /usr/bin/python
-COPY ./sdo_analysis $VIRTUAL_ENV
+COPY ./sdo_analysis $SDO_ANALYSIS
 RUN cd /sdo_analysis/bin/resources/HTML && python setup.py install
 
 RUN chmod 0777 bin/configure.sh
 
-RUN chown -R yang:yang $VIRTUAL_ENV
+RUN chown -R yang:yang $SDO_ANALYSIS
 USER ${YANG_ID}:${YANG_GID}
 RUN crontab /etc/cron.d/ietf-cron
 
@@ -107,7 +107,7 @@ WORKDIR /
 RUN git config --global user.name miroslavKovacPantheon
 RUN git config --global user.email miroslav.kovac@panetheon.tech
 
-WORKDIR $VIRTUAL_ENV
+WORKDIR $SDO_ANALYSIS
 
 USER root:root
 # Run the command on container startup

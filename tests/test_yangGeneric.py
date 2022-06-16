@@ -29,17 +29,17 @@ class TestYangGeneric(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.resource_path = os.path.join(os.getenv('VIRTUAL_ENV', '/sdo_analysis'), 'tests/resources/yangGeneric')
+        self.resource_path = os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/yangGeneric')
 
     def test_list_of_yang_modules_in_subdir(self):
         result = yg.list_of_yang_modules_in_subdir(os.path.join(self.resource_path, 'dir'), 0)
         self.assertEqual(
             sorted(result),
             [
-                '/sdo_analysis/tests/resources/yangGeneric/dir/bar.yang',
-                '/sdo_analysis/tests/resources/yangGeneric/dir/foo.yang',
-                '/sdo_analysis/tests/resources/yangGeneric/dir/subdir/subfoo.yang',
-                '/sdo_analysis/tests/resources/yangGeneric/dir/subdir/subsubdir/subsubfoo.yang'
+                os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/yangGeneric/dir/bar.yang'),
+                os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/yangGeneric/dir/foo.yang'),
+                os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/yangGeneric/dir/subdir/subfoo.yang'),
+                os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/yangGeneric/dir/subdir/subsubdir/subsubfoo.yang')
             ]
         )
 

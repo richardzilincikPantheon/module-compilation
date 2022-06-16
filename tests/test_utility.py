@@ -30,7 +30,7 @@ class TestUtility(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.resource_path = os.path.join(os.getenv('VIRTUAL_ENV', '/sdo_analysis'), 'tests/resources/utility')
+        self.resource_path = os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/utility')
         self.config = create_config(os.path.join(os.path.dirname(self.resource_path), 'test.conf'))
 
     def test_push_to_confd(self):
