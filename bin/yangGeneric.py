@@ -245,7 +245,7 @@ if __name__ == '__main__':
                         default='')
     parser.add_argument('--lint',
                         help='Optional flag that determines pyang syntax enforcement; '
-                             'If set to "True", pyang --lint is run. '
+                             'If set, pyang --lint is run. '
                              'Otherwise, pyang --ietf is run. '
                              'Default is False',
                         action='store_true',
@@ -253,10 +253,10 @@ if __name__ == '__main__':
     parser.add_argument('--allinclusive',
                         help='Optional flag that determines whether the rootdir directory '
                              'contains all imported YANG modules; '
-                             'If set to "True", the YANG validators will only look in the rootdir directory. '
+                             'If set, the YANG validators will only look in the rootdir directory. '
                              'Otherwise, the YANG validators look in {}. '
                              'Default is False'.format(modules_directory),
-                        type=bool,
+                        action='store_true',
                         default=False)
     parser.add_argument('--prefix',
                         help='Prefix for generating HTML file names. Example: MEF, IEEEStandard, IEEEExperimental. '
@@ -270,7 +270,7 @@ if __name__ == '__main__':
                         help='Optional flag that determines wheter compilation should be run '
                              'for all files even if they have not been changed '
                              'or even if the validators versions have not been changed.',
-                        type=bool,
+                        action='store_true',
                         default=False)
     args = parser.parse_args()
     custom_print('Start of job in {}'.format(args.rootdir))
