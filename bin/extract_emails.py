@@ -85,12 +85,9 @@ if __name__ == '__main__':
     config = create_config()
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
+    draft_path = config.get('Directory-Section', 'ietf-drafts')
+
     parser = argparse.ArgumentParser(description='Extract comma-separated list of email addresses')
-    parser.add_argument('--draftpath',
-                        help='Path to the directory where all the drafts will be stored. '
-                             'Default is {}/my-id-mirror/'.format(ietf_directory),
-                        type=str,
-                        default='{}/my-id-mirror/'.format(ietf_directory))
     parser.add_argument('--debug',
                         help='Debug level - default is 0',
                         type=int,
@@ -99,9 +96,9 @@ if __name__ == '__main__':
 
     debug_level = args.debug
 
-    os.chdir(args.draftpath)
+    os.chdir(draft_path)
 
-    ietf_drafts = list_of_ietf_drafts(args.draftpath)
+    ietf_drafts = list_of_ietf_drafts(draft_path)
     for draft_file in ietf_drafts:
         output = extract_email_string(draft_file, '@cisco.com', debug_level)
         if output and debug_level > 0:

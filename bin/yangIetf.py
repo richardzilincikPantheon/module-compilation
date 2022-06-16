@@ -21,7 +21,6 @@ import argparse
 import datetime
 import json
 import os
-from operator import itemgetter
 
 import requests
 
@@ -72,74 +71,68 @@ if __name__ == '__main__':
     api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('Web-Section', 'protocol-api')
     resutl_html_dir = config.get('Web-Section', 'result-html-dir')
+    draft_path = config.get('Directory-Section', 'ietf-drafts')
+    rfc_path = config.get('Directory-Section', 'ietf-rfcs')
     public_directory = config.get('Web-Section', 'public-directory')
 
     parser = argparse.ArgumentParser(description='YANG RFC/Draft Processor')
-    parser.add_argument('--draftpath',
-                        help='Path to the directory where all the drafts will be stored. '
-                             'Default is {}/my-id-mirror/ '
-                             'To get expired drafts as well, use {}/my-id-archive-mirror/'
-                             .format(ietf_directory, ietf_directory),
-                        type=str,
-                        default='{}/my-id-mirror/'.format(ietf_directory))
-    parser.add_argument('--rfcpath',
-                        help='Path to the directory where all the RFCs will be stored. '
-                             'Default is {}/rfc/'.format(ietf_directory),
-                        type=str,
-                        default='{}/rfc/'.format(ietf_directory))
+    parser.add_argument('--archived',
+                        help='Extract expired drafts as well',
+                        action='store_true',
+                        default=False)
     parser.add_argument('--yangpath',
-                        help='Path to the directory where extracted models will be stored (only correct). '
+                        help='Path to the directory where to extract models (only correct). '
                              'Default is "{}/YANG/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG/'.format(ietf_directory))
     parser.add_argument('--allyangpath',
-                        help='Path to the directory where extracted models will be stored (including bad ones). '
+                        help='Path to the directory where to extract models (including bad ones). '
                              'Default is "{}/YANG-all/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG-all/'.format(ietf_directory))
     parser.add_argument('--allyangexamplepath',
-                        help='Path to the directory where extracted example models will be stored '
+                        help='Path to the directory where to extract example models '
                         '(starting with example- and not with CODE BEGINS/END). '
                         'Default is "{}/YANG-example/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG-example/'.format(ietf_directory))
     parser.add_argument('--yangexampleoldrfcpath',
-                        help='Directory where to store '
+                        help='Path to the directory where to extract '
                              'the hardcoded YANG module example models from old RFCs (not starting with example-). '
                              'Default is "{}/YANG-example-old-rfc/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG-example-old-rfc/'.format(ietf_directory))
     parser.add_argument('--draftpathstrict',
-                        help='Path to the directory where the drafts containing the YANG model(s) are stored - '
+                        help='Path to the directory where to extract the drafts containing the YANG model(s) - '
                         'with xym flag strict=True. '
                         'Default is "{}/draft-with-YANG-strict/"'.format(ietf_directory),
                         type=str,
                         default='{}/draft-with-YANG-strict/'.format(ietf_directory))
     parser.add_argument('--draftpathnostrict',
-                        help='Path to the directory where the drafts containing the YANG model(s) are stored - '
+                        help='Path to the directory where to extract the drafts containing the YANG model(s) - '
                         'with xym flag strict=False. '
                         'Default is "{}/draft-with-YANG-no-strict/"'.format(ietf_directory),
                         type=str,
                         default='{}/draft-with-YANG-no-strict/'.format(ietf_directory))
     parser.add_argument('--draftpathonlyexample',
-                        help='Path to the directory where the drafts containing examples are stored -'
+                        help='Path to the directory where to extract the drafts containing examples -'
                         'with xym flags strict=False and strict_examples=True. '
                         'Default is "{}/draft-with-YANG-example/"'.format(ietf_directory),
                         type=str,
                         default='{}/draft-with-YANG-example/'.format(ietf_directory))
     parser.add_argument('--rfcyangpath',
-                        help='Directory where to store the data models extracted from RFCs. '
+                        help='Path to the directory where to extract the data models extracted from RFCs. '
                              'Default is "{}/YANG-rfc/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG-rfc/'.format(ietf_directory))
     parser.add_argument('--rfcextractionyangpath',
-                        help='Directory where to store '
+                        help='Path to the directory where to extract '
                              'the typedef, grouping, identity from data models extracted from RFCs. '
                              'Default is "{}/YANG-rfc-extraction/"'.format(ietf_directory),
                         type=str,
                         default='{}/YANG-rfc-extraction/'.format(ietf_directory))
     parser.add_argument('--draftelementspath',
-                        help='Directory where to store '
+                        help='Path to the directory where to extract '
                              'the typedef, grouping, identity from data models correctely extracted from drafts. '
                              'Default is "{}/draft-elements/"'.format(ietf_directory),
                         type=str,
@@ -152,11 +145,13 @@ if __name__ == '__main__':
                         help='Optional flag that determines wheter compilation should be run '
                              'for all files even if they have not been changed '
                              'or even if the validators versions have not been changed.',
-                        type=bool,
+                        action='store_true',
                         default=False)
 
     args = parser.parse_args()
-    custom_print('Start of yangIetf.py job in {}'.format(args.draftpath))
+    if args.archived:
+        draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
+    custom_print('Start of yangIetf.py job in {}'.format(draft_path))
     debug_level = args.debug
 
     # Initialize files generator -> used in creating JSON/HTML results files
@@ -181,7 +176,7 @@ if __name__ == '__main__':
         all_yang_catalog_metadata[key] = mod
 
     draft_extractor_paths = {
-        'draft_path': args.draftpath,
+        'draft_path': draft_path,
         'yang_path': args.yangpath,
         'draft_elements_path': args.draftelementspath,
         'draft_path_strict': args.draftpathstrict,
@@ -208,7 +203,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # Extract YANG models from IETF RFCs files
     # ----------------------------------------------------------------------
-    rfcExtractor = RFCExtractor(args.rfcpath, args.rfcyangpath, args.rfcextractionyangpath, args.debug)
+    rfcExtractor = RFCExtractor(rfc_path, args.rfcyangpath, args.rfcextractionyangpath, args.debug)
     rfcExtractor.extract_rfcs()
     rfcExtractor.invert_dict()
     rfcExtractor.remove_invalid_files()
@@ -278,7 +273,7 @@ if __name__ == '__main__':
     # Compile modules extracted from drafts
     # ----------------------------------------------------------------------
     paths = {
-        'draftpath': args.draftpath,
+        'draftpath': draft_path,
         'rfcpath': args.rfcyangpath
     }
     custom_print('Starting compilation in {} directory'.format(args.yangpath))

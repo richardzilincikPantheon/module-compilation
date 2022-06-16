@@ -30,16 +30,6 @@ if __name__ == '__main__':
     web_private = config.get('Web-Section', 'private-directory')
     backup_directory = config.get('Directory-Section', 'backup')
     parser = argparse.ArgumentParser(description='Append creation timestamps to filenames')
-    parser.add_argument('--documentpath',
-                        help='Directory containing the file to backup. '
-                             'Default is {}'.format(web_private),
-                        type=str,
-                        default=web_private)
-    parser.add_argument('--backuppath',
-                        help='Directory where to backup the file. '
-                             'Default is {}'.format(backup_directory),
-                        type=str,
-                        default=backup_directory)
     parser.add_argument('--debug',
                         help='Debug level - default is 0',
                         type=int,
@@ -58,14 +48,14 @@ if __name__ == '__main__':
     for file in name_to_backup:
         file_no_extension = file.split('.')[0]
         file_extension = file.split('.')[-1]
-        full_path_file = os.path.join(args.documentpath, file)
+        full_path_file = os.path.join(web_private, file)
         if os.path.isfile(full_path_file):
             modifiedTime = os.path.getmtime(full_path_file)
             timestamp = (datetime.fromtimestamp(modifiedTime).strftime("%Y_%m_%d"))
             if file_no_extension == 'IETFYANGRFC':
                 file_no_extension = 'IETFYANGOutOfRFC'
             new_filename = '{}_{}.{}'.format(file_no_extension, timestamp, file_extension)
-            new_full_path_file = os.path.join(args.backuppath, new_filename)
+            new_full_path_file = os.path.join(backup_directory, new_filename)
             if debug_level > 0:
                 print("file full path: " + full_path_file)
                 print("file without extension: " + file_no_extension)

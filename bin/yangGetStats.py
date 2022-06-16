@@ -125,7 +125,7 @@ def list_of_ietf_draft_containing_keyword(drafts, keyword, draftpath, debug_leve
     list_of_ietf_draft_with_keyword = []
     for f in drafts:
         file_included = False
-        for line in open(draftpath + f, 'r', encoding='utf-8'):
+        for line in open(os.path.join(draftpath , f), 'r', encoding='utf-8'):
             if keyword in line.lower():
                 file_included = True
                 if debug_level > 0:
@@ -150,9 +150,9 @@ def write_dictionary_file_in_json(in_dict, path, file_name):
     :param file_name: The file name to be created
     :return: None
     """
-    with open(path + file_name, 'w', encoding='utf-8') as outfile:
+    with open(os.path.join(path, file_name), 'w', encoding='utf-8') as outfile:
         json.dump(in_dict, outfile, indent=2, sort_keys=True, separators=(',', ': '), ensure_ascii=True)
-    os.chmod(path + file_name, 0o664)
+    os.chmod(os.path.join(path, file_name), 0o664)
 
 
 # ----------------------------------------------------------------------
@@ -164,33 +164,16 @@ if __name__ == '__main__':
     backup_directory = config.get('Directory-Section', 'backup') + '/'
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
+    draft_path_strict = os.path.join(ietf_directory, 'draft-with-YANG-strict')
+    draft_path_nostrict = os.path.join(ietf_directory, 'draft-with-YANG-no-strict')
+    draft_path_diff = os.path.join(ietf_directory, 'draft-with-YANG-diff')
+    stats_path = os.path.join(web_private, 'stats')
+
     parser = argparse.ArgumentParser(description='YANG Stats Extractor')
     parser.add_argument('--days',
                         help='Numbers of days to get back in history. Default is -1 = unlimited',
                         type=int,
                         default=-1)
-    parser.add_argument('--draftpathstrict',
-                        help='Path to the directory where the drafts containing the YANG model(s) are stored - '
-                        'with xym flag strict=True. '
-                        'Default is "{}/draft-with-YANG-strict/"'.format(ietf_directory),
-                        type=str,
-                        default='{}/draft-with-YANG-strict/'.format(ietf_directory))
-    parser.add_argument('--draftpathnostrict',
-                        help='Path to the directory where the drafts containing the YANG model(s) are stored - '
-                        'with xym flag strict=False. '
-                        'Default is "{}/draft-with-YANG-no-strict/"'.format(ietf_directory),
-                        type=str,
-                        default='{}/draft-with-YANG-no-strict/'.format(ietf_directory))
-    parser.add_argument('--draftpathdiff',
-                        help='Path to the directory where IETF drafts containing YANG model(s), diff from flag = True and False. '
-                             'Default is "{}/draft-with-YANG-diff/"'.format(ietf_directory),
-                        type=str,
-                        default='{}/draft-with-YANG-diff/'.format(ietf_directory))
-    parser.add_argument('--statspath',
-                        help='Path to the directory where stat files are stored. '
-                             'Default is "{}/stats/"'.format(web_private),
-                        type=str,
-                        default='{}/stats/'.format(web_private))
     parser.add_argument('--debug',
                         help='Debug level - default is 0',
                         type=int,
@@ -263,7 +246,7 @@ if __name__ == '__main__':
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
             json.dump(yangPageCompilationStats, f)
-        write_dictionary_file_in_json(yangPageCompilationStats, args.statspath, "YANGPageMainStats.json")
+        write_dictionary_file_in_json(yangPageCompilationStats, stats_path, "YANGPageMainStats.json")
 
     prefix = "IETFYANGPageMain_"
     json_history_file = '{}/{}history.json'.format(backup_directory, prefix)
@@ -315,7 +298,7 @@ if __name__ == '__main__':
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
             json.dump(yangPageCompilationStats, f)
-        write_dictionary_file_in_json(yangPageCompilationStats, args.statspath, "IETFYANGPageMainStats.json")
+        write_dictionary_file_in_json(yangPageCompilationStats, stats_path, "IETFYANGPageMainStats.json")
 
     backup_prefix = ['HydrogenODLPageCompilation_', 'HeliumODLPageCompilation_',
                      'LithiumODLPageCompilation_', 'IETFCiscoAuthorsYANGPageCompilation_',
@@ -374,12 +357,12 @@ if __name__ == '__main__':
             if prefix == "IETFDraftYANGPageCompilation_":
                 with open(json_history_file, 'w') as f:
                     json.dump(yangPageCompilationStats, f)
-                write_dictionary_file_in_json(yangPageCompilationStats, args.statspath,
+                write_dictionary_file_in_json(yangPageCompilationStats, stats_path,
                                               "IETFYANGPageCompilationStats.json")
             else:
                 with open(json_history_file, 'w') as f:
                     json.dump(yangPageCompilationStats, f)
-                write_dictionary_file_in_json(yangPageCompilationStats, args.statspath,
+                write_dictionary_file_in_json(yangPageCompilationStats, stats_path,
                                               "{}Stats.json".format(prefix[:-1]))
 
     # Print the number of RFCs per date, and store the info into a json file
@@ -417,12 +400,12 @@ if __name__ == '__main__':
     if int(args.days) == -1:
         with open(json_history_file, 'w') as f:
             json.dump(yangPageCompilationStats, f)
-        write_dictionary_file_in_json(yangPageCompilationStats, args.statspath, "IETFYANGOutOfRFCStats.json")
+        write_dictionary_file_in_json(yangPageCompilationStats, stats_path, "IETFYANGOutOfRFCStats.json")
 
     # determine the number of company authored drafts
-    files = [f for f in os.listdir(args.draftpathstrict) if os.path.isfile(os.path.join(args.draftpathstrict, f))]
-    files_no_strict = [f for f in os.listdir(args.draftpathnostrict) if
-                       os.path.isfile(os.path.join(args.draftpathnostrict, f))]
+    files = [f for f in os.listdir(draft_path_strict) if os.path.isfile(os.path.join(draft_path_strict, f))]
+    files_no_strict = [f for f in os.listdir(draft_path_nostrict) if
+                       os.path.isfile(os.path.join(draft_path_nostrict, f))]
     total_number_drafts = len(files)
     total_number_drafts_no_strict = len(files_no_strict)
 
@@ -463,9 +446,9 @@ if __name__ == '__main__':
         if not name and not domain:
             print()
         else:
-            strict = len(list_of_ietf_draft_containing_keyword(files, domain, args.draftpathstrict, debug_level))
+            strict = len(list_of_ietf_draft_containing_keyword(files, domain, draft_path_strict, debug_level))
             non_strict = len(list_of_ietf_draft_containing_keyword(files_no_strict, domain,
-                                                                   args.draftpathnostrict, debug_level))
+                                                                   draft_path_nostrict, debug_level))
             print('{}: {} - non strict rules: {}'.format(name, strict, non_strict))
 
     print()
@@ -489,7 +472,7 @@ if __name__ == '__main__':
     for f in files_no_strict:
         if f not in files:
             files_diff.append(f)
-            bash_command = "cp " + args.draftpathnostrict + f + " " + args.draftpathdiff
+            bash_command = "cp " + draft_path_nostrict + f + " " + draft_path_diff
             temp_result = os.popen(bash_command).read()
             if debug_level > 0:
                 print(
