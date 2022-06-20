@@ -230,8 +230,6 @@ if __name__ == '__main__':
     modules_directory = config.get('Directory-Section', 'modules-directory')
     temp_dir = config.get('Directory-Section', 'temp')
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
-    pyang_exec = config.get('Tool-Section', 'pyang-exec')
-    confdc_exec = config.get('Tool-Section', 'confdc-exec')
 
     parser = argparse.ArgumentParser(
         description='YANG Document Processor: generate tables with compilation errors/warnings')

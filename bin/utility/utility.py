@@ -179,7 +179,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
                 break
     if not found:
         print('Error: file {} not found in dir or subdir of {}'.format(yang_file, yang_path))
-    name_revision_command = '{} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
+    name_revision_command = 'pypy3 {} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
     name_revision = os.popen(name_revision_command).read().rstrip().split(' ')[0]
     if '@' not in name_revision:
         name_revision += '@1970-01-01'
