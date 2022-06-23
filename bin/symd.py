@@ -399,8 +399,7 @@ def plot_module_dependency_graph(graph):
     """
 #    fixed_positions = {node: [0.5, 0.5] }
 #    print(fixed_positions)
-    k = 1 / math.sqrt(len(graph))
-    pos = nx.spring_layout(graph, iterations=2000, k=k, center=[0.5, 0.5])
+    pos = nx.spring_layout(graph, iterations=50, center=[0.5, 0.5], weight=2, k=0.6)
 #EVY    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-5, fixed=fixed_positions, k=k, center=[0.5, 0.5])
 #    pos = nx.spring_layout(graph, iterations=2000, threshold=1e-6)
     print(pos)
