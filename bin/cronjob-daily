@@ -19,10 +19,10 @@ cd $BIN
 source configure.sh
 date +"%c: Downloading from GitHub YangModels"
 rundownloadgithub.sh
-date +"%c: Starting runYANGGenericstats.sh"
-runYANGgenericstats.sh
 date +"%c: Starting runIETFstats.sh"
 runIETFstats.sh
+date +"%c: Starting runYANGGenericstats.sh"
+runYANGgenericstats.sh
 date +"%c: Starting rename-file-backup.py"
 mkdir -p $BACKUPDIR
 python rename-file-backup.py

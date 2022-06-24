@@ -76,9 +76,7 @@ def main():
 
         custom_print('Extracting modules from drafts stored in {}'.format(archived_draft_path))
         draftExtractor = DraftExtractor(draft_extractor_paths, args.debug, extract_elements=False, extract_examples=False)
-        draftExtractor.extract_drafts()
-        draftExtractor.invert_dict()
-        draftExtractor.remove_invalid_files()
+        draftExtractor.extract()
     except Exception:
         custom_print('Error occured while extracting modules')
         end = int(time.time())

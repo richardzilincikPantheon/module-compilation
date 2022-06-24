@@ -30,6 +30,9 @@ class TestYangGeneric(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.resource_path = os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/yangGeneric')
+        yg.debug_level = 0
+        yg.draft_path = '/foo/bar'
+        yg.web_url = 'https://foo.bar'
 
     def test_list_of_yang_modules_in_subdir(self):
         result = yg.list_of_yang_modules_in_subdir(os.path.join(self.resource_path, 'dir'), 0)
@@ -55,90 +58,6 @@ class TestYangGeneric(unittest.TestCase):
 
         result = yg.pyang_compilation_status('foo\nbar\nfoobar\n')
         self.assertEqual(result, 'UNKNOWN')
-    
-    def test_confd_compilation_status(self):
-        result = yg.confd_compilation_status('warning: foo\nerror: bar\nfoobar\n')
-        self.assertEqual(result, 'FAILED')
-
-        result = yg.confd_compilation_status('foo\nwarning: bar\n foobar\n')
-        self.assertEqual(result, 'PASSED WITH WARNINGS')
-
-        result = yg.confd_compilation_status('')
-        self.assertEqual(result, 'PASSED')
-
-        result = yg.confd_compilation_status('foo\nbar\nfoobar\n')
-        self.assertEqual(result, 'UNKNOWN')
-
-        # NOTE: is this intended behavior?
-        result = yg.confd_compilation_status('error: foo\nerror: cannot compile submodules; compile the module instead\nbar\n')
-        self.assertEqual(result, 'PASSED')
-
-    def test_yuma_compilation_status(self):
-        result = yg.yuma_compilation_status(
-            'foo@bar.yang:2.2: warning(42): foobar\n'
-            'foo@bar.yang:1.1: error(42): foobar\n'
-            'foo@bar.yang:3.3: error(332): foobar\n'
-            '*** 2 Errors, 1 Warnings',
-            'foo@bar.yang'
-        )
-        self.assertEqual(result, 'FAILED')
-
-        result = yg.yuma_compilation_status(
-            'foo@bar.yang:3.3: error(332): foobar\n'
-            'foo@bar.yang:2.2: warning(42): foobar\n'
-            'bar@foo.yang:1.1: error(42): foobar\n'
-            '*** 1 Errors, 1 Warnings',
-            'foo@bar.yang'
-        )
-        self.assertEqual(result, 'PASSED WITH WARNINGS')
-
-        result = yg.yuma_compilation_status(
-            'foo@bar.yang:3.3: error(332): foobar\n'
-            'bar@foo.yang:1.1: error(42): foobar\n'
-            'bar@foo.yang:3.3: warning(42): foobar\n'
-            'foo@bar.yang:3.3: error(332): foobar\n'
-            'far@boo.yang:4.4: error(42): foobar\n'
-            '*** 2 Errors, 0 Warnings',
-            'foo@bar.yang'
-        )
-        self.assertEqual(result, 'PASSED')
-
-        result = yg.yuma_compilation_status('', 'foo@bar.yang')
-        self.assertEqual(result, 'PASSED')
-
-        result = yg.yuma_compilation_status('foo\nbar\nfoobar\n', 'foo@bar.yang')
-        self.assertEqual(result, 'UNKNOWN')
-
-    def test_yanglint_compilation_status(self):
-        result = yg.yanglint_compilation_status('warn: foo\nerr : bar\nfoobar\n')
-        self.assertEqual(result, 'FAILED')
-
-        result = yg.yanglint_compilation_status(
-            'err : Input data contains submodule which cannot be parsed directly without its main module.\n foobar'
-        )
-        self.assertEqual(result, 'PASSED')
-
-        result = yg.yanglint_compilation_status('foo\nwarn: bar\n foobar\n')
-        self.assertEqual(result, 'PASSED WITH WARNINGS')
-
-        result = yg.yanglint_compilation_status('')
-        self.assertEqual(result, 'PASSED')
-
-        result = yg.yanglint_compilation_status('foo\nbar\nfoobar\n')
-        self.assertEqual(result, 'UNKNOWN')
-
-    def test_combined_compilation_status(self):
-        result = yg.combined_compilation_status(['PASSED', 'FAILED', 'PASSED WITH WARNINGS', 'UNKNOWN'])
-        self.assertEqual(result, 'FAILED')
-
-        result = yg.combined_compilation_status(['PASSED', 'PASSED', 'PASSED WITH WARNINGS', 'UNKNOWN'])
-        self.assertEqual(result, 'PASSED WITH WARNINGS')
-
-        result = yg.combined_compilation_status(['PASSED', 'PASSED', 'PASSED', 'PASSED'])
-        self.assertEqual(result, 'PASSED')
-
-        result = yg.combined_compilation_status(['PASSED', 'UNKNOWN', 'PASSED', 'PASSED'])
-        self.assertEqual(result, 'UNKNOWN')
 
     def test_get_mod_rev(self):
         result = yg.get_mod_rev(os.path.join(self.resource_path, 'yang-catalog@2017-09-26.yang'))
@@ -162,3 +81,119 @@ class TestYangGeneric(unittest.TestCase):
         with mock.patch('yangGeneric.open', mock.MagicMock(side_effect=Exception)):
             result = yg.get_modules('/var/yang/tmp', 'http://0.0.0.0')
         self.assertEqual(result, {'requested': 'data'})
+
+    def test_metadata_generator(self):
+        compilation_results = {
+            'pyang_lint': 'foo',
+            'pyang': 'bar'
+        }
+        mg = yg.MetadataGenerator(compilation_results, 'FAILED', '/foo/bar.yang')
+
+        result = mg.get_file_compilation()
+        self.assertEqual(result, ['FAILED', 'foo', 'bar'])
+
+        result = mg.get_confd_metadata()
+        self.assertEqual(result, {'compilation-status': 'FAILED'})
+
+    @mock.patch('yangGeneric.document_dict', {'bar.yang': 'rfc42.txt'})
+    def test_rfc_metadata_generator(self):
+        compilation_results = {
+            'pyang_lint': 'foo',
+            'pyang': 'bar',
+            'confdrc': 'boo',
+            'yumadump': 'far',
+            'yanglint': 'foobar',
+        }
+        mg = yg.RfcMetadataGenerator(compilation_results, 'FAILED', '/foo/bar.yang')
+
+        result = mg.get_file_compilation()
+        self.assertEqual(result, ['FAILED', 'foo', 'bar', 'boo', 'far', 'foobar'])
+
+        result = mg.get_confd_metadata()
+        self.assertEqual(result, {
+            'compilation-status': 'FAILED',
+            'reference': 'https://datatracker.ietf.org/doc/html/rfc42',
+            'document-name': 'rfc42.txt',
+            'author-email': None
+        })
+
+    @mock.patch('yangGeneric.extract_email_string')
+    def test_draft_metadata_generator(self, mock_extract_email_string):
+        yg.document_dict = {'bar.yang': 'draft-foo-bar-42.txt'}
+        compilation_results = {
+            'pyang_lint': 'foo',
+            'pyang': 'bar',
+            'confdrc': 'boo',
+            'yumadump': 'far',
+            'yanglint': 'foobar',
+        }
+
+        def extract_email_string(draft_path: str, email_domain: str, debug_level: int):
+            if email_domain == '@cisco.com':
+                return 'foo@cisco.com'
+            elif email_domain == '@tail-f.com':
+                return 'foo@tail-f.com'
+            else:
+                raise Exception
+        
+        mock_extract_email_string.side_effect = extract_email_string
+        document_name = 'draft-foo-bar-42.txt'
+        version_number = 'draft-foo-bar-42'.split('-')[-1]
+        mailto = '{}@ietf.org'.format('draft-foo-bar-42')
+        draft_name = 'draft-foo-bar'
+        datatracker_url = 'https://datatracker.ietf.org/doc/{}/{}'.format(draft_name, version_number)
+        draft_url_anchor = '<a href="{}">{}</a>'.format(datatracker_url, document_name)
+        email_anchor = '<a href="mailto:{}">Email Authors</a>'.format(mailto)
+        cisco_email_anchor = '<a href="mailto:foo@cisco.com,foo@tail-f.com">Email Cisco Authors Only</a>'
+        yang_model_anchor = '<a href="https://foo.bar/YANG-modules/bar.yang">Download the YANG model</a>'
+        mg = yg.DraftMetadataGenerator(compilation_results, 'FAILED', '/foo/bar.yang')
+
+        expected = [draft_url_anchor, email_anchor, cisco_email_anchor, yang_model_anchor, 'FAILED']
+        expected += [result for result in compilation_results.values()]
+        result = mg.get_file_compilation()
+        self.assertEqual(result, expected)
+
+        result = mg.get_confd_metadata()
+        self.assertEqual(result, {
+            'compilation-status': 'FAILED',
+            'reference': datatracker_url,
+            'document-name': document_name,
+            'author-email': mailto
+        })
+
+    @mock.patch('yangGeneric.extract_email_string')
+    def test_example_metadata_generator(self, mock_extract_email_string):
+        yg.document_dict = {'bar.yang': 'draft-foo-bar-42.txt'}
+        compilation_results = {
+            'pyang_lint': 'foo',
+            'pyang': 'bar',
+            'confdrc': 'boo',
+            'yumadump': 'far',
+            'yanglint': 'foobar',
+        }
+
+        def extract_email_string(draft_path: str, email_domain: str, debug_level: int):
+            if email_domain == '@cisco.com':
+                return 'foo@cisco.com'
+            elif email_domain == '@tail-f.com':
+                return 'foo@tail-f.com'
+            else:
+                raise Exception
+        
+        mock_extract_email_string.side_effect = extract_email_string
+        document_name = 'draft-foo-bar-42.txt'
+        version_number = 'draft-foo-bar-42'.split('-')[-1]
+        mailto = '{}@ietf.org'.format('draft-foo-bar-42')
+        draft_name = 'draft-foo-bar'
+        datatracker_url = 'https://datatracker.ietf.org/doc/{}/{}'.format(draft_name, version_number)
+        draft_url_anchor = '<a href="{}">{}</a>'.format(datatracker_url, document_name)
+        email_anchor = '<a href="mailto:{}">Email Authors</a>'.format(mailto)
+        mg = yg.ExampleMetadataGenerator(compilation_results, 'FAILED', '/foo/bar.yang')
+
+        expected = [draft_url_anchor, email_anchor, 'FAILED']
+        expected += [result for result in compilation_results.values()]
+        result = mg.get_file_compilation()
+        self.assertEqual(result, expected)
+
+        result = mg.get_confd_metadata()
+        self.assertEqual(result, {})

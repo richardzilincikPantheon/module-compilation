@@ -24,20 +24,95 @@ import requests
 from filelock import FileLock
 
 from create_config import create_config
+from compilation_status import combined_compilation, pyang_compilation_status
+from extract_emails import extract_email_string
 from fileHasher import FileHasher
 from filesGenerator import FilesGenerator
 from parsers.confdcParser import ConfdcParser
 from parsers.pyangParser import PyangParser
 from parsers.yangdumpProParser import YangdumpProParser
 from parsers.yanglintParser import YanglintParser
-from utility.utility import (check_yangcatalog_data, dict_to_list,
-                             list_br_html_addition, module_or_submodule,
+from utility.utility import (check_yangcatalog_data, module_or_submodule,
                              number_that_passed_compilation, push_to_confd)
 
 __author__ = 'Benoit Claise'
-__copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved'
+__copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2022, All Rights Reserved'
 __license__ = 'Apache License, Version 2.0'
 __email__ = 'bclaise@cisco.com'
+
+
+# Classes for generating compilation result table rows and metadata to be uploaded to confd
+
+class MetadataGenerator:
+
+    def __init__(self, compilation_results: dict, compilation_status:str, yang_file: str):
+        self.compilation_results = compilation_results
+        self.compilation_status = compilation_status
+        self.yang_file_name = os.path.basename(yang_file)
+
+    def get_confd_metadata(self):
+        return {'compilation-status': self.compilation_status}
+
+    def get_file_compilation(self):
+        return [self.compilation_status, *[result for result in self.compilation_results.values()]]
+
+class RfcMetadataGenerator(MetadataGenerator):
+
+    def get_confd_metadata(self):
+        document_name = document_dict[self.yang_file_name]
+        rfc_name = document_name.split('.')[0]
+        datatracker_url = 'https://datatracker.ietf.org/doc/html/{}'.format(rfc_name)
+        return {
+            'compilation-status': self.compilation_status,
+            'reference': datatracker_url,
+            'document-name': document_name,
+            'author-email': None
+        }
+
+
+class DraftMetadataGenerator(MetadataGenerator):
+
+    def __init__(self, compilation_results: dict, compilation_status:str, yang_file: str):
+        super().__init__(compilation_results, compilation_status, yang_file)
+        self.document_name = document_dict[self.yang_file_name]
+        draft_name = self.document_name.split('.')[0]
+        version_number = draft_name.split('-')[-1]
+        self.mailto = '{}@ietf.org'.format(draft_name)
+        draft_name = draft_name.rstrip('-0123456789')
+        self.datatracker_url = 'https://datatracker.ietf.org/doc/{}/{}'.format(draft_name, version_number)
+        self.draft_url_anchor = '<a href="{}">{}</a>'.format(self.datatracker_url, self.document_name)
+        self.email_anchor = '<a href="mailto:{}">Email Authors</a>'.format(self.mailto)
+
+
+    def get_confd_metadata(self):
+        return {
+            'compilation-status': self.compilation_status,
+            'reference': self.datatracker_url,
+            'document-name': self.document_name,
+            'author-email': self.mailto
+        }
+
+    def get_file_compilation(self):
+        draft_file_path = os.path.join(draft_path, document_dict[self.yang_file_name])
+        cisco_email = extract_email_string(draft_file_path, '@cisco.com', debug_level)
+        tailf_email = extract_email_string(draft_file_path, '@tail-f.com', debug_level)
+
+        draft_emails = ','.join(filter(None, [cisco_email, tailf_email]))
+        cisco_email_anchor = '<a href="mailto:{}">Email Cisco Authors Only</a>'.format(draft_emails)
+        yang_model_url = '{}/YANG-modules/{}'.format(web_url, self.yang_file_name)
+        yang_model_anchor = '<a href="{}">Download the YANG model</a>'.format(yang_model_url)
+        return [self.draft_url_anchor, self.email_anchor, cisco_email_anchor, yang_model_anchor, self.compilation_status,
+                *[result for result in self.compilation_results.values()]]
+
+
+class ExampleMetadataGenerator(DraftMetadataGenerator):
+
+    def get_confd_metadata(self):
+        return {}
+
+    def get_file_compilation(self):
+        return [self.draft_url_anchor, self.email_anchor, self.compilation_status,
+                *[result for result in self.compilation_results.values()]]
 
 
 # ----------------------------------------------------------------------
@@ -62,106 +137,6 @@ def list_of_yang_modules_in_subdir(srcdir: str, debug_level: int):
                     print(os.path.join(root, f))
                 ll.append(os.path.join(root, f))
     return ll
-
-
-def pyang_compilation_status(compilation_result: str) -> str:
-    if 'error:' in compilation_result:
-        ret = 'FAILED'
-    elif 'warning:' in compilation_result:
-        ret = 'PASSED WITH WARNINGS'
-    elif compilation_result == '':
-        ret = 'PASSED'
-    else:
-        ret = 'UNKNOWN'
-    return ret
-
-
-def confd_compilation_status(compilation_result: str) -> str:
-    if 'error:' in compilation_result:
-        ret = 'FAILED'
-    #   The following doesn't work. For example, ietf-diffserv@2016-06-15.yang, now PASSED (TBC):
-    #     Error: 'ietf-diffserv@2016-06-15.yang' import of module 'ietf-qos-policy' failed
-    #     ietf-diffserv@2016-06-15.yang:11.3: error(250): definition not found
-    #   This issue is that an import module that fails => report the main module as FAILED
-    #   Another issue with ietf-bgp-common-structure.yang
-    elif 'warning:' in compilation_result:
-        ret = 'PASSED WITH WARNINGS'
-    elif compilation_result == '':
-        ret = 'PASSED'
-    else:
-        ret = 'UNKNOWN'
-    # 'cannot compile submodules; compile the module instead' error message
-    # => still print the message, but doesn't report it as FAILED
-    if 'error: cannot compile submodules; compile the module instead' in compilation_result:
-        ret = 'PASSED'
-    return ret
-
-
-def yuma_compilation_status(compilation_result: str, yang_file_name: str) -> str:
-    imports_with_errors = 0
-    lines = compilation_result.splitlines()
-    for line in lines:
-        if re.search(r'{}:\d+\.\d+: error\(\d+\):'.format(yang_file_name), line):
-            if 'error(332)' not in line:
-                return 'FAILED'
-            else:
-                imports_with_errors += 1
-
-    for line in lines:
-        if re.search(r'{}:\d+\.\d+: warning\(\d+\):'.format(yang_file_name), line):
-            return 'PASSED WITH WARNINGS'
-    if '*** {} Errors, 0 Warnings'.format(imports_with_errors) in compilation_result or compilation_result == '':
-        ret = 'PASSED'
-    else:
-        ret = 'UNKNOWN'
-    return ret
-
-
-def yanglint_compilation_status(compilation_result: str) -> str:
-    # logic for yanglint compilation result:
-    if 'err :' in compilation_result:
-        ret = 'FAILED'
-    elif 'warn:' in compilation_result:
-        ret = 'PASSED WITH WARNINGS'
-    elif compilation_result == '':
-        ret = 'PASSED'
-    else:
-        ret = 'UNKNOWN'
-    # 'err : Input data contains submodule which cannot be parsed directly without its main module.' error message
-    # => still print the message, but doesn't report it as FAILED
-    if 'err : Input data contains submodule which cannot be parsed directly without its main module.' in compilation_result:
-        ret = 'PASSED'
-    return ret
-
-
-def combined_compilation_status(compilation_list: t.List[str]) -> str:
-    if 'FAILED' in compilation_list:
-        ret = 'FAILED'
-    elif 'PASSED WITH WARNINGS' in compilation_list:
-        ret = 'PASSED WITH WARNINGS'
-    elif compilation_list == ['PASSED', 'PASSED', 'PASSED', 'PASSED']:
-        ret = 'PASSED'
-    else:
-        ret = 'UNKNOWN'
-    return ret
-
-
-def combined_compilation(yang_file_name: str, result: t.Dict[str, str]) -> str:
-    """
-    Determine the combined compilation result based on individual compilation results from parsers.
-
-    Arguments:
-        :param yang_file_name   (str) Name of the yang file
-        :param result           (dict) Dictionary of compilation results with following keys:
-                                        pyang_lint, confdrc, yumadump, yanglint
-    :return: the combined compilation result
-    """
-    compilation_pyang = pyang_compilation_status(result['pyang_lint'])
-    compilation_confd = confd_compilation_status(result['confdrc'])
-    compilation_yuma = yuma_compilation_status(result['yumadump'], yang_file_name)
-    compilation_yanglint = yanglint_compilation_status(result['yanglint'])
-
-    return combined_compilation_status([compilation_pyang, compilation_confd, compilation_yuma, compilation_yanglint])
 
 
 def get_mod_rev(yang_file) -> str:
@@ -219,7 +194,7 @@ def get_name_with_revision(yang_file: str) -> str:
             return yang_file_base
         else:
             new_yang_file_base_with_revision = out.rstrip() + '.yang'
-            if args.debug > 0:
+            if debug_level > 0:
                 print(
                     "DEBUG: Adding the revision to YANG module because xym can't get revision(missing from the YANG module): " + yang_file)
                 print('DEBUG:  out: ' + new_yang_file_base_with_revision)
@@ -244,12 +219,12 @@ def get_modules(temp_dir: str, prefix: str) -> dict:
     return modules
 
 
-def parse_module(parsers: dict, yang_file: str):
-    result_pyang = parsers['pyang'].run_pyang_lint(args.rootdir, yang_file, args.lint, args.allinclusive, True)
-    result_no_pyang_param = parsers['pyang'].run_pyang_lint(args.rootdir, yang_file, args.lint, args.allinclusive, False)
-    result_confd = parsers['confdc'].run_confdc(yang_file, args.rootdir, args.allinclusive)
-    result_yuma = parsers['yumadumppro'].run_yumadumppro(yang_file, args.rootdir, args.allinclusive)
-    result_yanglint = parsers['yanglint'].run_yanglint(yang_file, args.rootdir, args.allinclusive)
+def parse_module(parsers: dict, yang_file: str, root_directory: str, lint: bool, allinclusive: bool):
+    result_pyang = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, True)
+    result_no_pyang_param = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, False)
+    result_confd = parsers['confdc'].run_confdc(yang_file, root_directory, allinclusive)
+    result_yuma = parsers['yangdumppro'].run_yumadumppro(yang_file, root_directory, allinclusive)
+    result_yanglint = parsers['yanglint'].run_yanglint(yang_file, root_directory, allinclusive)
     module_compilation_results = {
         'pyang_lint': result_pyang,
         'pyang': result_no_pyang_param,
@@ -261,15 +236,25 @@ def parse_module(parsers: dict, yang_file: str):
     return compilation_status, module_compilation_results
 
 
-def validate(yang_list: t.List[str], fileHasher: FileHasher, config: configparser.ConfigParser, debug: int):
+def parse_example_module(parsers: dict, yang_file: str, root_directory: str, lint: bool, allinclusive: bool):
+    result_pyang = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, True)
+    result_no_pyang_param = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, False)
+    module_compilation_results = {
+    'pyang_lint': result_pyang,
+    'pyang': result_no_pyang_param
+    }
+    compilation_status = pyang_compilation_status(result_pyang)
+    return compilation_status, module_compilation_results
+
+
+def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict) -> dict:
     updated_modules = []
-    compilation_results = {}
-    no_submodules = {}
+    agregate_results = {'all': {}, 'no_submodules': {}}
     parsers = {
-        'pyang': PyangParser(debug),
-        'confdc': ConfdcParser(debug),
-        'yangdumppro': YangdumpProParser(debug),
-        'yanglint': YanglintParser(debug)
+        'pyang': PyangParser(debug_level),
+        'confdc': ConfdcParser(debug_level),
+        'yangdumppro': YangdumpProParser(debug_level),
+        'yanglint': YanglintParser(debug_level)
     }
     all_yang_catalog_metadata = {}
     for module in modules['module']:
@@ -278,7 +263,7 @@ def validate(yang_list: t.List[str], fileHasher: FileHasher, config: configparse
 
     # Load compilation results from .json file, if any exists
     try:
-        with open('{}/{}.json'.format(web_private, args.prefix), 'r') as f:
+        with open('{}/{}.json'.format(web_private, prefix), 'r') as f:
             cached_compilation_results = json.load(f)
     except Exception:
         cached_compilation_results = {}
@@ -289,20 +274,18 @@ def validate(yang_list: t.List[str], fileHasher: FileHasher, config: configparse
         yang_file_compilation = cached_compilation_results.get(yang_file_with_revision)
 
         if should_parse or yang_file_compilation is None:
-            compilation_status, module_compilation_results = parse_module(parsers, yang_file)
+            if ietf == 'ietf-example':
+                compilation_status, module_compilation_results = parse_example_module(parsers, yang_file, **parser_args)
+            else:
+                compilation_status, module_compilation_results = parse_module(parsers, yang_file, **parser_args)
 
-            # If we are parsing RFCStandard
-            ietf = 'ietf-rfc' if '/YANG-rfc' in yang_file else None
-            is_rfc = os.path.isfile(os.path.join(ietf_directory, 'YANG-rfc', yang_file_with_revision))
-
-            new_module_data = {
-                'compilation-status': compilation_status
-            }
+            metadata_generator = metadata_generator_cls(module_compilation_results, compilation_status, yang_file)
+            confd_metadata = metadata_generator.get_confd_metadata()
+            yang_file_compilation = metadata_generator.get_file_compilation()
             updated_modules.extend(
                 check_yangcatalog_data(
-                    config, yang_file, new_module_data, module_compilation_results,
-                    all_yang_catalog_metadata, is_rfc, ietf))
-            yang_file_compilation = [compilation_status, *[result for result in compilation_results.values()]]
+                    config, yang_file, confd_metadata, module_compilation_results,
+                    all_yang_catalog_metadata, ietf == 'ietf-rfc', ietf))
             if len(updated_modules) > 100:
                 push_to_confd(updated_modules, config)
                 updated_modules.clear()
@@ -311,15 +294,15 @@ def validate(yang_list: t.List[str], fileHasher: FileHasher, config: configparse
             if compilation_status != 'UNKNOWN':
                 fileHasher.updated_hashes[yang_file] = file_hash
 
-        if yang_file_with_revision != '':
-            compilation_results[yang_file_with_revision] = yang_file_compilation
+        if yang_file_with_revision != '' or ietf == 'ietf-example':
+            agregate_results['all'][yang_file_with_revision] = yang_file_compilation
             if module_or_submodule(yang_file) == 'module':
-                no_submodules[yang_file_with_revision] = yang_file_compilation
+                agregate_results['no_submodules'][yang_file_with_revision] = yang_file_compilation
     push_to_confd(updated_modules, config)
-    return compilation_results, no_submodules
+    return agregate_results
 
 
-def write_page_main(web_private: str, compilation_stats: dict):
+def write_page_main(prefix: str, compilation_stats: dict) -> dict: # pyright: ignore
     with FileLock('{}/stats/stats.json.lock'.format(web_private)):
         stats_file_path = os.path.join(web_private, 'stats/AllYANGPageMain.json')
         counter = 5
@@ -330,10 +313,10 @@ def write_page_main(web_private: str, compilation_stats: dict):
                         f.write('{}')
                 with open(stats_file_path, 'r') as f:
                     stats = json.load(f)
-                    stats[args.prefix] = compilation_stats
+                    stats[prefix].update(compilation_stats)
                 with open(stats_file_path, 'w') as f:
                     json.dump(stats, f)
-                break
+                return stats[prefix]
             # NOTE: what kind of exception is expected here?
             except Exception:
                 counter = counter - 1
@@ -344,17 +327,18 @@ def write_page_main(web_private: str, compilation_stats: dict):
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
-if __name__ == '__main__':
+def main():
+    global config, debug_level, document_dict, draft_path, fileHasher, ietf, metadata_generator_cls, web_private, web_url
     config = create_config()
     api_ip = config.get('Web-Section', 'ip')
     protocol = config.get('Web-Section', 'protocol-api')
-    resutl_html_dir = config.get('Web-Section', 'result-html-dir')
     web_private = config.get('Web-Section', 'private-directory') + '/'
+    web_url = config.get('Web-Section', 'my-uri')
+    cache_directory = config.get('Directory-Section', 'cache')
+    draft_path = config.get('Directory-Section', 'ietf-drafts')
     modules_directory = config.get('Directory-Section', 'modules-directory')
     temp_dir = config.get('Directory-Section', 'temp')
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
-    pyang_exec = config.get('Tool-Section', 'pyang-exec')
-    confdc_exec = config.get('Tool-Section', 'confdc-exec')
 
     parser = argparse.ArgumentParser(
         description='YANG Document Processor: generate tables with compilation errors/warnings')
@@ -398,8 +382,57 @@ if __name__ == '__main__':
                              'or even if the validators versions have not been changed.',
                         action='store_true',
                         default=False)
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--rfc',
+                       help='Set specific options for compiling RFCs.',
+                       action='store_true')
+    group.add_argument('--draft',
+                       help='Include extra metadata in the compilation results when compiling drafts.'
+                            ' Does not include archived drafts.',
+                       action='store_true')
+    group.add_argument('--draft-archive',
+                       help='Include extra metadata in the compilation results when compiling drafts.'
+                            ' Includes archived drafts.',
+                       action='store_true')
+    group.add_argument('--example',
+                       help='Include extra metadata in the compilation results when compiling examples,'
+                            ' only compile examples with pyang.',
+                       action='store_true')
     args = parser.parse_args()
+
+    # Set options depending on the type of documents we're compiling
+    if not any([args.draft, args.draft_archive, args.example, args.rfc]):
+        ietf = None
+        metadata_generator_cls = MetadataGenerator
+    elif args.rfc:
+        ietf = 'ietf-rfc'
+        metadata_generator_cls = RfcMetadataGenerator
+        with open(os.path.join(cache_directory, 'rfc_dict.json')) as f:
+            document_dict = json.load(f)
+        args.prefix = 'RFCStandard'
+        args.rootdir = os.path.join(ietf_directory, 'YANG-rfc')
+    elif args.draft or args.draft_archive:
+        ietf = 'ietf-draft'
+        metadata_generator_cls = DraftMetadataGenerator
+        with open(os.path.join(cache_directory, 'draft_dict.json')) as f:
+            document_dict = json.load(f)
+        if args.draft_archive:
+           draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
+        args.prefix = 'IETFDraft'
+        args.rootdir = os.path.join(ietf_directory, 'YANG')
+    elif args.example:
+        ietf = 'ietf-example'
+        metadata_generator_cls = ExampleMetadataGenerator
+        with open(os.path.join(cache_directory, 'example_dict.json')) as f:
+            document_dict = json.load(f)
+        args.prefix = 'IETFDraftExample'
+        args.rootdir = os.path.join(ietf_directory, 'YANG-example')
+    else:
+        assert False, 'This is unreachable'
+
     custom_print('Start of job in {}'.format(args.rootdir))
+
+    debug_level = args.debug
 
     # Get list of hashed files
     fileHasher = FileHasher(args.forcecompilation)
@@ -409,48 +442,118 @@ if __name__ == '__main__':
     modules = get_modules(temp_dir, prefix)
 
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
-    if args.debug > 0:
+
+    parser_args = {
+        'root_directory': args.rootdir,
+        'lint': args.lint,
+        'allinclusive': args.allinclusive
+    }
+
+    if debug_level > 0:
         print('yang_list content:\n{}'.format(yang_list))
     custom_print('relevant files list built, {} modules found in {}'.format(len(yang_list), args.rootdir))
-
-    # YANG modules from drafts: PYANG validation, dictionary generation, dictionary inversion, and page generation
-
-    compilation_results, no_submodules = validate(yang_list, fileHasher, config, args.debug)
+    agregate_results = validate(args.prefix, modules, yang_list, parser_args)
     custom_print('all modules compiled/validated')
 
-    # Make a list out of the no-submodules dictionary
-    sorted_modules_list = sorted(dict_to_list(no_submodules))
-    # Replace CR by the BR HTML tag
-    sorted_modules_list_br_tags = list_br_html_addition(sorted_modules_list)
-
+    # Generate HTML and JSON files
     filesGenerator = FilesGenerator(web_private)
-    filesGenerator.write_dictionary(compilation_results, args.prefix)
-    headers = filesGenerator.getYANGPageCompilationHeaders(args.lint)
-    filesGenerator.generateYANGPageCompilationHTML(sorted_modules_list_br_tags, headers, args.prefix, args.metadata)
+    if ietf == 'ietf-draft':
+        # Generate json and html files with compilation results of modules extracted from IETF Drafts with Cisco authors
+        filesGenerator.write_dictionary(agregate_results['all'], 'IETFCiscoAuthors')
+        headers = filesGenerator.getIETFCiscoAuthorsYANGPageCompilationHeaders()
+        filesGenerator.generateYANGPageCompilationHTML(agregate_results['all'], headers, 'IETFCiscoAuthors')
+
+        # Strip cisco authors out
+        agregate_results['all'] = {k: v[:2] + v[3:] for k, v in agregate_results['all'].items()}
+
+        # Generate json and html files with compilation results of modules extracted from IETF Drafts
+        filesGenerator.write_dictionary(agregate_results['all'], args.prefix)
+        headers = filesGenerator.getIETFDraftYANGPageCompilationHeaders()
+        filesGenerator.generateYANGPageCompilationHTML(agregate_results['all'], headers, args.prefix)
+    elif ietf == 'ietf-example':
+        filesGenerator.write_dictionary(agregate_results['all'], args.prefix)
+        headers = filesGenerator.getIETFDraftExampleYANGPageCompilationHeaders()
+        filesGenerator.generateYANGPageCompilationHTML(agregate_results['no_submodules'], headers, args.prefix)
+    else:
+        if ietf == 'ietf-rfc':
+            # Create yang module reference table
+            module_to_rfc_anchor = {}
+            for yang_module, document_name in document_dict.items():
+                rfc_name = document_name.split('.')[0]
+                datatracker_url = 'https://datatracker.ietf.org/doc/html/{}'.format((rfc_name))
+                rfc_url_anchor = '<a href="{}">{}</a>'.format(datatracker_url, rfc_name)
+                module_to_rfc_anchor[yang_module] = rfc_url_anchor
+
+            filesGenerator.write_dictionary(module_to_rfc_anchor, 'IETFYANGRFC')
+            headers = ['YANG Model (and submodel)', 'RFC']
+            filesGenerator.generateHTMLTable(module_to_rfc_anchor, headers)
+
+        filesGenerator.write_dictionary(agregate_results['all'], args.prefix)
+        headers = filesGenerator.getYANGPageCompilationHeaders(args.lint)
+        filesGenerator.generateYANGPageCompilationHTML(agregate_results['no_submodules'], headers, args.prefix, args.metadata)
+
+
 
     # Generate modules compilation results statistics HTML page
-    passed = number_that_passed_compilation(compilation_results, 0, 'PASSED')
-    passed_with_warnings = number_that_passed_compilation(compilation_results, 0, 'PASSED WITH WARNINGS')
+    passed = number_that_passed_compilation(agregate_results['all'], 0, 'PASSED')
+    passed_with_warnings = number_that_passed_compilation(agregate_results['all'], 0, 'PASSED WITH WARNINGS')
     total_number = len(yang_list)
     failed = total_number - passed - passed_with_warnings
-    compilation_stats = {'passed': passed,
-                         'warnings': passed_with_warnings,
-                         'total': total_number,
-                         'failed': failed
-                         }
-    filesGenerator.generateYANGPageMainHTML(args.prefix, compilation_stats)
 
-    write_page_main(web_private, compilation_stats)
+    if ietf == 'ietf-draft':
+        all_yang_path = os.path.join(ietf_directory, 'YANG-all')
+        compilation_stats = {
+            'total-drafts': len(document_dict.keys()),
+            'draft-passed': number_that_passed_compilation(agregate_results['all'], 3, 'PASSED'),
+            'draft-warnings': number_that_passed_compilation(agregate_results['all'], 3, 'PASSED WITH WARNINGS'),
+            'all-ietf-drafts': len([f for f in os.listdir(all_yang_path) if os.path.isfile(os.path.join(all_yang_path, f))])
+        }
+        merged_stats = write_page_main('ietf-yang', compilation_stats)
+        filesGenerator.generateIETFYANGPageMainHTML(merged_stats)
+    elif ietf == 'ietf-example':
+        compilation_stats = {
+            'example-drafts': len(document_dict.keys())
+        }
+        merged_stats = write_page_main('ietf-yang', compilation_stats)
+        filesGenerator.generateIETFYANGPageMainHTML(merged_stats)
+    else:
+        compilation_stats = {
+            'passed': passed,
+            'warnings': passed_with_warnings,
+            'total': total_number,
+            'failed': failed
+        }
+        write_page_main(args.prefix, compilation_stats)
+        filesGenerator.generateYANGPageMainHTML(args.prefix, compilation_stats)
 
     # Print the summary of the compilation results
     print('--------------------------')
-    print('Number of YANG data models from {}: {}'.format(args.prefix, total_number))
-    print('Number of YANG data models from {} that passed compilation: {}/{}'.format(args.prefix, passed, total_number))
-    print('Number of YANG data models from {} that passed compilation with warnings: {}/{}'.format(args.prefix, passed_with_warnings, total_number))
-    print('Number of YANG data models from {} that failed compilation: {}/{}'.format(args.prefix, failed, total_number))
+    if ietf == 'ietf-draft':
+        print('Number of correctly extracted YANG models from IETF drafts: {}'
+            .format(compilation_stats['total-drafts']))
+        print('Number of YANG models in IETF drafts that passed compilation: {}/{}'
+            .format(compilation_stats['draft-passed'], compilation_stats.get('total-drafts')))
+        print('Number of YANG models in IETF drafts that passed compilation with warnings: {}/{}'
+            .format(compilation_stats['draft-warnings'], compilation_stats.get('total-drafts'))),
+        print('Number of all YANG models in IETF drafts (examples, badly formatted, etc. ): {}'
+            .format(compilation_stats['all-ietf-drafts']))
+    elif ietf == 'ietf-example':
+        print('Number of correctly extracted example YANG models from IETF drafts: {}'
+            .format(compilation_stats['example-drafts']), flush=True)
+    else:
+        print('Number of YANG data models from {}: {}'.format(args.prefix, compilation_stats['total']))
+        print('Number of YANG data models from {} that passed compilation: {}/{}'
+              .format(args.prefix, compilation_stats['passed'], compilation_stats['total']))
+        print('Number of YANG data models from {} that passed compilation with warnings: {}/{}'
+              .format(args.prefix, compilation_stats['warnings'], compilation_stats['total']))
+        print('Number of YANG data models from {} that failed compilation: {}/{}'
+              .format(args.prefix, compilation_stats['failed'], compilation_stats['total']))
 
     custom_print('end of yangGeneric.py job for {}'.format(args.prefix))
 
     # Update files content hashes and dump into .json file
     if len(fileHasher.updated_hashes) > 0:
         fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
+
+if __name__ == '__main__':
+    main()

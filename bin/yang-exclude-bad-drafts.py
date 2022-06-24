@@ -23,22 +23,20 @@ __author__ = 'bclaise@cisco.com'
 SOURCE = '/etc/yangcatalog/IETF-draft-list-with-no-YANG-problem.txt'
 
 
-def list_lines_from_file(f, debug_level):
+def list_lines_from_file(path, debug_level):
     """
     Returns a list of all the lines in the file
-    :param f: an IETF draft, including the path
+    :param path: file path path
     :param debug_level: debug level
     :return: a list of all the lines in the file
     """
     list_of_line = []
-    with open(f) as ff:
-        for line in ff:
+    with open(path) as f:
+        for line in f:
             line = line.replace("\n", "")
             if debug_level > 1:
                print("  line: " + line)
             list_of_line.append(line)
-#            if 'str' in line:
-#                break
     if debug_level > 1:
         print(" List of lines from the list_lines_from_file function" + str(list_of_line))
     if not list_of_line:
@@ -47,16 +45,15 @@ def list_lines_from_file(f, debug_level):
     return list_of_line
 
 
-def remove_files(ll, d, debug_level):
+def remove_files(files, directory, debug_level):
     """
-    Returns a list of all the lines in the file
-    :param ll: list of all files
-    :param d: directory
+    Remove a list of files from a directory
+    :param files: list of files to remove
+    :param directory: directory
     :param debug_level: debug level
-    :return: a list of all the lines in the file
     """
-    for l in ll:
-        bash_command = "rm -f " + d + l
+    for file in files:
+        bash_command = "rm -f {}".format(os.path.join(directory, file))
         if debug_level > 1:
             print("bash_command: " + bash_command)
         temp_result = os.popen(bash_command).readlines()
@@ -68,7 +65,7 @@ def remove_files(ll, d, debug_level):
 def replace_draft_version_by_asterix(ll, debug_level):
     """
     Replace the draft version by an asterix
-    :param ll: list of all files
+    :param ll: list of lines
     :param debug_level: debug level
     :return: a list of all the lines in the file, with the draft version replaced by *
     """
@@ -103,7 +100,7 @@ if __name__ == '__main__':
                         type=int,
                         default=0)
     args = parser.parse_args()
-    
+
     ll = list_lines_from_file(SOURCE, args.debug)
     llasterix = replace_draft_version_by_asterix(ll, args.debug)
     dir = os.path.dirname(SOURCE)

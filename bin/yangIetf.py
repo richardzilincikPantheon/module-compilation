@@ -22,29 +22,10 @@ import datetime
 import json
 import os
 
-import requests
-
-from compilators.draftsCompilator import DraftsCompilator
-from compilators.examplesCompilator import ExamplesCompilator
-from compilators.rfcsCompilator import RfcsCompilator
 from create_config import create_config
 from extractors.dratfExtractor import DraftExtractor
 from extractors.rfcExtractor import RFCExtractor
-from filesGenerator import FilesGenerator
-from parsers.confdcParser import ConfdcParser
-from parsers.pyangParser import PyangParser
-from parsers.yangdumpProParser import YangdumpProParser
-from parsers.yanglintParser import YanglintParser
 from remove_directory_content import remove_directory_content
-from utility.utility import (dict_to_list, list_br_html_addition,
-                             number_that_passed_compilation)
-from versions import ValidatorsVersions
-
-# ----------------------------------------------------------------------
-# Validators versions
-# ----------------------------------------------------------------------
-validators_versions = ValidatorsVersions()
-versions = validators_versions.get_versions()
 
 
 # ----------------------------------------------------------------------
@@ -59,20 +40,12 @@ def custom_print(message: str):
 # ----------------------------------------------------------------------
 # Main
 # ----------------------------------------------------------------------
-if __name__ == '__main__':
+def main():
     config = create_config()
-    web_url = config.get('Web-Section', 'my-uri')
-    web_private = config.get('Web-Section', 'private-directory')
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
-    temp_dir = config.get('Directory-Section', 'temp')
-    modules_directory = config.get('Directory-Section', 'modules-directory')
-    pyang_exec = config.get('Tool-Section', 'pyang-exec')
-    confdc_exec = config.get('Tool-Section', 'confdc-exec')
-    api_ip = config.get('Web-Section', 'ip')
-    protocol = config.get('Web-Section', 'protocol-api')
-    resutl_html_dir = config.get('Web-Section', 'result-html-dir')
     draft_path = config.get('Directory-Section', 'ietf-drafts')
     rfc_path = config.get('Directory-Section', 'ietf-rfcs')
+    cache_directory = config.get('Directory-Section', 'cache')
     public_directory = config.get('Web-Section', 'public-directory')
 
     parser = argparse.ArgumentParser(description='YANG RFC/Draft Processor')
@@ -141,39 +114,12 @@ if __name__ == '__main__':
                         help='Debug level - default is 0',
                         type=int,
                         default=0)
-    parser.add_argument('--forcecompilation',
-                        help='Optional flag that determines wheter compilation should be run '
-                             'for all files even if they have not been changed '
-                             'or even if the validators versions have not been changed.',
-                        action='store_true',
-                        default=False)
 
     args = parser.parse_args()
     if args.archived:
         draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
     custom_print('Start of yangIetf.py job in {}'.format(draft_path))
     debug_level = args.debug
-
-    # Initialize files generator -> used in creating JSON/HTML results files
-    filesGenerator = FilesGenerator(web_private)
-
-    all_yang_catalog_metadata = {}
-    prefix = '{}://{}'.format(protocol, api_ip)
-
-    modules = {}
-    try:
-        with open(os.path.join(temp_dir, 'all_modules_data.json'), 'r') as f:
-            modules = json.load(f)
-            custom_print('All the modules data loaded from JSON files')
-    except Exception:
-        modules = {}
-    if modules == {}:
-        modules = requests.get('{}/api/search/modules'.format(prefix)).json()
-        custom_print('All the modules data loaded from API')
-
-    for mod in modules['module']:
-        key = '{}@{}'.format(mod['name'], mod['revision'])
-        all_yang_catalog_metadata[key] = mod
 
     draft_extractor_paths = {
         'draft_path': draft_path,
@@ -189,166 +135,46 @@ if __name__ == '__main__':
     # ----------------------------------------------------------------------
     # Empty the yangpath, allyangpath, and rfcyangpath directories content
     # ----------------------------------------------------------------------
-    remove_directory_content(args.yangpath, debug_level)
-    remove_directory_content(args.allyangpath, debug_level)
-    remove_directory_content(args.rfcyangpath, debug_level)
-    remove_directory_content(args.allyangexamplepath, debug_level)
-    remove_directory_content(args.yangexampleoldrfcpath, debug_level)
-    remove_directory_content(args.draftpathstrict, debug_level)
-    remove_directory_content(args.draftpathnostrict, debug_level)
-    remove_directory_content(args.draftpathonlyexample, debug_level)
-    remove_directory_content(args.rfcextractionyangpath, debug_level)
-    remove_directory_content(args.draftelementspath, debug_level)
+    for dir in [
+        args.yangpath,
+        args.allyangpath,
+        args.rfcyangpath,
+        args.allyangexamplepath,
+        args.yangexampleoldrfcpath,
+        args.draftpathstrict,
+        args.draftpathstrict,
+        args.draftpathnostrict,
+        args.draftpathonlyexample,
+        args.rfcextractionyangpath,
+        args.draftelementspath
+        ]:
+        remove_directory_content(dir, debug_level)
 
-    # ----------------------------------------------------------------------
     # Extract YANG models from IETF RFCs files
-    # ----------------------------------------------------------------------
-    rfcExtractor = RFCExtractor(rfc_path, args.rfcyangpath, args.rfcextractionyangpath, args.debug)
-    rfcExtractor.extract_rfcs()
-    rfcExtractor.invert_dict()
-    rfcExtractor.remove_invalid_files()
+    rfcExtractor = RFCExtractor(rfc_path, args.rfcyangpath, args.rfcextractionyangpath, debug_level)
+    rfcExtractor.extract()
     rfcExtractor.clean_old_RFC_YANG_modules(args.rfcyangpath, args.yangexampleoldrfcpath)
     custom_print('Old examples YANG modules moved')
     custom_print('All IETF RFCs pre-processed')
 
-    # ----------------------------------------------------------------------
     # Extract YANG models from IETF draft files
-    # ----------------------------------------------------------------------
-    draftExtractor = DraftExtractor(draft_extractor_paths, args.debug)
-    draftExtractor.extract_drafts()
-    draftExtractor.invert_dict()
-    draftExtractor.remove_invalid_files()
+    draftExtractor = DraftExtractor(draft_extractor_paths, debug_level)
+    draftExtractor.extract()
     draftExtractor.dump_incorrect_drafts(public_directory)
     custom_print('All IETF Drafts pre-processed')
 
-    # TODO: Remove this - make these variables as input to another classes (compilation/parser)
-    yang_rfc_dict = rfcExtractor.inverted_rfc_yang_dict
-    yang_draft_dict = draftExtractor.inverted_draft_yang_dict
-    yang_example_draft_dict = draftExtractor.inverted_draft_yang_example_dict
+    # Dump dicts for later use by yangGeneric.py
+    with open(os.path.join(cache_directory, 'rfc_dict.json'), 'w') as f:
+        json.dump(rfcExtractor.inverted_rfc_yang_dict, f)
 
-    # ----------------------------------------------------------------------
-    # Initialize parsers
-    # ----------------------------------------------------------------------
-    pyangParser = PyangParser(args.debug)
-    confdcParser = ConfdcParser(args.debug)
-    yumadumpProParser = YangdumpProParser(args.debug)
-    yanglintParser = YanglintParser(args.debug)
+    with open(os.path.join(cache_directory, 'draft_dict.json'), 'w') as f:
+        json.dump(draftExtractor.inverted_draft_yang_dict, f)
 
-    # ----------------------------------------------------------------------
-    # Compile extracted example- modules
-    # ----------------------------------------------------------------------
-    custom_print('Starting compilation in {} directory'.format(args.allyangexamplepath))
-    examplesCompilator = ExamplesCompilator(args.allyangexamplepath, yang_example_draft_dict, args.debug)
-    examplesCompilator.compile_examples(all_yang_catalog_metadata, args.forcecompilation)
-    custom_print('example- YANG modules extracted from IETF Drafts validated/compiled')
-
-    # Make a list out of the no-submodules dictionary
-    sorted_modules_list = sorted(dict_to_list(examplesCompilator.results_no_submodules_dict))
-    # Replace CR by the BR HTML tag
-    sorted_modules_list_br_tags = list_br_html_addition(sorted_modules_list)
-
-    # Generate json and html files with compilation results of extracted example- modules
-    filesGenerator.write_dictionary(examplesCompilator.results_dict, 'IETFDraftExample')
-    headers = filesGenerator.getIETFDraftExampleYANGPageCompilationHeaders()
-    filesGenerator.generateYANGPageCompilationHTML(sorted_modules_list_br_tags, headers, 'IETFDraftExample')
-
-    # ----------------------------------------------------------------------
-    # Compile extracted RFC modules
-    # ----------------------------------------------------------------------
-    custom_print('Starting compilation in {} directory'.format(args.rfcyangpath))
-    rfcsCompilator = RfcsCompilator(args.rfcyangpath, yang_rfc_dict, args.debug)
-    rfcsCompilator.compile_rfcs(all_yang_catalog_metadata, args.forcecompilation)
-    custom_print('RFC YANG modules validated/compiled')
-
-    # Uncomment next two lines if you want to remove the submodules from the RFC report in http://www.claise.be/IETFYANGOutOfRFC.png
-    sorted_modules_list = sorted(dict_to_list(rfcsCompilator.results_dict, True))
-    # sorted_modules_list = sorted(dict_to_list(rfcsCompilator.results_no_submodules_dict, True), key=itemgetter(1))
-
-    # Generate json and html files with compilation results of extracted RFC modules
-    filesGenerator.write_dictionary(rfcsCompilator.results_dict, 'IETFYANGRFC')
-    headers = ['YANG Model (and submodel)', 'RFC']
-    filesGenerator.generateHTMLTable(sorted_modules_list, headers)
-
-    # ----------------------------------------------------------------------
-    # Compile modules extracted from drafts
-    # ----------------------------------------------------------------------
-    paths = {
-        'draftpath': draft_path,
-        'rfcpath': args.rfcyangpath
-    }
-    custom_print('Starting compilation in {} directory'.format(args.yangpath))
-    draftsCompilator = DraftsCompilator(args.yangpath, yang_draft_dict, args.debug)
-    draftsCompilator.compile_drafts(all_yang_catalog_metadata, args.forcecompilation, paths)
-    custom_print('Modules extracted from IETF Drafts validated/compiled')
-
-    # Make a list out of the no-submodules dictionary
-    sorted_modules_list = sorted(dict_to_list(draftsCompilator.results_dict))
-    # Replace CR by the BR HTML tag
-    sorted_modules_list_br_tags = list_br_html_addition(sorted_modules_list)
-
-    # Generate json and html files with compilation results of modules extracted from IETF Drafts
-    filesGenerator.write_dictionary(draftsCompilator.results_dict, 'IETFDraft')
-    headers = filesGenerator.getIETFDraftYANGPageCompilationHeaders()
-    filesGenerator.generateYANGPageCompilationHTML(sorted_modules_list_br_tags, headers, 'IETFDraft')
-
-    # Make a list out of the no-submodules dictionary
-    sorted_modules_list = sorted(dict_to_list(draftsCompilator.results_dict_authors))
-    # Replace CR by the BR HTML tag
-    sorted_modules_list_br_tags = list_br_html_addition(sorted_modules_list)
-
-    # Generate json and html files with compilation results of modules extracted from IETF Drafts with cisco authors
-    filesGenerator.write_dictionary(draftsCompilator.results_dict_authors, 'IETFCiscoAuthors')
-    headers = filesGenerator.getIETFCiscoAuthorsYANGPageCompilationHeaders()
-    filesGenerator.generateYANGPageCompilationHTML(sorted_modules_list_br_tags, headers, 'IETFCiscoAuthors')
-
-    output_email_list_unique = list(set(draftsCompilator.output_cisco_emails))
-    output_email_string_unique = ', '.join(output_email_list_unique)
-    custom_print('List of emails of Cisco authors:\n{}'.format(output_email_string_unique))
-
-    # Create IETF drafts extraction and compilation statistics
-    drafts_stats = {
-        'total-drafts': len(yang_draft_dict.keys()),
-        'draft-passed': number_that_passed_compilation(draftsCompilator.results_dict, 3, 'PASSED'),
-        'draft-warnings': number_that_passed_compilation(draftsCompilator.results_dict, 3, 'PASSED WITH WARNINGS'),
-        'all-ietf-drafts': len([f for f in os.listdir(args.allyangpath) if os.path.isfile(os.path.join(args.allyangpath, f))]),
-        'example-drafts': len(yang_example_draft_dict.keys())
-    }
-    filesGenerator.generateIETFYANGPageMainHTML(drafts_stats)
-
-    # ----------------------------------------------------------------------
-    # Store IETF drafts statistics into AllYANGPageMain.json files
-    # ----------------------------------------------------------------------
-    stats_file_path = os.path.join(web_private, 'stats/AllYANGPageMain.json')
-    counter = 5
-    while True:
-        try:
-            if not os.path.exists(stats_file_path):
-                with open(stats_file_path, 'w') as f:
-                    f.write('{}')
-            with open(stats_file_path, 'r') as f:
-                stats = json.load(f)
-                stats['ietf-yang'] = drafts_stats
-            with open(stats_file_path, 'w') as f:
-                json.dump(stats, f)
-            break
-        except Exception:
-            counter = counter - 1
-            if counter == 0:
-                break
-
-    # ----------------------------------------------------------------------
-    # Print the summary of the IETF Drafts extraction and compilation results
-    # ----------------------------------------------------------------------
-    print('--------------------------')
-    print('Number of correctly extracted YANG models from IETF drafts: {}'
-          .format(drafts_stats.get('total-drafts')))
-    print('Number of YANG models in IETF drafts that passed compilation: {}/{}'
-          .format(drafts_stats.get('draft-passed'), drafts_stats.get('total-drafts')))
-    print('Number of YANG models in IETF drafts that passed compilation with warnings: {}/{}'
-          .format(drafts_stats.get('draft-warnings'), drafts_stats.get('total-drafts'))),
-    print('Number of all YANG models in IETF drafts (examples, badly formatted, etc. ): {}'
-          .format(drafts_stats.get('all-ietf-drafts')))
-    print('Number of correctly extracted example YANG models from IETF drafts: {}'
-          .format(drafts_stats.get('example-drafts')), flush=True)
+    with open(os.path.join(cache_directory, 'example_dict.json'), 'w') as f:
+        json.dump(draftExtractor.inverted_draft_yang_example_dict, f)
 
     custom_print('end of yangIetf.py job')
+
+
+if __name__ == '__main__':
+    main()
