@@ -33,7 +33,7 @@ from parsers.pyangParser import PyangParser
 from parsers.yangdumpProParser import YangdumpProParser
 from parsers.yanglintParser import YanglintParser
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
-                             number_that_passed_compilation, push_to_confd)
+                             number_that_passed_compilation, push_to_redis)
 
 __author__ = 'Benoit Claise'
 __copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2022, All Rights Reserved'
@@ -287,7 +287,7 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict) -> 
                     config, yang_file, confd_metadata, module_compilation_results,
                     all_yang_catalog_metadata, ietf == 'ietf-rfc', ietf))
             if len(updated_modules) > 100:
-                push_to_confd(updated_modules, config)
+                push_to_redis(updated_modules, config)
                 updated_modules.clear()
 
             # Revert to previous hash if compilation status is 'UNKNOWN' -> try to parse model again next time
@@ -298,7 +298,7 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict) -> 
             agregate_results['all'][yang_file_with_revision] = yang_file_compilation
             if module_or_submodule(yang_file) == 'module':
                 agregate_results['no_submodules'][yang_file_with_revision] = yang_file_compilation
-    push_to_confd(updated_modules, config)
+    push_to_redis(updated_modules, config)
     return agregate_results
 
 

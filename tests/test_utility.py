@@ -40,13 +40,13 @@ class TestUtility(unittest.TestCase):
 
         with mock.patch('requests.patch', mock.MagicMock(side_effect=create_patch(200, 'foo'))) as mock_patch, \
             mock.patch('utility.utility.RedisConnection') as mock_redis:
-            u.push_to_confd([], self.config)
+            u.push_to_redis([], self.config)
         mock_patch.assert_not_called()
         mock_redis.assert_not_called()
 
         with mock.patch('requests.patch', mock.MagicMock(side_effect=create_patch(200, 'foo'))) as mock_patch, \
             mock.patch('utility.utility.RedisConnection') as mock_redis:
-            u.push_to_confd(['foo', 'bar'], self.config)
+            u.push_to_redis(['foo', 'bar'], self.config)
         mock_patch.assert_called()
         self.assertEqual(mock_patch.call_args[1].get('data'), '{"modules": {"module": ["foo", "bar"]}}')
         mock_redis.return_value.populate_modules.assert_called()
