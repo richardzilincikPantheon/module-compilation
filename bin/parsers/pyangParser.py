@@ -44,7 +44,7 @@ class PyangParser:
         os.chdir(directory)
 
         path_command = '--path="{}"'.format(self._modules_directory)
-        bash_command = [self._pyang_exec, path_command, filename]
+        bash_command = ['pypy3', self._pyang_exec, path_command, filename]
         if ietf:
             bash_command.append('--ietf')
         bash_command.append('2>&1')
@@ -88,7 +88,7 @@ class PyangParser:
         else:
             path_command = '--path="{}"'.format(self._modules_directory)
 
-        bash_command = [self._pyang_exec, path_command, filename]
+        bash_command = ['pypy3', self._pyang_exec, path_command, filename]
 
         if use_pyang_params:
             pyang_param = '--lint' if lint else '--ietf'

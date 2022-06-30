@@ -32,25 +32,21 @@ from versions import ValidatorsVersions
 
 
 def push_to_redis(updated_modules: list, config: configparser.ConfigParser):
-    if updated_modules:
-        json_modules_data = json.dumps({'modules': {'module': updated_modules}})
-        confd_protocol = config.get('Web-Section', 'protocol-confd')
-        confd_port = config.get('Web-Section', 'confd-port')
-        confd_host = config.get('Web-Section', 'confd-ip')
-        credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
-        confd_prefix = '{}://{}:{}'.format(confd_protocol, confd_host, confd_port)
+    json_modules_data = json.dumps({'modules': {'module': updated_modules}})
+    credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
+    confd_prefix = config.get('Web-Section', 'confd-prefix')
 
-        print('Creating patch request to ConfD with updated data')
-        url = '{}/restconf/data/yang-catalog:catalog/modules/'.format(confd_prefix)
-        response = requests.patch(url, data=json_modules_data,
-                                  auth=(credentials[0], credentials[1]),
-                                  headers={
-                                      'Accept': 'application/yang-data+json',
-                                      'Content-type': 'application/yang-data+json'})
-        if response.status_code < 200 or response.status_code > 299:
-            print('Request with body {} on path {} failed with {}'.
-                  format(json_modules_data, url, response.text))
-        RedisConnection().populate_modules(updated_modules)
+    print('Creating patch request to ConfD with updated data')
+    url = '{}/restconf/data/yang-catalog:catalog/modules/'.format(confd_prefix)
+    response = requests.patch(url, data=json_modules_data,
+                                auth=(credentials[0], credentials[1]),
+                                headers={
+                                    'Accept': 'application/yang-data+json',
+                                    'Content-type': 'application/yang-data+json'})
+    if response.status_code < 200 or response.status_code > 299:
+        print('Request with body {} on path {} failed with {}'.
+                format(json_modules_data, url, response.text))
+    RedisConnection().populate_modules(updated_modules)
 
 
 def module_or_submodule(yang_file_path: str):
@@ -225,16 +221,13 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
                            compilation_results: dict, all_modules: t.Dict[str, dict], is_rfc: bool, ietf_metadata=None):
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     result_html_dir = config.get('Web-Section', 'result-html-dir')
-    protocol = config.get('Web-Section', 'protocol-api')
-    api_ip = config.get('Web-Section', 'ip')
-
-    prefix = '{}://{}'.format(protocol, api_ip)
+    domain_prefix = config.get('Web-Section', 'domain-prefix')
     versions = ValidatorsVersions().get_versions()
 
     yang_file_path = _path_in_dir(yang_file_pseudo_path)
 
     updated_modules = []
-    name_revision_command = '{} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
+    name_revision_command = 'pypy3 {} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
     name_revision = os.popen(name_revision_command).read().rstrip().split(' ')[0]
     if '@' not in name_revision:
         name_revision += '@1970-01-01'
@@ -262,7 +255,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
             if module_data.get('compilation-status') == 'unknown':
                 comp_result = ''
             else:
-                comp_result = '{}/results/{}'.format(prefix, file_url)
+                comp_result = '{}/results/{}'.format(domain_prefix, file_url)
             if module_data.get('compilation-result') != comp_result:
                 update = True
                 module_data['compilation-result'] = comp_result

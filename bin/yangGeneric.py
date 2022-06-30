@@ -330,8 +330,7 @@ def write_page_main(prefix: str, compilation_stats: dict) -> dict: # pyright: ig
 def main():
     global config, debug_level, document_dict, draft_path, fileHasher, ietf, metadata_generator_cls, web_private, web_url
     config = create_config()
-    api_ip = config.get('Web-Section', 'ip')
-    protocol = config.get('Web-Section', 'protocol-api')
+    yangcatalog_api_prefix = config.get('Web-Section', 'yangcatalog-api-prefix')
     web_private = config.get('Web-Section', 'private-directory') + '/'
     web_url = config.get('Web-Section', 'my-uri')
     cache_directory = config.get('Directory-Section', 'cache')
@@ -437,9 +436,7 @@ def main():
     # Get list of hashed files
     fileHasher = FileHasher(args.forcecompilation)
 
-    prefix = '{}://{}'.format(protocol, api_ip)
-
-    modules = get_modules(temp_dir, prefix)
+    modules = get_modules(temp_dir, yangcatalog_api_prefix)
 
     yang_list = list_of_yang_modules_in_subdir(args.rootdir, args.debug)
 

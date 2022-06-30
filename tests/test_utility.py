@@ -33,16 +33,10 @@ class TestUtility(unittest.TestCase):
         self.resource_path = os.path.join(os.environ['SDO_ANALYSIS'], 'tests/resources/utility')
         self.config = create_config(os.path.join(os.path.dirname(self.resource_path), 'test.conf'))
 
-    def test_push_to_confd(self):
+    def test_push_to_redis(self):
 
         def create_patch(status_code: int, text: str):
             return lambda *args, **kwargs: mock.MagicMock(status_code=status_code, text=text)
-
-        with mock.patch('requests.patch', mock.MagicMock(side_effect=create_patch(200, 'foo'))) as mock_patch, \
-            mock.patch('utility.utility.RedisConnection') as mock_redis:
-            u.push_to_redis([], self.config)
-        mock_patch.assert_not_called()
-        mock_redis.assert_not_called()
 
         with mock.patch('requests.patch', mock.MagicMock(side_effect=create_patch(200, 'foo'))) as mock_patch, \
             mock.patch('utility.utility.RedisConnection') as mock_redis:
