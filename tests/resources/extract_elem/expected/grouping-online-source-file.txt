@@ -1,0 +1,28 @@
+  grouping online-source-file {
+    leaf owner {
+      type string;
+      mandatory true;
+      description
+        "Username or ID of the owner of the version control system repository.";
+    }
+    leaf repository {
+      type string;
+      mandatory true;
+      description
+        "The name of the repository.";
+    }
+    leaf path {
+      type yc:path;
+      mandatory true;
+      description
+        "Location within the repository of the module file.";
+    }
+    leaf branch {
+      type string;
+      description
+        "Revision control system branch or tag to use to find the module.  If this is not
+         specified, the head of the repository is used.";
+    }
+    description
+      "Networked version control system location of the module file.";
+  }

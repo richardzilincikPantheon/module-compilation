@@ -1,0 +1,16 @@
+  grouping yang-lib-schema-leaf {
+    leaf schema {
+      type inet:uri;
+      description
+        "Contains a URL that represents the YANG schema
+         resource for this module or submodule.
+         This leaf will only be present if there is a URL
+         available for retrieval of the schema for this entry.";
+    }
+    description
+      "These are a subset of leafs from the yang-library (RFC 7895) that provide some
+       extractable fields for catalog modules.  The module-list grouping cannot be
+       used from yang-library as modules themselves cannot have conformance without
+       a server.";
+    reference "RFC7895 YANG Module Library : schema-leaf grouping";
+  }

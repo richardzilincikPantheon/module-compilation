@@ -1,0 +1,5 @@
+  identity restconf {
+    base protocol;
+    description
+      "Protocol identity for RESTCONF as described in RFC 8040.";
+  }

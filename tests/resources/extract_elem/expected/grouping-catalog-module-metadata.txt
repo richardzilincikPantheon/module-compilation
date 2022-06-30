@@ -1,0 +1,173 @@
+  grouping catalog-module-metadata {
+    uses shared-module-leafs;
+    leaf compilation-status {
+      type enumeration {
+        enum passed {
+          description
+            "All compilers were able to compile this YANG module without
+             any errors or warnings.";
+        }
+        enum passed-with-warnings {
+          description
+            "All compilers were able to compile this YANG module without
+             any errors, but at least one of them caught a warning.";
+        }
+        enum failed {
+          description
+            "At least one of compilers found an error while
+             compiling this YANG module.";
+        }
+        enum pending {
+          description
+            "The module was just added to the catalog and compilation testing is still
+             in progress.";
+        }
+        enum unknown {
+          description
+            "There is not sufficient information about compilation status.  This Could
+             mean compilation crashed causing it not to complete fully.";
+        }
+      }
+      description
+        "Status of the module, whether it was possible to compile this YANG module or
+         there are still some errors/warnings.";
+    }
+    leaf compilation-result {
+      type inet:uri;
+      description
+        "Link to the result of the compilation explaining specifically what error or
+         warning occurred.  This is not existing if compilation status is PASSED.";
+    }
+    leaf prefix {
+      type string;
+      description
+        "Statement of yang that is used to define the prefix associated with
+         the module and its namespace. The prefix statement's argument is
+         the prefix string that is used as a prefix to access a module. The
+         prefix string MAY be used to refer to definitions contained in the
+         module, e.g., if:ifName.";
+    }
+    leaf yang-version {
+      type enumeration {
+        enum 1.0 {
+          description
+            "YANG version 1.0 as defined in RFC 6020.";
+        }
+        enum 1.1 {
+          description
+            "YANG version 1.1 as defined in RFC 7950.";
+        }
+      }
+      description
+        "The optional yang-version statement specifies which version of the
+         YANG language was used in developing the module.";
+    }
+    leaf description {
+      type string;
+      description
+        "This statement takes as an argument a string that
+         contains a human-readable textual description of this definition.
+         The text is provided in a language (or languages) chosen by the
+         module developer; for the sake of interoperability, it is RECOMMENDED
+         to choose a language that is widely understood among the community of
+         network administrators who will use the module.";
+    }
+    leaf contact {
+      type string;
+      description
+        "This statement provides contact information for the module.
+         The argument is a string that is used to specify contact information
+         for the person or persons to whom technical queries concerning this
+         module should be sent, such as their name, postal address, telephone
+         number, and electronic mail address.";
+    }
+    leaf module-type {
+      type enumeration {
+        enum module {
+          description
+            "If YANG file contains module.";
+        }
+        enum submodule {
+          description
+            "If YANG file contains sub-module.";
+        }
+      }
+      description
+        "Whether a file contains a YANG module or sub-module.";
+    }
+    leaf belongs-to {
+      when "../module-type = 'submodule'" {
+        description
+          "Include the module's parent when it is a submodule.";
+      }
+      type yang:yang-identifier;
+      description
+        "Name of the module that includes this submodule.";
+    }
+    leaf tree-type {
+      type enumeration {
+        enum split {
+          description
+            "This module uses a split config/operational state layout.";
+        }
+        enum nmda-compatible {
+          description
+            "This module is compatible with the Network Management Datastores
+             Architecture (NMDA) and combines config and operational state nodes.";
+        }
+        enum transitional-extra {
+          description
+            "This module is derived as a '-state' module to allow for transitioning
+             to a full NMDA-compliant tree structure.";
+        }
+        enum openconfig {
+          description
+            "This module uses the Openconfig data element layout.";
+        }
+        enum unclassified {
+          description
+            "This module does not belong to any category or can't be determined.";
+        }
+        enum not-applicable {
+          description
+            "This module is not applicable. For example, because the YANG module only contains typedefs, groupings, or is a submodule";
+        }
+      }
+      description
+        "The type of data element tree used by the module as it relates to the
+         Network Management Datastores Architecture.";
+      reference "draft-dsdt-nmda-guidelines Guidelines for YANG Module Authors (NMDA)";
+    }
+    leaf yang-tree {
+      when "../module-type = 'module'";
+      type inet:uri;
+      description
+        "This leaf provides a URI that points to the ASCII tree format of the module in
+         draft-ietf-netmod-yang-tree-diagrams format.";
+      reference "See draft-ietf-netmod-yang-tree-diagrams.";
+    }
+    leaf expires {
+      type yang:date-and-time;
+      description
+        "Date and time of when this module expires (if it expires).  This will typically be used for
+         modules that have not been fully ratified.";
+    }
+    leaf expired {
+      type union {
+        type boolean;
+        type enumeration {
+          enum not-applicable {
+            description
+              "This module is not and will not be expired.";
+          }
+        }
+      }
+      default "false";
+      description
+        "Whether or not this module has expired.  If the current date is beyond the expires date, then expired
+         should be true.";
+    }
+    description
+      "Grouping of YANG module metadata that extends the common list defined in the YANG
+       Module Library (RFC 7895).";
+  }
