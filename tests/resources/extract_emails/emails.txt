@@ -1,0 +1,5 @@
+mailto:foo@foo.com
+unrelated line
+email:bar@foo.com
+e-mail:foobar@foo.com
+mailto:foo@bar.com
