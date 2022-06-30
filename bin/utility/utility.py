@@ -151,16 +151,13 @@ def _render(tpl_path: str, context: dict) -> str:
     ).get_template(filename).render(context)
 
 
-def _path_in_dir(yang_file_and_dir: str) -> str:
-    yang_path, yang_file = os.path.split(yang_file_and_dir)
-
-    yang_file_path = os.path.join(yang_path, yang_file)
+def _path_in_dir(yang_file_path: str) -> str:
+    yang_path, yang_file = os.path.split(yang_file_path)
 
     for root, _, files in os.walk(yang_path):
         for ff in files:
             if ff == yang_file:
-                yang_file_path = os.path.join(root, ff)
-                break
+                return os.path.join(root, ff)
     else:
         print('Error: file {} not found in dir or subdir of {}'.format(yang_file, yang_path))
     return yang_file_path
