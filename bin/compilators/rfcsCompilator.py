@@ -23,7 +23,7 @@ import os
 from create_config import create_config
 from fileHasher import FileHasher
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
-                             push_to_confd)
+                             push_to_redis)
 from versions import ValidatorsVersions
 
 
@@ -69,14 +69,14 @@ class RfcsCompilator:
                     check_yangcatalog_data(self.config, yang_file_path, datatracker_url, document_name, mailto,
                                            compilation_status, {}, all_yang_catalog_metadata, True, versions, 'ietf-rfc'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    updated_modules = push_to_redis(updated_modules, self.config)
                 fileHasher.updated_hashes[yang_file_path] = file_hash
 
             self.results_dict[yang_file] = rfc_url_anchor
             if module_or_submodule(yang_file_path) == 'module':
                 self.results_no_submodules_dict[yang_file] = rfc_url_anchor
 
-        updated_modules = push_to_confd(updated_modules, self.config)
+        updated_modules = push_to_redis(updated_modules, self.config)
         # Update files content hashes and dump into .json file
         if len(fileHasher.updated_hashes) > 0:
             fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
