@@ -115,10 +115,11 @@ def list_br_html_addition(modules_list: list):
     return modules_list
 
 
-def _resolve_maturity_level(ietf_type: t.Optional[str], document_name: str):
+def _resolve_maturity_level(ietf_type: t.Optional[str], document_name: t.Optional[str]):
     if ietf_type == 'ietf-rfc':
         return 'ratified'
     elif ietf_type in ['ietf-draft', 'ietf-example']:
+        assert document_name, 'If this is an IETF module, it ought to have a reference document'
         maturity_level = document_name.split('-')[1]
         if 'ietf' in maturity_level:
             return 'adopted'
@@ -259,13 +260,13 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
                 module_data['compilation-result'] = comp_result
 
         if ietf_type is not None and module_data.get('organization') == 'ietf':
-            wg = _resolve_working_group(name_revision, ietf_type, new_module_data['reference'])
+            wg = _resolve_working_group(name_revision, ietf_type, new_module_data['document-name'])
             if (module_data.get('ietf') is None or module_data['ietf']['ietf-wg'] != wg) and wg is not None:
                 update = True
                 module_data['ietf'] = {}
                 module_data['ietf']['ietf-wg'] = wg
 
-        mat_level = _resolve_maturity_level(ietf_type, new_module_data['reference'])
+        mat_level = _resolve_maturity_level(ietf_type, new_module_data.get('document-name'))
         if module_data.get('maturity-level') != mat_level:
             if mat_level == 'not-applicable' and module_data.get('maturity-level'):
                 pass
