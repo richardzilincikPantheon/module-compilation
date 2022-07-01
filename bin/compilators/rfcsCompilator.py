@@ -65,18 +65,26 @@ class RfcsCompilator:
                 datatracker_url = 'https://datatracker.ietf.org/doc/html/{}'.format((rfc_name))
                 rfc_url_anchor = '<a href="{}">{}</a>'.format(datatracker_url, rfc_name)
                 compilation_status = None
+                redis_data = {
+                    'document-name': document_name,
+                    'reference': datatracker_url,
+                    'author-email': mailto,
+                    'compilation-status': compilation_status,
+                }
                 updated_modules.extend(
-                    check_yangcatalog_data(self.config, yang_file_path, datatracker_url, document_name, mailto,
-                                           compilation_status, {}, all_yang_catalog_metadata, True, versions, 'ietf-rfc'))
+                    check_yangcatalog_data(self.config, yang_file_path, redis_data,
+                                           all_yang_catalog_metadata, {}, 'ietf-rfc'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    push_to_confd(updated_modules, self.config)
+                    updated_modules.clear()
                 fileHasher.updated_hashes[yang_file_path] = file_hash
 
             self.results_dict[yang_file] = rfc_url_anchor
             if module_or_submodule(yang_file_path) == 'module':
                 self.results_no_submodules_dict[yang_file] = rfc_url_anchor
 
-        updated_modules = push_to_confd(updated_modules, self.config)
+        push_to_confd(updated_modules, self.config)
+        updated_modules.clear()
         # Update files content hashes and dump into .json file
         if len(fileHasher.updated_hashes) > 0:
             fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)

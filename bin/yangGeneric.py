@@ -343,14 +343,17 @@ if __name__ == '__main__':
                 'yanglint': result_yanglint
             }
             compilation_status = combined_compilation(yang_file_without_path, compilation_results)
+            redis_data = {
+                'compilation-status': compilation_status
+            }
             updated_modules.extend(
-                check_yangcatalog_data(config, yang_file, datatracker_url, document_name, mailto,
-                                       compilation_status, compilation_results, all_yang_catalog_metadata, is_rfc,
-                                       versions, ietf))
+                check_yangcatalog_data(config, yang_file, redis_data, compilation_results,
+                                       all_yang_catalog_metadata, ietf))
             yang_file_compilation = [
                 compilation_status, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
             if len(updated_modules) > 100:
-                updated_modules = push_to_confd(updated_modules, config)
+                push_to_confd(updated_modules, config)
+                updated_modules.clear()
 
             # Do not store hash if compilation_status is 'UNKNOWN' -> try to parse model again next time
             if compilation_status != 'UNKNOWN':

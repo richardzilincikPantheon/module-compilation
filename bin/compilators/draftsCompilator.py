@@ -116,12 +116,18 @@ class DraftsCompilator:
                 is_rfc = os.path.isfile(os.path.join(paths['rfcpath'], yang_file))
 
                 compilation_status = self._combined_compilation(yang_file, compilation_results)
+                redis_data = {
+                    'document-name': document_name,
+                    'reference': datatracker_url,
+                    'author-email': mailto,
+                    'compilation-status': compilation_status
+                }
                 updated_modules.extend(
-                    check_yangcatalog_data(self.config, yang_file_path, datatracker_url, document_name, mailto,
-                                           compilation_status, compilation_results, all_yang_catalog_metadata, is_rfc,
-                                           versions, 'ietf-draft'))
+                    check_yangcatalog_data(self.config, yang_file_path, redis_data, compilation_results,
+                                           all_yang_catalog_metadata, 'ietf-draft'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    push_to_confd(updated_modules, self.config)
+                    updated_modules.clear()
                 yang_file_compilation = [draft_url_anchor, email_anchor, yang_model_anchor, compilation_status,
                                          result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint]
                 yang_file_compilation_authors = [draft_url_anchor, email_anchor, cisco_email_anchor, yang_model_anchor,
@@ -139,7 +145,8 @@ class DraftsCompilator:
                 self.results_no_submodules_dict[yang_file] = yang_file_compilation
                 self.results_no_submodules_dict_authors[yang_file] = yang_file_compilation
 
-        updated_modules = push_to_confd(updated_modules, self.config)
+        push_to_confd(updated_modules, self.config)
+        updated_modules.clear()
         # Update files content hashes and dump into .json file
         if len(fileHasher.updated_hashes) > 0:
             fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)

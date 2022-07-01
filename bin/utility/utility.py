@@ -22,12 +22,12 @@ import json
 import os
 import time
 import typing as t
-
 import jinja2
 import requests
 from redisConnections.redisConnection import RedisConnection
 
 from utility.staticVariables import IETF_RFC_MAP
+from versions import ValidatorsVersions
 
 
 def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
@@ -46,10 +46,7 @@ def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
         if response.status_code < 200 or response.status_code > 299:
             print('Request with body {} on path {} failed with {}'.
                   format(json_modules_data, url, response.text))
-        redisConnection = RedisConnection()
-        redisConnection.populate_modules(updated_modules)
-
-    return []
+        RedisConnection().populate_modules(updated_modules)
 
 
 def module_or_submodule(yang_file_path: str):
@@ -71,7 +68,7 @@ def module_or_submodule(yang_file_path: str):
                 mcpos = each_line.find('*/')
             else:
                 mcpos = each_line.find('/*')
-            if mcpos != -1 and cpos > mcpos:
+            if mcpos != -1 and (cpos > mcpos or cpos == -1):
                 if commented_out:
                     commented_out = False
                 else:
@@ -118,62 +115,116 @@ def list_br_html_addition(modules_list: list):
     return modules_list
 
 
-def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: str, datatracker_url: t.Optional[str],
-                           document_name, email, compilation_status, result, all_modules, is_rfc, versions, ietf=None):
-    def __resolve_maturity_level():
-        if ietf == 'ietf-rfc':
-            return 'ratified'
-        elif ietf in ['ietf-draft', 'ietf-example']:
-            maturity_level = document_name.split('-')[1]
-            if 'ietf' in maturity_level:
-                return 'adopted'
+def _resolve_maturity_level(ietf_type: t.Optional[str], document_name: str):
+    if ietf_type == 'ietf-rfc':
+        return 'ratified'
+    elif ietf_type in ['ietf-draft', 'ietf-example']:
+        maturity_level = document_name.split('-')[1]
+        if 'ietf' in maturity_level:
+            return 'adopted'
+        else:
+            return 'initial'
+    else:
+        return 'not-applicable'
+
+
+def _resolve_working_group(name_revision: str, ietf_type: str, document_name: str):
+    if ietf_type == 'ietf-rfc':
+        return IETF_RFC_MAP.get('{}.yang'.format(name_revision))
+    else:
+        return document_name.split('-')[2]
+
+
+def _render(tpl_path: str, context: dict) -> str:
+    """Render jinja html template
+        Arguments:
+            :param tpl_path: (str) path to a file
+            :param context: (dict) dictionary containing data to render jinja
+                template file
+            :return: string containing rendered html file
+    """
+    for key in context['result']:
+        context['result'][key] = context['result'][key].replace('\n', '<br>')
+    path, filename = os.path.split(tpl_path)
+    return jinja2.Environment(
+        loader=jinja2.FileSystemLoader(path or './')
+    ).get_template(filename).render(context)
+
+
+def _path_in_dir(yang_file_path: str) -> str:
+    yang_path, yang_file = os.path.split(yang_file_path)
+
+    for root, _, files in os.walk(yang_path):
+        for ff in files:
+            if ff == yang_file:
+                return os.path.join(root, ff)
+    else:
+        print('Error: file {} not found in dir or subdir of {}'.format(yang_file, yang_path))
+    return yang_file_path
+
+
+def _generate_ths(versions: dict, ietf_type: t.Optional[str]) -> t.List[str]:
+    ths = list()
+    option = '--lint'
+    if ietf_type is not None:
+        option = '--ietf'
+    ths.append('Compilation Results (pyang {}). {}'.format(option, versions.get('pyang_version')))
+    ths.append('Compilation Results (pyang). Note: also generates errors for imported files. {}'.format(
+        versions.get('pyang_version')))
+    ths.append('Compilation Results (confdc). Note: also generates errors for imported files. {}'.format(
+        versions.get('confd_version')))
+    ths.append('Compilation Results (yangdump-pro). Note: also generates errors for imported files. {}'.format(
+        versions.get('yangdump_version')))
+    ths.append(
+        'Compilation Results (yanglint -i). Note: also generates errors for imported files. {}'.format(
+            versions.get('yanglint_version')))
+    return ths
+
+
+def _generate_compilation_result_file(module_data: dict, compilation_results: dict, result_html_dir: str,
+                                      is_rfc: bool, versions: dict, ietf_type: t.Optional[str]) -> str:
+    name = module_data['name']
+    rev = module_data['revision']
+    org = module_data['organization']
+    file_url = '{}@{}_{}.html'.format(name, rev, org)
+    compilation_results['name'] = name
+    compilation_results['revision'] = rev
+    compilation_results['generated'] = time.strftime('%d/%m/%Y')
+
+    context = {'result': compilation_results,
+                'ths': _generate_ths(versions, ietf_type)}
+    template = os.path.dirname(os.path.realpath(__file__)) + '/../resources/compilationStatusTemplate.html'
+    rendered_html = _render(template, context)
+    result_html_file = os.path.join(result_html_dir, file_url)
+    if os.path.isfile(result_html_file):
+        with open(result_html_file, 'r', encoding='utf-8') as f:
+            existing_output = f.read()
+        if existing_output != rendered_html:
+            if is_rfc and ietf_type is None:
+                pass
             else:
-                return 'initial'
-        else:
-            return 'not-applicable'
+                with open(result_html_file, 'w', encoding='utf-8') as f:
+                    f.write(rendered_html)
+                os.chmod(result_html_file, 0o664)
+    else:
+        with open(result_html_file, 'w', encoding='utf-8') as f:
+            f.write(rendered_html)
+        os.chmod(result_html_file, 0o664)
 
-    def __resolve_working_group():
-        if ietf == 'ietf-rfc':
-            return IETF_RFC_MAP.get('{}.yang'.format(name_revision))
-        else:
-            return document_name.split('-')[2]
+    return file_url
 
-    def __render(tpl_path, context):
-        """Render jinja html template
-            Arguments:
-                :param tpl_path: (str) path to a file
-                :param context: (dict) dictionary containing data to render jinja
-                    template file
-                :return: string containing rendered html file
-        """
-        for key in context['result']:
-            context['result'][key] = context['result'][key].replace('\n', '<br>')
-        path, filename = os.path.split(tpl_path)
-        return jinja2.Environment(
-            loader=jinja2.FileSystemLoader(path or './')
-        ).get_template(filename).render(context)
 
+def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_path: str, new_module_data: dict,
+                           compilation_results: dict, all_modules: t.Dict[str, dict], ietf_type: t.Optional[str] = None):
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     result_html_dir = config.get('Web-Section', 'result-html-dir')
     domain_prefix = config.get('Web-Section', 'domain-prefix')
+    versions = ValidatorsVersions().get_versions()
 
-    yang_path, yang_file = os.path.split(yang_file_path)
+    yang_file_path = _path_in_dir(yang_file_pseudo_path)
+    is_rfc = ietf_type == 'ietf-rfc'
 
     updated_modules = []
-    yang_file_path = os.path.join(yang_path, yang_file)
-
-    found = False
-    for root, _, files in os.walk(yang_path):
-        if found:
-            break
-        for ff in files:
-            if ff == yang_file:
-                yang_file_path = os.path.join(root, ff)
-                found = True
-            if found:
-                break
-    if not found:
-        print('Error: file {} not found in dir or subdir of {}'.format(yang_file, yang_path))
     name_revision_command = 'pypy3 {} -fname --name-print-revision --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
     name_revision = os.popen(name_revision_command).read().rstrip().split(' ')[0]
     if '@' not in name_revision:
@@ -181,74 +232,24 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
     if name_revision in all_modules:
         module_data = all_modules[name_revision].copy()
         update = False
-        if module_data.get('document-name') != document_name and document_name is not None and document_name != '':
-            update = True
-            module_data['document-name'] = document_name
 
-        if module_data.get('reference') != datatracker_url and datatracker_url is not None and datatracker_url != '':
-            update = True
-            module_data['reference'] = datatracker_url
+        for field in ['document-name', 'reference', 'author-email']:
+            if new_module_data.get(field) and module_data.get(field) != new_module_data[field]:
+                update = True
+                module_data[field] = new_module_data[field]
 
-        if module_data.get('author-email') != email and email is not None and email != '':
-            update = True
-            module_data['author-email'] = email
-
-        if compilation_status and module_data.get('compilation-status') != compilation_status.lower().replace(' ', '-'):
+        if new_module_data.get('compilation-status') \
+            and module_data.get('compilation-status') != new_module_data['compilation-status'].lower().replace(' ', '-'):
             # Module parsed with --ietf flag (= RFC) has higher priority
-            if is_rfc:
-                if ietf is not None:
-                    update = True
-                    module_data['compilation-status'] = compilation_status.lower().replace(' ', '-')
+            if is_rfc and ietf_type is None:
+                pass
             else:
                 update = True
-                module_data['compilation-status'] = compilation_status.lower().replace(' ', '-')
+                module_data['compilation-status'] = new_module_data['compilation-status'].lower().replace(' ', '-')
 
-        if compilation_status is not None:
-            name = module_data['name']
-            rev = module_data['revision']
-            org = module_data['organization']
-            file_url = '{}@{}_{}.html'.format(name, rev, org)
-            result['name'] = name
-            result['revision'] = rev
-            result['generated'] = time.strftime('%d/%m/%Y')
-
-            ths = list()
-            option = '--lint'
-            if ietf is not None:
-                option = '--ietf'
-            ths.append('Compilation Results (pyang {}). {}'.format(option, versions.get('pyang_version')))
-            ths.append('Compilation Results (pyang). Note: also generates errors for imported files. {}'.format(
-                versions.get('pyang_version')))
-            ths.append('Compilation Results (confdc). Note: also generates errors for imported files. {}'.format(
-                versions.get('confd_version')))
-            ths.append('Compilation Results (yangdump-pro). Note: also generates errors for imported files. {}'.format(
-                versions.get('yangdump_version')))
-            ths.append(
-                'Compilation Results (yanglint -i). Note: also generates errors for imported files. {}'.format(
-                    versions.get('yanglint_version')))
-
-            context = {'result': result,
-                       'ths': ths}
-            template = os.path.dirname(os.path.realpath(__file__)) + '/../resources/compilationStatusTemplate.html'
-            rendered_html = __render(template, context)
-            result_html_file = os.path.join(result_html_dir, file_url)
-            if os.path.isfile(result_html_file):
-                with open(result_html_file, 'r', encoding='utf-8') as f:
-                    existing_output = f.read()
-                if existing_output != rendered_html:
-                    if is_rfc:
-                        if ietf is not None:
-                            with open(result_html_file, 'w', encoding='utf-8') as f:
-                                f.write(rendered_html)
-                            os.chmod(result_html_file, 0o664)
-                    else:
-                        with open(result_html_file, 'w', encoding='utf-8') as f:
-                            f.write(rendered_html)
-                        os.chmod(result_html_file, 0o664)
-            else:
-                with open(result_html_file, 'w', encoding='utf-8') as f:
-                    f.write(rendered_html)
-                os.chmod(result_html_file, 0o664)
+        if new_module_data.get('compilation-status') is not None:
+            file_url = _generate_compilation_result_file(module_data, compilation_results,
+                                                         result_html_dir, is_rfc, versions, ietf_type)
             if module_data.get('compilation-status') == 'unknown':
                 comp_result = ''
             else:
@@ -257,19 +258,17 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_path: st
                 update = True
                 module_data['compilation-result'] = comp_result
 
-        if ietf is not None and module_data.get('organization') == 'ietf':
-            wg = __resolve_working_group()
+        if ietf_type is not None and module_data.get('organization') == 'ietf':
+            wg = _resolve_working_group(name_revision, ietf_type, new_module_data['reference'])
             if (module_data.get('ietf') is None or module_data['ietf']['ietf-wg'] != wg) and wg is not None:
                 update = True
                 module_data['ietf'] = {}
                 module_data['ietf']['ietf-wg'] = wg
 
-        mat_level = __resolve_maturity_level()
+        mat_level = _resolve_maturity_level(ietf_type, new_module_data['reference'])
         if module_data.get('maturity-level') != mat_level:
-            if mat_level == 'not-applicable':
-                if module_data.get('maturity-level') is None or module_data.get('maturity-level') == '':
-                    update = True
-                    module_data['maturity-level'] = mat_level
+            if mat_level == 'not-applicable' and module_data.get('maturity-level'):
+                pass
             else:
                 update = True
                 module_data['maturity-level'] = mat_level

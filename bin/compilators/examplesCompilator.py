@@ -87,12 +87,18 @@ class ExamplesCompilator:
                     'pyang_lint': pyang_result,
                     'pyang': pyang_result_no_ietf_flag
                 }
+                redis_data = {
+                    'document_name': document_name,
+                    'reference': datatracker_url,
+                    'author-email': mailto,
+                    'compilation-status': compilation_status
+                }
                 updated_modules.extend(
-                    check_yangcatalog_data(self.config, yang_file_path, datatracker_url, document_name, mailto,
-                                           compilation_status, compilation_results, all_yang_catalog_metadata, False,
-                                           versions, 'ietf-example'))
+                    check_yangcatalog_data(self.config, yang_file_path, redis_data, compilation_results,
+                                           all_yang_catalog_metadata, 'ietf-example'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    push_to_confd(updated_modules, self.config)
+                    updated_modules.clear()
                 yang_file_compilation = [draft_url_anchor, email_anchor, compilation_status, pyang_result, pyang_result_no_ietf_flag]
 
                 # Do not store hash if compilation result is 'UNKNOWN' -> try to parse model again next time
@@ -103,7 +109,8 @@ class ExamplesCompilator:
             if module_or_submodule(yang_file_path) == 'module':
                 self.results_no_submodules_dict[yang_file] = yang_file_compilation
 
-        updated_modules = push_to_confd(updated_modules, self.config)
+        push_to_confd(updated_modules, self.config)
+        updated_modules.clear()
         # Update files content hashes and dump into .json file
         if len(fileHasher.updated_hashes) > 0:
             fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
