@@ -22,7 +22,7 @@ import os
 
 from create_config import create_config
 from extract_emails import extract_email_string
-from fileHasher import FileHasher
+from file_hasher import FileHasher
 from parsers.confdcParser import ConfdcParser
 from parsers.pyangParser import PyangParser
 from parsers.yangdumpProParser import YangdumpProParser
@@ -141,8 +141,7 @@ class DraftsCompilator:
 
         updated_modules = push_to_confd(updated_modules, self.config)
         # Update files content hashes and dump into .json file
-        if len(fileHasher.updated_hashes) > 0:
-            fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
+        fileHasher.dump_hashed_files_list()
 
     def _combined_compilation(self, yang_file: str, result: dict):
         """
