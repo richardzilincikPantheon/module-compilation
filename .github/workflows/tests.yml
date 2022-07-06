@@ -1,0 +1,34 @@
+name: Python tests
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: ["3.9"]
+    environment: tests
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          cd bin/resources/HTML
+          python setup.py install
+
+      - name: Test with pytest
+        run: |
+          export YANGCATALOG_CONFIG_PATH=$PWD/tests/resources/test.conf
+          export PYTHONPATH=$PWD/bin:$PYTHONPATH
+          export VIRTUAL_ENV=$PWD
+          pytest
