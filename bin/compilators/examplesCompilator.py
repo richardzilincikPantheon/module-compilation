@@ -24,7 +24,7 @@ from create_config import create_config
 from fileHasher import FileHasher
 from parsers.pyangParser import PyangParser
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
-                             push_to_confd)
+                             push_to_redis)
 from versions import ValidatorsVersions
 
 
@@ -92,7 +92,7 @@ class ExamplesCompilator:
                                            compilation_status, compilation_results, all_yang_catalog_metadata, False,
                                            versions, 'ietf-example'))
                 if len(updated_modules) > 100:
-                    updated_modules = push_to_confd(updated_modules, self.config)
+                    updated_modules = push_to_redis(updated_modules, self.config)
                 yang_file_compilation = [draft_url_anchor, email_anchor, compilation_status, pyang_result, pyang_result_no_ietf_flag]
 
                 # Do not store hash if compilation result is 'UNKNOWN' -> try to parse model again next time
@@ -103,7 +103,7 @@ class ExamplesCompilator:
             if module_or_submodule(yang_file_path) == 'module':
                 self.results_no_submodules_dict[yang_file] = yang_file_compilation
 
-        updated_modules = push_to_confd(updated_modules, self.config)
+        updated_modules = push_to_redis(updated_modules, self.config)
         # Update files content hashes and dump into .json file
         if len(fileHasher.updated_hashes) > 0:
             fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
