@@ -15,7 +15,7 @@
 declare -A REPOSITORIES
 REPOSITORIES=([yangmodels/yang]=https://github.com/YangModels/yang.git \
               [openconfig/yang]=https://github.com/openconfig/yang.git \
-              [openconfig/public-orig]=https://github.com/openconfig/public.git \
+              [openconfig/public]=https://github.com/openconfig/public.git \
               [sysrepo/yang]=https://github.com/sysrepo/yang.git \
               [onf/Snowmass-ONFOpenTransport]=https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git \
               [openroadm/OpenROADM_MSA_Public]=https://github.com/OpenROADM/OpenROADM_MSA_Public.git \
@@ -55,15 +55,15 @@ then
     done
 
     # "Flatten" all .yang files from subdirectories into one directory to avoid confd path issues.
-    if [ ${modified[openconfig/public-orig]} ]
+    if [ ${modified[openconfig/public]} ]
     then
         cd $NONIETFDIR/openconfig
-        rm -rf public
-        cp public-orig public
-        cd public
+        rm -rf public-flat
+        cp public public-flat
+        cd public-flat
         mkdir -p release/models-flat
         cd release
-        find ./models -name "*.yang" -exec mv -t $NONIETFDIR/openconfig/public/release/models-flat/ {} + >>$LOG 2>&1
+        find ./models -name "*.yang" -exec mv -t $NONIETFDIR/openconfig/public-flat/release/models-flat/ {} + >>$LOG 2>&1
         rm -rf models
         mv models-flat models
     fi
