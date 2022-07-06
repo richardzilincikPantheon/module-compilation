@@ -1,0 +1,99 @@
+  grouping shared-module-leafs {
+    leaf generated-from {
+      type enumeration {
+        enum mib {
+          description
+            "Module generated from Structure of Management Information (SMI)
+             MIB per RFC6643.";
+        }
+        enum not-applicable {
+          description
+            "Module was not generated but it was authored manually.";
+        }
+        enum native {
+          description
+            "Module generated from platform internal,
+             proprietary structure, or code.";
+        }
+      }
+      default "not-applicable";
+      description
+        "This statement defines weather the module was generated or not.
+         Default value is set to not-applicable, which means that module
+         was created manualy and not generated.";
+    }
+    leaf maturity-level {
+      type enumeration {
+        enum ratified {
+          description
+            "Maturity of a module that is fully approved (e.g., a standard).";
+        }
+        enum adopted {
+          description
+            "Maturity of a module that is actively being developed by a organization towards ratification.";
+        }
+        enum initial {
+          description
+            "Maturity of a module that has been initially created, but has no official
+             organization-level status.";
+        }
+        enum not-applicable {
+          description
+            "The maturity level is not used for vendor-supplied models, and thus all vendor
+             modules will have a maturity of not-applicable";
+        }
+      }
+      description
+        "The current maturity of the module with respect to the body that created it.
+         This allows one to understand where the module is in its overall life cycle.";
+    }
+    leaf document-name {
+      type string;
+      description
+        "The name of the document from which the module was extracted or taken;
+         or that provides additional context about the module.";
+    }
+    leaf author-email {
+      type yc:email-address;
+      description
+        "Contact email of the author who is responsible for this module.";
+    }
+    leaf reference {
+      type inet:uri;
+      description
+        "A string that is used to specify a textual cross-reference to an external document, either
+         another module that defines related management information, or a document that provides
+         additional information relevant to this definition.";
+    }
+    leaf module-classification {
+      type enumeration {
+        enum network-service {
+          description
+            "Network Service YANG Module that describes the configuration, state
+             data, operations, and notifications of abstract representations of
+             services implemented on one or multiple network elements.";
+        }
+        enum network-element {
+          description
+            "Network Element YANG Module that describes the configuration, state
+             data, operations, and notifications of specific device-centric
+             technologies or features.";
+        }
+        enum unknown {
+          description
+            "In case that there is not sufficient information about how to classify the module.";
+        }
+        enum not-applicable {
+          description
+            "The YANG module abstraction type is neither a Network Service YANG Module
+             nor a Network Element YANG Module.";
+        }
+      }
+      mandatory true;
+      description
+        "The high-level classification of the given YANG module.";
+      reference "RFC8199 YANG Module Classification";
+    }
+    description
+      "These leafs are shared among the yang-catalog and its API.";
+  }
