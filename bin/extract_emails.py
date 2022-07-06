@@ -28,7 +28,7 @@ from create_config import create_config
 # Functions
 # ----------------------------------------------------------------------
 def list_of_ietf_drafts(directory: str):
-    """ Returns a list of all the files in a directory.
+    """ Returns a list of all the drafts in a directory.
 
     Arguments:
         :param directory        (str) Directory to search for drafts
@@ -36,7 +36,7 @@ def list_of_ietf_drafts(directory: str):
     :return: list of found drafts
     """
     only_files = [file for file in os.listdir(directory) if os.path.isfile(os.path.join(directory, file))]
-    only_drafts = [file for file in only_files if 'draft-' in file]
+    only_drafts = [file for file in only_files if file.startswith('draft-')]
 
     return only_drafts
 
