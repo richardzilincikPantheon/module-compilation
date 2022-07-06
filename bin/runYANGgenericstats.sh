@@ -61,7 +61,7 @@ yang_generic --metadata "IEEE: YANG Data Models compilation from https://github.
 yang_generic --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/draft: The 'standard/ieee/draft' branch is intended for draft modules with an approved Project Authorization Request (PAR)." --lint --prefix IEEEStandardDraft --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/draft/"
 
 # Experimental IEEE
-yang_generic --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/" --forcecompilation
+yang_generic --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/"
 
 # Standard IANA
 yang_generic --metadata "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models." --lint --prefix IANAStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/iana/"
