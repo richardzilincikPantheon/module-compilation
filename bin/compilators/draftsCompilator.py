@@ -28,7 +28,7 @@ from parsers.pyangParser import PyangParser
 from parsers.yangdumpProParser import YangdumpProParser
 from parsers.yanglintParser import YanglintParser
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
-                             push_to_confd)
+                             push_to_redis)
 from versions import ValidatorsVersions
 
 
@@ -126,7 +126,7 @@ class DraftsCompilator:
                     check_yangcatalog_data(self.config, yang_file_path, redis_data, compilation_results,
                                            all_yang_catalog_metadata, 'ietf-draft'))
                 if len(updated_modules) > 100:
-                    push_to_confd(updated_modules, self.config)
+                    push_to_redis(updated_modules, self.config)
                     updated_modules.clear()
                 yang_file_compilation = [draft_url_anchor, email_anchor, yang_model_anchor, compilation_status,
                                          result_pyang, result_no_ietf_flag, result_confd, result_yuma, result_yanglint]
@@ -145,7 +145,7 @@ class DraftsCompilator:
                 self.results_no_submodules_dict[yang_file] = yang_file_compilation
                 self.results_no_submodules_dict_authors[yang_file] = yang_file_compilation
 
-        push_to_confd(updated_modules, self.config)
+        push_to_redis(updated_modules, self.config)
         updated_modules.clear()
         # Update files content hashes and dump into .json file
         if len(fileHasher.updated_hashes) > 0:

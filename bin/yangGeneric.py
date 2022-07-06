@@ -30,7 +30,7 @@ from parsers.yangdumpProParser import YangdumpProParser
 from parsers.yanglintParser import YanglintParser
 from utility.utility import (check_yangcatalog_data, dict_to_list,
                              list_br_html_addition, module_or_submodule,
-                             number_that_passed_compilation, push_to_confd)
+                             number_that_passed_compilation, push_to_redis)
 from versions import ValidatorsVersions
 
 __author__ = 'Benoit Claise'
@@ -352,7 +352,7 @@ if __name__ == '__main__':
             yang_file_compilation = [
                 compilation_status, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
             if len(updated_modules) > 100:
-                push_to_confd(updated_modules, config)
+                push_to_redis(updated_modules, config)
                 updated_modules.clear()
 
             # Do not store hash if compilation_status is 'UNKNOWN' -> try to parse model again next time
@@ -407,7 +407,7 @@ if __name__ == '__main__':
                 if counter == 0:
                     break
 
-    push_to_confd(updated_modules, config)
+    push_to_redis(updated_modules, config)
 
     # Print the summary of the compilation results
     print('--------------------------')

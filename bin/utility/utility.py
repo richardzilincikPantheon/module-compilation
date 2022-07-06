@@ -30,7 +30,7 @@ from utility.staticVariables import IETF_RFC_MAP
 from versions import ValidatorsVersions
 
 
-def push_to_confd(updated_modules: list, config: configparser.ConfigParser):
+def push_to_redis(updated_modules: list, config: configparser.ConfigParser):
     json_modules_data = json.dumps({'modules': {'module': updated_modules}})
     credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
     confd_prefix = config.get('Web-Section', 'confd-prefix')
