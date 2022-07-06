@@ -14,7 +14,6 @@
 
 declare -A REPOSITORIES
 REPOSITORIES=([yangmodels/yang]=https://github.com/YangModels/yang.git \
-              [openconfig/yang]=https://github.com/openconfig/yang.git \
               [openconfig/public]=https://github.com/openconfig/public.git \
               [sysrepo/yang]=https://github.com/sysrepo/yang.git \
               [onf/Snowmass-ONFOpenTransport]=https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport.git \
@@ -59,7 +58,7 @@ then
     then
         cd $NONIETFDIR/openconfig
         rm -rf public-flat
-        cp public public-flat
+        cp -r public public-flat
         cd public-flat
         mkdir -p release/models-flat
         cd release
