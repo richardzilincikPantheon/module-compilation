@@ -33,7 +33,7 @@ refresh_repo () {
         git clone --recurse-submodules ${REPOSITORIES[$repo]} >> $LOG 2>&1
     else
         cd $NONIETFDIR/$repo
-        if [ "$(git pull origin main 2>&1 | tee -a $LOG)" != "Already up to date." ]
+        if [ "$(git pull origin HEAD 2>&1 | tee -a $LOG)" != "Already up to date." ]
         then
             modified+=([$repo]=true)
         fi
