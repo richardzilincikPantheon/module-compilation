@@ -26,11 +26,12 @@ declare -A modified
 refresh_repo () {
     local repo=$1
     local owner=${1%%/*}
+    local directory=${1##*/}
     if [ ! -d $NONIETFDIR/$repo ]
     then
         mkdir -p $NONIETFDIR/$owner
         cd $NONIETFDIR/$owner
-        git clone --recurse-submodules ${REPOSITORIES[$repo]} >> $LOG 2>&1
+        git clone --recurse-submodules ${REPOSITORIES[$repo]} $directory >> $LOG 2>&1
     else
         cd $NONIETFDIR/$repo
         if [ "$(git pull origin HEAD 2>&1 | tee -a $LOG)" != "Already up to date." ]
