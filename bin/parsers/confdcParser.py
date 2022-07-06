@@ -69,7 +69,7 @@ class ConfdcParser:
             result_confdc = result_confdc.strip()
             result_confdc = result_confdc.replace('\n\n', '\n').replace('\n', '\n\n')
             # Remove absolute path from output
-            result_confdc = result_confdc.replace(rootdir, '')
+            result_confdc = result_confdc.replace(yang_file_path, os.path.basename(yang_file_path))
             for sym_link in self._symlink_paths:
                 result_confdc = result_confdc.replace('{}/'.format(sym_link), '')
         except Exception:

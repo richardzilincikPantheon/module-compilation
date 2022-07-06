@@ -125,10 +125,6 @@ rm -f $WEB/YANG-modules/* >>$LOG 2>&1
 cp --preserve $IETFDIR/YANG/*.yang $WEB/YANG-modules >>$LOG 2>&1
 date +"%c: IETF YANG modules copied to $WEB/YANG-modules" >>$LOG
 
-# Generate the report for RFC-ed YANG modules, and ftp the files.
-python $BIN/yangGeneric.py --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed $($PYANG -v) with --ietf :-( " --prefix RFCStandard --rootdir "$IETFDIR/YANG-rfc/" >>$LOG 2>&1
-date +"%c: All RFC processed" >>$LOG
-
 #Generate the diff files
 # Need to add || true as diff returns 1 in case of different files...
 diff $WEB_PRIVATE/IETFDraftYANGPageCompilation.html $WEB_PRIVATE/IETFDraftYANGPageCompilation-old.html >$WEB_PRIVATE/IETFDraftYANGPageCompilation-diff.txt || true

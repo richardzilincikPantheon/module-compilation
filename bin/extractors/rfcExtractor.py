@@ -44,6 +44,11 @@ class RFCExtractor:
         self.ietf_rfcs.sort()
         print('IETF RFCs list created')
 
+    def extract(self):
+        self.extract_rfcs()
+        self.invert_dict()
+        self.remove_invalid_files()
+
     def extract_rfcs(self):
         for rfc_file in self.ietf_rfcs:
             extracted_yang_models = self.extract_from_rfc_file(rfc_file)

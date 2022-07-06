@@ -46,6 +46,16 @@ yang_generic () {
    wait_for_processes
 }
 
+# IETF RFCs
+yang_generic --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed $($PYANG -v) with --ietf :-( " --rfc
+
+# IETF drafts
+yang_generic --draft
+
+
+# IETF examples
+yang_generic --example
+
 # BBF
 yang_generic --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/BroadbandForum/yang/tree/master" --lint --prefix BBF --rootdir "$TMP/bbf/"
 
