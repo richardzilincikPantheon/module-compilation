@@ -1,0 +1,10 @@
+/* submodule
+   // submodule
+   // */
+*/ // submodule
+module foobar {
+  namespace "urn:foobar";
+  revision 2022-01-25 {
+    description "test";
+  }
+}

@@ -276,7 +276,7 @@ if __name__ == '__main__':
     custom_print('Start of job in {}'.format(args.rootdir))
 
     # Get list of hashed files
-    fileHasher = FileHasher(args.forcecompilation)
+    fileHasher = FileHasher(force_compilation=args.forcecompilation)
 
     all_yang_catalog_metadata = {}
     modules = {}
@@ -329,9 +329,6 @@ if __name__ == '__main__':
             result_confd = confdcParser.run_confdc(yang_file, args.rootdir, args.allinclusive)
             result_yuma = yumadumpProParser.run_yumadumppro(yang_file, args.rootdir, args.allinclusive)
             result_yanglint = yanglintParser.run_yanglint(yang_file, args.rootdir, args.allinclusive)
-            document_name = None
-            mailto = None
-            datatracker_url = None
             # If we are parsing RFCStandard
             ietf = 'ietf-rfc' if '/YANG-rfc' in yang_file else None
             is_rfc = os.path.isfile('{}/YANG-rfc/{}'.format(ietf_directory, yang_file_with_revision))
@@ -343,14 +340,17 @@ if __name__ == '__main__':
                 'yanglint': result_yanglint
             }
             compilation_status = combined_compilation(yang_file_without_path, compilation_results)
+            redis_data = {
+                'compilation-status': compilation_status
+            }
             updated_modules.extend(
-                check_yangcatalog_data(config, yang_file, datatracker_url, document_name, mailto,
-                                       compilation_status, compilation_results, all_yang_catalog_metadata, is_rfc,
-                                       versions, ietf))
+                check_yangcatalog_data(config, yang_file, redis_data, compilation_results,
+                                       all_yang_catalog_metadata, ietf))
             yang_file_compilation = [
                 compilation_status, result_pyang, result_no_pyang_param, result_confd, result_yuma, result_yanglint]
             if len(updated_modules) > 100:
-                updated_modules = push_to_redis(updated_modules, config)
+                push_to_redis(updated_modules, config)
+                updated_modules.clear()
 
             # Do not store hash if compilation_status is 'UNKNOWN' -> try to parse model again next time
             if compilation_status != 'UNKNOWN':
