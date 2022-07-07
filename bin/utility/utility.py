@@ -18,6 +18,7 @@ __license__ = 'Apache License, Version 2.0'
 __email__ = 'slavomir.mazur@pantheon.tech'
 
 import configparser
+from imp import new_module
 import json
 import os
 import time
@@ -259,7 +260,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
                 update = True
                 module_data['compilation-result'] = comp_result
 
-        if ietf_type is not None and module_data.get('organization') == 'ietf':
+        if ietf_type is not None and module_data.get('organization') == 'ietf' and 'document-name' in new_module_data:
             wg = _resolve_working_group(name_revision, ietf_type, new_module_data['document-name'])
             if (module_data.get('ietf') is None or module_data['ietf']['ietf-wg'] != wg) and wg is not None:
                 update = True

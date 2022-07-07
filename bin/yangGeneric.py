@@ -329,9 +329,6 @@ if __name__ == '__main__':
             result_confd = confdcParser.run_confdc(yang_file, args.rootdir, args.allinclusive)
             result_yuma = yumadumpProParser.run_yumadumppro(yang_file, args.rootdir, args.allinclusive)
             result_yanglint = yanglintParser.run_yanglint(yang_file, args.rootdir, args.allinclusive)
-            document_name = None
-            mailto = None
-            datatracker_url = None
             # If we are parsing RFCStandard
             ietf = 'ietf-rfc' if '/YANG-rfc' in yang_file else None
             is_rfc = os.path.isfile('{}/YANG-rfc/{}'.format(ietf_directory, yang_file_with_revision))
