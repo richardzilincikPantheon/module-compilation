@@ -1,0 +1,19 @@
+  grouping organization-specific-metadata {
+    container ietf {
+      when "../organization = 'ietf'" {
+        description
+          "Include this container specific metadata of the IETF.";
+      }
+      leaf ietf-wg {
+        type string;
+        description
+          "Working group that authored the document containing this module.";
+      }
+      description
+        "Include this container for the IETF-specific organization metadata.";
+    }
+    description
+      "Any organization that has some specific metadata of the yang module and want them add to the
+       yang-catalog, should augment this grouping. This grouping is for any metadata that can`t be used for
+       every yang module.";
+  }

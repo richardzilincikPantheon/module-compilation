@@ -20,7 +20,7 @@ __version__ = "1.1.0"
 
 from subprocess import CalledProcessError, check_output
 
-import pyang
+from pyang import __version__ as pyang_version
 from xym import __version__ as xym_version
 
 from create_config import create_config
@@ -30,7 +30,6 @@ class ValidatorsVersions:
     def __init__(self):
         config = create_config()
         confdc_exec = config.get('Tool-Section', 'confdc-exec')
-        self.cache_dir = config.get('Directory-Section', 'cache')
 
         # ConfD version
         try:
@@ -44,10 +43,13 @@ class ValidatorsVersions:
         except CalledProcessError:
             yangdump_version = 'undefined'
         # yanglint version
-        yanglint_cmd = '/usr/local/bin/yanglint'
-        yanglint_version = check_output('{} --version'.format(yanglint_cmd), shell=True).decode('utf-8').rstrip()
+        try:
+            yanglint_cmd = '/usr/local/bin/yanglint'
+            yanglint_version = check_output('{} --version'.format(yanglint_cmd), shell=True).decode('utf-8').rstrip()
+        except CalledProcessError:
+            yanglint_version = 'undefined'
 
-        self.versions = {'validator_version': __version__, 'pyang_version': pyang.__version__, 'xym_version': xym_version,
+        self.versions = {'validator_version': __version__, 'pyang_version': pyang_version, 'xym_version': xym_version,
                          'confd_version': confd_version, 'yanglint_version': yanglint_version,
                          'yangdump_version': yangdump_version}
 

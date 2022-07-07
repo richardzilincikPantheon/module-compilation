@@ -22,7 +22,7 @@ import requests
 from filelock import FileLock
 
 from create_config import create_config
-from fileHasher import FileHasher
+from file_hasher import FileHasher
 from filesGenerator import FilesGenerator
 from parsers.confdcParser import ConfdcParser
 from parsers.pyangParser import PyangParser
@@ -416,5 +416,4 @@ if __name__ == '__main__':
     custom_print('end of yangGeneric.py job for {}'.format(args.prefix))
 
     # Update files content hashes and dump into .json file
-    if len(fileHasher.updated_hashes) > 0:
-        fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
+    fileHasher.dump_hashed_files_list()

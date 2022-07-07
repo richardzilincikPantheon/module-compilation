@@ -1,0 +1,4 @@
+  identity protocol {
+    description
+      "Abstract base identity for a YANG-based protocol.";
+  }

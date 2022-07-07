@@ -1,0 +1,25 @@
+  grouping shared-implementation-leafs {
+    leaf os-version {
+      type string;
+      description
+        "Version of the operating system using this module.  This is primarily useful if
+         the software implementing the module is an application that requires a specific
+         operating system.";
+    }
+    leaf feature-set {
+      type string;
+      description
+        "An optional feature of the software that is required in order to implement this
+         module.  Some form of this must be incorporated in software-version or
+         software-flavor, but can be broken out here for additional clarity.";
+    }
+    leaf os-type {
+      type string;
+      description
+        "Type of the operating system using this module.  This is primarily useful if
+         the software implementing the module is an application that requires a
+         specific operating system.";
+    }
+    description
+      "Grouping of non-key leafs to be used in the module and vendor sub-trees.";
+  }

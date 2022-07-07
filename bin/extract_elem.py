@@ -75,14 +75,6 @@ def extract_elem(module_fname, extract_dir, elem_type):
                     found_keyword = False
                     file_out = None
 
-def get_identifier(elem_type, line):
-    match = re.match(r'\s*' + elem_type + r'\s+([-_\.\w\d]+)' + r'\s*{', line)
-    if match:
-        return match.group(1)
-    else:
-        print("*** Did not find '" + elem_type + "' in line: '" + line + "'.")
-        return None
-
 if __name__ == "__main__":
     file = '/var/www/html/YANG-modules/ietf-gen-rpc.yang'
     extract_elem(file, '/tmp/extract', 'grouping')

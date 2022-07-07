@@ -1,0 +1,24 @@
+  grouping yang-lib-common-leafs {
+    leaf name {
+      type yang:yang-identifier;
+      description
+        "The YANG module or submodule name.";
+    }
+    leaf revision {
+      type union {
+        type yanglib:revision-identifier;
+        type string {
+          length "0";
+        }
+      }
+      description
+        "The YANG module or submodule revision date.
+         A zero-length string is used if no revision statement
+         is present in the YANG module or submodule.";
+    }
+    description
+      "The YANG module or submodule revision date.
+       A zero-length string is used if no revision statement
+       is present in the YANG module or submodule.";
+    reference "RFC7895 YANG Module Library : common-leafs grouping";
+  }

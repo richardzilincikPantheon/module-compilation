@@ -1,0 +1,5 @@
+  identity netconf {
+    base protocol;
+    description
+      "Protocol identity for NETCONF as described in RFC 6241.";
+  }

@@ -21,7 +21,7 @@ import json
 import os
 
 from create_config import create_config
-from fileHasher import FileHasher
+from file_hasher import FileHasher
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
                              push_to_redis)
 from versions import ValidatorsVersions
@@ -86,5 +86,4 @@ class RfcsCompilator:
         push_to_redis(updated_modules, self.config)
         updated_modules.clear()
         # Update files content hashes and dump into .json file
-        if len(fileHasher.updated_hashes) > 0:
-            fileHasher.dump_hashed_files_list(fileHasher.updated_hashes)
+        fileHasher.dump_hashed_files_list()
