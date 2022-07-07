@@ -28,7 +28,7 @@ for b in $branches; do
 done
 
 cd $cur_dir
-python $BIN/generatePrivatePage.py --openRoadM ${openroadm}
+python $BIN/private_page.py --openRoadM ${openroadm}
 cd $WEB_PRIVATE
 rm -f YANGPageMain.html
 cat *PageMain.html >YANGPageMain.html
