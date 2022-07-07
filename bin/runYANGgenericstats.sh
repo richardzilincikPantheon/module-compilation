@@ -121,7 +121,7 @@ if [ "$IS_PROD" = "True" ]; then
       # syntax: cisco meta os
       local meta=$1
       local os_upper=$2
-      local os_lower=${os_lower,,}
+      local os_lower=${os_upper,,}
       date +"%c: processing all Cisco $os_upper modules " >>$LOG
       for path in $(ls -d $NONIETFDIR/yangmodels/yang/vendor/cisco/$os_lower/*/); do
          git=${path##*/cisco/$os_lower/}
@@ -185,7 +185,7 @@ if [ "$IS_PROD" = "True" ]; then
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]')
-      yang_catalog --allinclusive --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint --prefix Fujitsu$prefix --rootdir "$path"
+      yang_generic --allinclusive --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint --prefix Fujitsu$prefix --rootdir "$path"
       wait_for_processes
    done
 
