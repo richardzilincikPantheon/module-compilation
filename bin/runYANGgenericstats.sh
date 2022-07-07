@@ -97,9 +97,9 @@ done
 if [ "$IS_PROD" = "True" ]; then
    cur_dir=$(pwd)
    cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
-   branches=$(git branch -a | grep remotes)
-   for b in $branches; do
-      version=${b##*/}
+   branches=$(git branch --remotes)
+   for branch in $branches; do
+      version=${branch##*/}
       first_char=${version:0:1}
       if [[ $first_char =~ ^[[:digit:]] ]]; then
          git checkout $version >>$LOG 2>&1
@@ -112,7 +112,7 @@ if [ "$IS_PROD" = "True" ]; then
    date +"%c: forking all sub-processes for OpenROADM versions" >>$LOG
    for path in $(ls -d $TMP/openroadm-public/*/); do
       version=$(basename $path)
-      yang_generic --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/master/model" --lint --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/"
+      yang_generic --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/$version/model" --lint --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/"
       wait_for_processes
    done
    cd $cur_dir
