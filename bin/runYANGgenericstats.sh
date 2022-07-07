@@ -88,12 +88,14 @@ for path in $(ls -d $NONIETFDIR/yangmodels/yang/standard/etsi/*); do
    yang_generic --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/etsi-forge/nfv-sol006/tree/$version" --lint --prefix ETSI$version_alnum --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-$version/src/yang"
 done
 
-# OpenROADM public
-#
-# OpenROADM directory structure need to be flattened
-# Each branch representing the version is copied to a separate folder
-# This allows to run the yangGeneric.py script on multiple folders in parallel
+wait
+
 if [ "$IS_PROD" = "True" ]; then
+   # OpenROADM public
+   #
+   # OpenROADM directory structure need to be flattened
+   # Each branch representing the version is copied to a separate folder
+   # This allows to run the yangGeneric.py script on multiple folders in parallel
    cur_dir=$(pwd)
    cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
    branches=$(git branch --remotes)
