@@ -52,7 +52,7 @@ class ExamplesCompilator:
             return 'UNKNOWN'
 
     def compile_examples(self, all_yang_catalog_metadata: dict, force_compilation: bool):
-        fileHasher = FileHasher(force_compilation)
+        fileHasher = FileHasher(force_compilation=force_compilation)
         pyangParser = PyangParser(self.debug_level)
         validators_versions = ValidatorsVersions()
         versions = validators_versions.get_versions()

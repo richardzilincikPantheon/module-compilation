@@ -276,7 +276,7 @@ if __name__ == '__main__':
     custom_print('Start of job in {}'.format(args.rootdir))
 
     # Get list of hashed files
-    fileHasher = FileHasher(args.forcecompilation)
+    fileHasher = FileHasher(force_compilation=args.forcecompilation)
 
     all_yang_catalog_metadata = {}
     modules = {}

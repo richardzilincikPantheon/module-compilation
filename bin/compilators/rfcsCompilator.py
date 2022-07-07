@@ -41,7 +41,7 @@ class RfcsCompilator:
         self.results_no_submodules_dict = {}
 
     def compile_rfcs(self, all_yang_catalog_metadata: dict, force_compilation: bool):
-        fileHasher = FileHasher(force_compilation)
+        fileHasher = FileHasher(force_compilation=force_compilation)
         validators_versions = ValidatorsVersions()
         versions = validators_versions.get_versions()
 

@@ -50,7 +50,7 @@ class DraftsCompilator:
         self.output_cisco_emails = []
 
     def compile_drafts(self, all_yang_catalog_metadata: dict, force_compilation: bool, paths: dict):
-        fileHasher = FileHasher(force_compilation)
+        fileHasher = FileHasher(force_compilation=force_compilation)
         pyangParser = PyangParser(self.debug_level)
         confdcParser = ConfdcParser(self.debug_level)
         yumadumpProParser = YangdumpProParser(self.debug_level)
