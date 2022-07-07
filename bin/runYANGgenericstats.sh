@@ -43,6 +43,7 @@ date +"%c: forking all sub-processes" >>$LOG
 
 yang_generic () {
    python $BIN/yangGeneric.py "$@" >>$LOG 2>&1 &
+   wait_for_processes
 }
 
 # BBF
@@ -78,7 +79,6 @@ yang_generic --metadata "Sysrepo: internal YANG Data Models compilation from htt
 # sysrepo applications
 yang_generic --metadata "Sysrepo: applications YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/applications" --lint --prefix SysrepoApplication --rootdir "$NONIETFDIR/sysrepo/yang/applications/"
 
-wait_for_processes
 
 # ETSI
 for path in $(ls -d $NONIETFDIR/yangmodels/yang/standard/etsi/*); do
@@ -86,15 +86,16 @@ for path in $(ls -d $NONIETFDIR/yangmodels/yang/standard/etsi/*); do
    version_number=${version##*v}
    version_alnum=$(echo $version_number | tr -cd '[:alnum:]')
    yang_generic --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/etsi-forge/nfv-sol006/tree/$version" --lint --prefix ETSI$version_alnum --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-$version/src/yang"
-   wait_for_processes
 done
 
-# OpenROADM public
-#
-# OpenROADM directory structure need to be flattened
-# Each branch representing the version is copied to a separate folder
-# This allows to run the yangGeneric.py script on multiple folders in parallel
+wait
+
 if [ "$IS_PROD" = "True" ]; then
+   # OpenROADM public
+   #
+   # OpenROADM directory structure need to be flattened
+   # Each branch representing the version is copied to a separate folder
+   # This allows to run the yangGeneric.py script on multiple folders in parallel
    cur_dir=$(pwd)
    cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
    branches=$(git branch --remotes)
@@ -113,7 +114,6 @@ if [ "$IS_PROD" = "True" ]; then
    for path in $(ls -d $TMP/openroadm-public/*/); do
       version=$(basename $path)
       yang_generic --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/$version/model" --lint --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/"
-      wait_for_processes
    done
    cd $cur_dir
 
@@ -129,7 +129,6 @@ if [ "$IS_PROD" = "True" ]; then
          prefix=${slash_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
          yang_generic --allinclusive --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/$os_lower/$git" --lint --prefix Cisco$os_upper$prefix2 --rootdir "$path"
-         wait_for_processes
       done
    }
    cisco "NX OS" "NX"
@@ -158,7 +157,6 @@ if [ "$IS_PROD" = "True" ]; then
          prefix=${slash_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
          yang_generic --allinclusive --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path"
-         wait_for_processes
       done
    done
 
@@ -171,7 +169,6 @@ if [ "$IS_PROD" = "True" ]; then
       platform=${slash_removed#*/}
       prefix=$(echo $slash_removed | tr -cd '[:alnum:]')
       yang_generic --allinclusive --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint --prefix NETWORKROUTER$prefix --rootdir "$path"
-      wait_for_processes
    done
 
    # Ciena
@@ -186,7 +183,6 @@ if [ "$IS_PROD" = "True" ]; then
       prefix=${yang_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]')
       yang_generic --allinclusive --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint --prefix Fujitsu$prefix --rootdir "$path"
-      wait_for_processes
    done
 
    # Nokia
@@ -197,7 +193,6 @@ if [ "$IS_PROD" = "True" ]; then
       prefix=${slash_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]' | sed 's/latestsros//g')
       yang_generic --allinclusive --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint --prefix Nokia$prefix --rootdir "$path"
-      wait_for_processes
    done
 else
    date +"%c: This is not PROD environment - skipping vendor modules parsing" >>$LOG
