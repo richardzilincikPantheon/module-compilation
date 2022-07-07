@@ -1,3 +1,3 @@
 {
-    "extraPaths": ["./bin/resources/HTML"]
+    "extraPaths": ["./bin/resources/HTML", "./bin"]
 }
