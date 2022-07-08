@@ -2,6 +2,25 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.4.0 - 2022-07-08
+
+  * Unit tests covering utility.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering private_page.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering file_hasher.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering extract_emails.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering extract_elem.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Set up for Github Actions tests job [#172](https://github.com/YangCatalog/sdo_analysis/issues/172)
+  * runYANGgenericstats.sh script organized into functions [#171](https://github.com/YangCatalog/sdo_analysis/issues/171)
+  * rundownloadgithub.sh script organized into functions [#167](https://github.com/YangCatalog/sdo_analysis/issues/167)
+  * Repeated cloning and deleting of openconfig repo canceled [#166](https://github.com/YangCatalog/sdo_analysis/issues/166)
+  * networkx package version upgraded [#165](https://github.com/YangCatalog/sdo_analysis/issues/165)
+  * Workaround: iana-if-type@2021-06-21 warnings removed from compilation results [#164](https://github.com/YangCatalog/sdo_analysis/issues/164)
+  * Loading URL prefixes from a config file [deployment #141](https://github.com/YangCatalog/deployment/issues/141)
+  * Running pyang with pypy3 [#163](https://github.com/YangCatalog/sdo_analysis/issues/163)
+  * Creating list of problematic IETF drafts [deployment #139](https://github.com/YangCatalog/deployment/issues/139)
+  * Compilation of multiple ETSI versions [#142](https://github.com/YangCatalog/sdo_analysis/issues/142)
+  * Scripts arguments cleaned up and reduced [#147](https://github.com/YangCatalog/sdo_analysis/issues/147)
+
 * ##### v5.3.0 - 2022-06-06
 
   * Python scripts arguments refactored [#141](https://github.com/YangCatalog/sdo_analysis/issues/141)
