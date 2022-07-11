@@ -31,34 +31,7 @@ class PyangParser:
         self._debug_level = debug_level
         self._modules_directories = [os.path.join(self._modules_directory, sym) for sym in os.listdir(self._modules_directory)]
 
-    def run_pyang_ietf(self, yang_file_path: str, ietf: bool):
-        """
-        Run PYANG parser on the YANG model, with or without the --ietf flag.
-
-        Arguments:
-            :param yang_file_path   (str) Full path to the yang model to parse
-            :param ietf             (bool) Whether to use --ietf PYANG flag or not
-        :return: the outcome of the PYANG compilation
-        """
-        directory, filename = os.path.split(yang_file_path)
-        os.chdir(directory)
-
-        path_command = '--path="{}"'.format(self._modules_directory)
-        bash_command = ['pypy3', self._pyang_exec, path_command, filename]
-        if ietf:
-            bash_command.append('--ietf')
-        bash_command.append('2>&1')
-
-        if self._debug_level > 0:
-            print('DEBUG: running command {}'.format(' '.join(bash_command)))
-
-        result_pyang = os.popen(' '.join(bash_command)).read()
-        result_pyang = result_pyang.strip()
-        result_pyang = result_pyang.replace('\n\n', '\n').replace('\n', '\n\n')
-
-        return result_pyang
-
-    def run_pyang_lint(self, rootdir: str, yang_file_path: str, lint: bool, allinclusive: bool, use_pyang_params: bool = True):
+    def run_pyang(self, rootdir: str, yang_file_path: str, lint: bool, allinclusive: bool, use_pyang_params: bool = True):
         """
         Run PYANG parser on the YANG model, with or without the --lint flag.
 
@@ -80,8 +53,6 @@ class PyangParser:
         """
         directory, filename = os.path.split(yang_file_path)
         os.chdir(directory)
-        if filename.startswith('example'):
-            use_pyang_params = False
 
         if allinclusive:
             path_command = '--path="{}"'.format(rootdir)

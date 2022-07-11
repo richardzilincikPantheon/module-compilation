@@ -220,8 +220,8 @@ def get_modules(temp_dir: str, prefix: str) -> dict:
 
 def parse_module(parsers: dict, yang_file: str, root_directory: str, lint: bool, allinclusive: bool):
     print(yang_file)
-    result_pyang = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, True)
-    result_no_pyang_param = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, False)
+    result_pyang = parsers['pyang'].run_pyang(root_directory, yang_file, lint, allinclusive, True)
+    result_no_pyang_param = parsers['pyang'].run_pyang(root_directory, yang_file, lint, allinclusive, False)
     result_confd = parsers['confdc'].run_confdc(yang_file, root_directory, allinclusive)
     result_yuma = parsers['yangdumppro'].run_yumadumppro(yang_file, root_directory, allinclusive)
     result_yanglint = parsers['yanglint'].run_yanglint(yang_file, root_directory, allinclusive)
@@ -237,8 +237,8 @@ def parse_module(parsers: dict, yang_file: str, root_directory: str, lint: bool,
 
 
 def parse_example_module(parsers: dict, yang_file: str, root_directory: str, lint: bool, allinclusive: bool):
-    result_pyang = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, True)
-    result_no_pyang_param = parsers['pyang'].run_pyang_lint(root_directory, yang_file, lint, allinclusive, False)
+    result_pyang = parsers['pyang'].run_pyang(root_directory, yang_file, lint, allinclusive, True)
+    result_no_pyang_param = parsers['pyang'].run_pyang(root_directory, yang_file, lint, allinclusive, False)
     module_compilation_results = {
     'pyang_lint': result_pyang,
     'pyang': result_no_pyang_param
