@@ -13,7 +13,7 @@
 # either express or implied.
 
 source configure.sh
-LOG=$LOGS/YANGIETFstats.log
+LOG=$LOGS/extract_ietf_modules.log
 date +"%c: Starting" >$LOG
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
@@ -35,8 +35,8 @@ rsync -avlz --delete --delete-excluded --exclude=dummy.txt --exclude="std-*.txt"
 
 #remove the drafts with xym.py error, but that don't contain YANG data modules
 date +"%c: Removing bad IETF drafts" >>$LOG
-python $BIN/yang-exclude-bad-drafts.py >>$LOG 2>&1
-python $BIN/yang-exclude-bad-drafts.py --dstdir $IETFDIR/my-id-archive-mirror >>$LOG 2>&1
+python $BIN/yang_exclude_bad_drafts.py >>$LOG 2>&1
+python $BIN/yang_exclude_bad_drafts.py --dstdir $IETFDIR/my-id-archive-mirror >>$LOG 2>&1
 
 #copy the current content to the -old files
 if [ -f $WEB_PRIVATE/IETFDraftYANGPageCompilation.html ]; then
@@ -108,9 +108,9 @@ ln -f -s $NONIETFDIR/yangmodels/yang/standard/iana/ $MODULES/iana
 date +"%c: Starting to extract all YANG modules from IETF documents" >>$LOG
 # Using --draftpath $IETFDIR/my-id-archive-mirror/ means much longer process as all expired drafts will also be analyzed...
 if [ $(date +%u) -eq 6 ]; then
-	python $BIN/yangIetf.py --archived >>$LOG 2>&1
+	python $BIN/extract_ietf_modules.py --archived >>$LOG 2>&1
 fi
-python $BIN/yangIetf.py >>$LOG 2>&1
+python $BIN/extract_ietf_modules.py >>$LOG 2>&1
 date +"%c: Finished extracting all YANG modules from IETF documents" >>$LOG
 
 # Clean up of the .fxs files created by confdc
@@ -141,13 +141,13 @@ tar cfz $WEB_DOWNLOADABLES/All-YANG-drafts.tgz *yang >>$LOG 2>&1
 date +"%c: YANG v1.0 tarball files generated" >>$LOG
 
 # copy the YANG 1.1 data models in $IETF_DIR/YANG-v11
-python $BIN/yangVersion11.py >>$LOG 2>&1
+python $BIN/yang_version_1_1.py >>$LOG 2>&1
 
 cd $IETFDIR/YANG-v11
 tar cvfz $WEB_DOWNLOADABLES/YANG-v11.tgz *yang >>$LOG 2>&1
 date +"%c: YANG v1.1 tarball files generated" >>$LOG
 
-python $BIN/gatherIETFdependentModules.py >>$LOG 2>&1
+python $BIN/gather_ietf_dependent_modules.py >>$LOG 2>&1
 date +"%c: dependencies copied" >>$LOG
 
 date +"%c: reloading cache" >>$LOG

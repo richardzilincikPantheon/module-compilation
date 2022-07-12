@@ -23,25 +23,25 @@ function on_exit {
 
 trap on_exit EXIT ERR
 
-export LOG=$LOGS/GenerateFiguresAndStats.log
+export LOG=$LOGS/generate_figures_and_stats.log
 date +"%c: Starting" >$LOG
 
 source configure.sh >>$LOG 2>&1
 # Generate the statistics since the beginning and ftp the files
-# the yangGetStats.py (without arguments) generates the full stats in json in $WEB_PRIVATE/stats/ :
+# the yang_get_stats.py (without arguments) generates the full stats in json in $WEB_PRIVATE/stats/ :
 # this is necessary so that the figures are up to date with today stats, and yang-figures can pick those latest stats up
-# the yangGetStats.py --days 5 doesn't generate the json file.
+# the yang_get_stats.py --days 5 doesn't generate the json file.
 mkdir -p $WEB_PRIVATE/stats >>$LOG 2>&1
 
 date +"%c: Generating the JSON files in $WEB_PRIVATE/stats" >>$LOG
-python $BIN/yangGetStats.py >>$LOG 2>&1
+python $BIN/yang_get_stats.py >>$LOG 2>&1
 
 date +"%c: Generating the JSON files with --days 5" >>$LOG
-python $BIN/yangGetStats.py --days 5 >>$LOG 2>&1
+python $BIN/yang_get_stats.py --days 5 >>$LOG 2>&1
 
 date +"%c: Generating the pictures" >>$LOG
 mkdir -p $WEB_PRIVATE/figures >>$LOG 2>&1
-python $BIN/yangFigures.py >>$LOG 2>&1
+python $BIN/yang_figures.py >>$LOG 2>&1
 
 date +"%c: Generating the dependency pictures" >>$LOG
 cd $WEB_PRIVATE/figures >>$LOG

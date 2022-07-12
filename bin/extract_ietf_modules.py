@@ -23,8 +23,8 @@ import json
 import os
 
 from create_config import create_config
-from extractors.dratfExtractor import DraftExtractor
-from extractors.rfcExtractor import RFCExtractor
+from extractors.dratf_extractor import DraftExtractor
+from extractors.rfc_extractor import RFCExtractor
 from remove_directory_content import remove_directory_content
 
 
@@ -118,7 +118,7 @@ def main():
     args = parser.parse_args()
     if args.archived:
         draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
-    custom_print('Start of yangIetf.py job in {}'.format(draft_path))
+    custom_print('Start of {} job in {}'.format(os.path.basename(__file__), draft_path))
     debug_level = args.debug
 
     draft_extractor_paths = {
@@ -163,7 +163,7 @@ def main():
     draftExtractor.dump_incorrect_drafts(public_directory)
     custom_print('All IETF Drafts pre-processed')
 
-    # Dump dicts for later use by yangGeneric.py
+    # Dump dicts for later use by compile_modules.py
     with open(os.path.join(cache_directory, 'rfc_dict.json'), 'w') as f:
         json.dump(rfcExtractor.inverted_rfc_yang_dict, f)
 
@@ -173,7 +173,7 @@ def main():
     with open(os.path.join(cache_directory, 'example_dict.json'), 'w') as f:
         json.dump(draftExtractor.inverted_draft_yang_example_dict, f)
 
-    custom_print('end of yangIetf.py job')
+    custom_print('end of {} job'.format(os.path.basename(__file__)))
 
 
 if __name__ == '__main__':

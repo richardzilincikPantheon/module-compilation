@@ -24,7 +24,7 @@ wait_for_processes () {
 }
 
 source configure.sh
-export LOG=$LOGS/YANGgenericstats.log
+export LOG=$LOGS/compile_modules.log
 date +"%c: Starting" >$LOG
 
 # Need to set some ENV variables for subsequent calls in .PY to confd...
@@ -41,53 +41,53 @@ curl -s -H "Accept: application/json" $MY_URI/api/search/modules -o "$TMP/all_mo
 
 date +"%c: forking all sub-processes" >>$LOG
 
-yang_generic () {
-   python $BIN/yangGeneric.py "$@" >>$LOG 2>&1 &
+compile_modules () {
+   python $BIN/compile_modules.py "$@" >>$LOG 2>&1 &
    wait_for_processes
 }
 
 # IETF RFCs
-yang_generic --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed $($PYANG -v) with --ietf :-( " --rfc
+compile_modules --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed $($PYANG -v) with --ietf :-( " --rfc
 
 # IETF drafts
-yang_generic --draft
+compile_modules --draft
 
 
 # IETF examples
-yang_generic --example
+compile_modules --example
 
 # BBF
-yang_generic --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/BroadbandForum/yang/tree/master" --lint --prefix BBF --rootdir "$TMP/bbf/"
+compile_modules --metadata "BBF Complete Report: YANG Data Models compilation from https://github.com/BroadbandForum/yang/tree/master" --lint --prefix BBF --rootdir "$TMP/bbf/"
 
 # Standard MEF
-yang_generic --metadata "MEF: Standard YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/standard/" --lint --prefix MEFStandard --rootdir "$NONIETFDIR/mef/YANG-public/src/model/standard/"
+compile_modules --metadata "MEF: Standard YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/standard/" --lint --prefix MEFStandard --rootdir "$NONIETFDIR/mef/YANG-public/src/model/standard/"
 
 # Experimental MEF
-yang_generic --metadata "MEF: Draft YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft/" --lint --prefix MEFExperimental --rootdir "$NONIETFDIR/mef/YANG-public/src/model/draft/"
+compile_modules --metadata "MEF: Draft YANG Data Models compilation from https://github.com/MEF-GIT/YANG-public/tree/master/src/model/draft/" --lint --prefix MEFExperimental --rootdir "$NONIETFDIR/mef/YANG-public/src/model/draft/"
 
 # Standard IEEE published
-yang_generic --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/published: The 'standard/ieee/published' branch is intended for published standards modules (with approved PARs)." --lint --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/published/"
+compile_modules --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/published: The 'standard/ieee/published' branch is intended for published standards modules (with approved PARs)." --lint --prefix IEEEStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/published/"
 
 # Standard IEEE drafts
-yang_generic --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/draft: The 'standard/ieee/draft' branch is intended for draft modules with an approved Project Authorization Request (PAR)." --lint --prefix IEEEStandardDraft --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/draft/"
+compile_modules --metadata "IEEE: YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/ieee/draft: The 'standard/ieee/draft' branch is intended for draft modules with an approved Project Authorization Request (PAR)." --lint --prefix IEEEStandardDraft --rootdir "$NONIETFDIR/yangmodels/yang/standard/ieee/draft/"
 
 # Experimental IEEE
-yang_generic --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/"
+compile_modules --metadata "IEEE: Draft YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/experimental/ieee: The 'experimental/ieee' branch is intended for IEEE work that does not yet have a Project Authorization Request (PAR)." --lint --prefix IEEEExperimental --rootdir "$NONIETFDIR/yangmodels/yang/experimental/ieee/"
 
 # Standard IANA
-yang_generic --metadata "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models." --lint --prefix IANAStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/iana/"
+compile_modules --metadata "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models." --lint --prefix IANAStandard --rootdir "$NONIETFDIR/yangmodels/yang/standard/iana/"
 
 # Openconfig
-yang_generic --metadata "Openconfig: YANG Data Models compilation from https://github.com/openconfig/public" --lint --prefix Openconfig --rootdir "$NONIETFDIR/openconfig/public/release/models/"
+compile_modules --metadata "Openconfig: YANG Data Models compilation from https://github.com/openconfig/public" --lint --prefix Openconfig --rootdir "$NONIETFDIR/openconfig/public/release/models/"
 
 # ONF Open Transport
-yang_generic --metadata "ONF Open Transport: YANG Data Models compilation from https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport" --lint --prefix ONFOpenTransport --rootdir "$NONIETFDIR/onf/Snowmass-ONFOpenTransport"
+compile_modules --metadata "ONF Open Transport: YANG Data Models compilation from https://github.com/OpenNetworkingFoundation/Snowmass-ONFOpenTransport" --lint --prefix ONFOpenTransport --rootdir "$NONIETFDIR/onf/Snowmass-ONFOpenTransport"
 
 # sysrepo internal
-yang_generic --metadata "Sysrepo: internal YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/internal" --lint --prefix SysrepoInternal --rootdir "$NONIETFDIR/sysrepo/yang/internal/"
+compile_modules --metadata "Sysrepo: internal YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/internal" --lint --prefix SysrepoInternal --rootdir "$NONIETFDIR/sysrepo/yang/internal/"
 
 # sysrepo applications
-yang_generic --metadata "Sysrepo: applications YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/applications" --lint --prefix SysrepoApplication --rootdir "$NONIETFDIR/sysrepo/yang/applications/"
+compile_modules --metadata "Sysrepo: applications YANG Data Models compilation from https://github.com/sysrepo/yang/tree/master/applications" --lint --prefix SysrepoApplication --rootdir "$NONIETFDIR/sysrepo/yang/applications/"
 
 
 # ETSI
@@ -95,7 +95,7 @@ for path in $(ls -d $NONIETFDIR/yangmodels/yang/standard/etsi/*); do
    version=${path##*/etsi/NFV-SOL006-}
    version_number=${version##*v}
    version_alnum=$(echo $version_number | tr -cd '[:alnum:]')
-   yang_generic --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/etsi-forge/nfv-sol006/tree/$version" --lint --prefix ETSI$version_alnum --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-$version/src/yang"
+   compile_modules --metadata "ETSI Complete Report: YANG Data Models compilation from https://github.com/etsi-forge/nfv-sol006/tree/$version" --lint --prefix ETSI$version_alnum --rootdir "$NONIETFDIR/yangmodels/yang/standard/etsi/NFV-SOL006-$version/src/yang"
 done
 
 wait
@@ -105,7 +105,7 @@ if [ "$IS_PROD" = "True" ]; then
    #
    # OpenROADM directory structure need to be flattened
    # Each branch representing the version is copied to a separate folder
-   # This allows to run the yangGeneric.py script on multiple folders in parallel
+   # This allows to run the compile_modules.py script on multiple folders in parallel
    cur_dir=$(pwd)
    cd $NONIETFDIR/openroadm/OpenROADM_MSA_Public
    branches=$(git branch --remotes)
@@ -123,7 +123,7 @@ if [ "$IS_PROD" = "True" ]; then
    date +"%c: forking all sub-processes for OpenROADM versions" >>$LOG
    for path in $(ls -d $TMP/openroadm-public/*/); do
       version=$(basename $path)
-      yang_generic --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/$version/model" --lint --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/"
+      compile_modules --metadata "OpenRoadm $version: YANG Data Models compilation from https://github.com/OpenROADM/OpenROADM_MSA_Public/tree/$version/model" --lint --prefix OpenROADM$version --rootdir "$TMP/openroadm-public/$version/"
    done
    cd $cur_dir
 
@@ -138,7 +138,7 @@ if [ "$IS_PROD" = "True" ]; then
          slash_removed=${git%/}
          prefix=${slash_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         yang_generic --allinclusive --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/$os_lower/$git" --lint --prefix Cisco$os_upper$prefix2 --rootdir "$path"
+         compile_modules --allinclusive --metadata "Cisco $meta $prefix from https://github.com/YangModels/yang/tree/main/vendor/cisco/$os_lower/$git" --lint --prefix Cisco$os_upper$prefix2 --rootdir "$path"
       done
    }
    cisco "NX OS" "NX"
@@ -157,7 +157,7 @@ if [ "$IS_PROD" = "True" ]; then
    slash_removed=${git%/}
    prefix=${slash_removed#*/}
    prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-   yang_generic --allinclusive --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path"
+   compile_modules --allinclusive --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path"
 
    # Juniper/15* does not exist
    for i in {16..21}; do
@@ -166,7 +166,7 @@ if [ "$IS_PROD" = "True" ]; then
          slash_removed=${git%/}
          prefix=${slash_removed#*/}
          prefix2=$(echo $prefix | tr -cd '[:alnum:]')
-         yang_generic --allinclusive --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path"
+         compile_modules --allinclusive --metadata "JUNIPER $prefix from https://github.com/Juniper/yang/tree/master/$git" --lint --prefix Juniper$prefix2 --rootdir "$path"
       done
    done
 
@@ -178,12 +178,12 @@ if [ "$IS_PROD" = "True" ]; then
       version=${slash_removed%/*}
       platform=${slash_removed#*/}
       prefix=$(echo $slash_removed | tr -cd '[:alnum:]')
-      yang_generic --allinclusive --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint --prefix NETWORKROUTER$prefix --rootdir "$path"
+      compile_modules --allinclusive --metadata "HUAWEI ROUTER $version $platform https://github.com/Huawei/yang/tree/master/network-router/$git" --lint --prefix NETWORKROUTER$prefix --rootdir "$path"
    done
 
    # Ciena
    date +"%c: processing Ciena modules " >>$LOG
-   yang_generic --allinclusive --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena"
+   compile_modules --allinclusive --metadata "Ciena https://github.com/YangModels/yang/tree/master/vendor/ciena" --lint --prefix CIENA --rootdir "$NONIETFDIR/yangmodels/yang/vendor/ciena"
 
    # Fujitsu
    date +"%c: processing Fujitsu modules " >>$LOG
@@ -192,7 +192,7 @@ if [ "$IS_PROD" = "True" ]; then
       yang_removed=${git%/*}
       prefix=${yang_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]')
-      yang_generic --allinclusive --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint --prefix Fujitsu$prefix --rootdir "$path"
+      compile_modules --allinclusive --metadata "Fujitsu https://github.com/FujitsuNetworkCommunications/FSS2-Yang/tree/master/$git" --lint --prefix Fujitsu$prefix --rootdir "$path"
    done
 
    # Nokia
@@ -202,7 +202,7 @@ if [ "$IS_PROD" = "True" ]; then
       slash_removed=${git%/}
       prefix=${slash_removed#*/}
       prefix=$(echo $prefix | tr -cd '[:alnum:]' | sed 's/latestsros//g')
-      yang_generic --allinclusive --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint --prefix Nokia$prefix --rootdir "$path"
+      compile_modules --allinclusive --metadata "Nokia $git https://github.com/nokia/7x50_YangModels/tree/master/$git" --lint --prefix Nokia$prefix --rootdir "$path"
    done
 else
    date +"%c: This is not PROD environment - skipping vendor modules parsing" >>$LOG

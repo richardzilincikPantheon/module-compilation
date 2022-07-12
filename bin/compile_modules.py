@@ -25,15 +25,15 @@ from filelock import FileLock
 from create_config import create_config
 from compilation_status import combined_compilation, pyang_compilation_status
 from file_hasher import FileHasher
-from filesGenerator import FilesGenerator
+from files_generator import FilesGenerator
 from metadata_generators.base_metadata_generator import BaseMetadataGenerator
 from metadata_generators.draft_metadata_generator import DraftMetadataGenerator, ArchivedMetadataGenerator
 from metadata_generators.example_metadata_generator import ExampleMetadataGenerator
 from metadata_generators.rfc_metadata_generator import RfcMetadataGenerator
-from parsers.confdcParser import ConfdcParser
-from parsers.pyangParser import PyangParser
-from parsers.yangdumpProParser import YangdumpProParser
-from parsers.yanglintParser import YanglintParser
+from parsers.confdc_parser import ConfdcParser
+from parsers.pyang_parser import PyangParser
+from parsers.yangdump_pro_parser import YangdumpProParser
+from parsers.yanglint_parser import YanglintParser
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
                              number_that_passed_compilation, push_to_redis)
 
@@ -475,7 +475,7 @@ def main():
         print('Number of YANG data models from {} that failed compilation: {}/{}'
               .format(args.prefix, compilation_stats['failed'], compilation_stats['total']))
 
-    custom_print('end of yangGeneric.py job for {}'.format(args.prefix))
+    custom_print('end of {} job for {}'.format(os.path.basename(__file__), args.prefix))
 
     # Update files content hashes and dump into .json file
     fileHasher.dump_hashed_files_list()

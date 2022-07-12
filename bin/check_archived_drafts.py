@@ -28,9 +28,9 @@ import time
 import requests
 
 from create_config import create_config
-from extractors.dratfExtractor import DraftExtractor
+from extractors.dratf_extractor import DraftExtractor
 from job_log import job_log
-from messageFactory.messageFactory import MessageFactory
+from message_factory.message_factory import MessageFactory
 from remove_directory_content import remove_directory_content
 
 
@@ -57,7 +57,7 @@ def main():
                         default=0)
     args = parser.parse_args()
 
-    custom_print('Starting checkArchivedDrafts.py script')
+    custom_print('Starting check_archived_drafts.py script')
 
     all_yang_drafts_strict = os.path.join(temp_dir, 'draft-with-YANG-strict')
     missing_modules_directory = os.path.join(temp_dir, 'drafts-missing-modules')
@@ -81,7 +81,7 @@ def main():
     except Exception:
         custom_print('Error occured while extracting modules')
         end = int(time.time())
-        job_log(start, end, temp_dir, 'checkArchivedDrafts', status='Fail')
+        job_log(start, end, temp_dir, 'check_archived_drafts', status='Fail')
         return
 
     custom_print('Loading all modules data from API')
@@ -140,7 +140,7 @@ def main():
 
     message = {'label': 'Number of missing modules', 'message': len(missing_modules)}
     end = int(time.time())
-    job_log(start, end, temp_dir, 'checkArchivedDrafts', messages=[message], status='Success')
+    job_log(start, end, temp_dir, 'check_archived_drafts', messages=[message], status='Success')
 
 
 if __name__ == '__main__':
