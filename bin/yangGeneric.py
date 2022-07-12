@@ -24,9 +24,12 @@ from filelock import FileLock
 
 from create_config import create_config
 from compilation_status import combined_compilation, pyang_compilation_status
-from extract_emails import extract_email_string
 from file_hasher import FileHasher
 from filesGenerator import FilesGenerator
+from metadata_generators.base_metadata_generator import BaseMetadataGenerator
+from metadata_generators.draft_metadata_generator import DraftMetadataGenerator, ArchivedMetadataGenerator
+from metadata_generators.example_metadata_generator import ExampleMetadataGenerator
+from metadata_generators.rfc_metadata_generator import RfcMetadataGenerator
 from parsers.confdcParser import ConfdcParser
 from parsers.pyangParser import PyangParser
 from parsers.yangdumpProParser import YangdumpProParser
@@ -38,80 +41,6 @@ __author__ = 'Benoit Claise'
 __copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2022, All Rights Reserved'
 __license__ = 'Apache License, Version 2.0'
 __email__ = 'bclaise@cisco.com'
-
-
-# Classes for generating compilation result table rows and metadata to be uploaded to confd
-
-class MetadataGenerator:
-
-    def __init__(self, compilation_results: dict, compilation_status:str, yang_file: str):
-        self.compilation_results = compilation_results
-        self.compilation_status = compilation_status
-        self.yang_file_name = os.path.basename(yang_file)
-
-    def get_confd_metadata(self):
-        return {'compilation-status': self.compilation_status}
-
-    def get_file_compilation(self):
-        return [self.compilation_status, *[result for result in self.compilation_results.values()]]
-
-class RfcMetadataGenerator(MetadataGenerator):
-
-    def get_confd_metadata(self):
-        document_name = document_dict[self.yang_file_name]
-        rfc_name = document_name.split('.')[0]
-        datatracker_url = 'https://datatracker.ietf.org/doc/html/{}'.format(rfc_name)
-        return {
-            'compilation-status': self.compilation_status,
-            'reference': datatracker_url,
-            'document-name': document_name,
-            'author-email': None
-        }
-
-
-class DraftMetadataGenerator(MetadataGenerator):
-
-    def __init__(self, compilation_results: dict, compilation_status:str, yang_file: str):
-        super().__init__(compilation_results, compilation_status, yang_file)
-        self.document_name = document_dict[self.yang_file_name]
-        draft_name = self.document_name.split('.')[0]
-        version_number = draft_name.split('-')[-1]
-        self.mailto = '{}@ietf.org'.format(draft_name)
-        draft_name = draft_name.rstrip('-0123456789')
-        self.datatracker_url = 'https://datatracker.ietf.org/doc/{}/{}'.format(draft_name, version_number)
-        self.draft_url_anchor = '<a href="{}">{}</a>'.format(self.datatracker_url, self.document_name)
-        self.email_anchor = '<a href="mailto:{}">Email Authors</a>'.format(self.mailto)
-
-
-    def get_confd_metadata(self):
-        return {
-            'compilation-status': self.compilation_status,
-            'reference': self.datatracker_url,
-            'document-name': self.document_name,
-            'author-email': self.mailto
-        }
-
-    def get_file_compilation(self):
-        draft_file_path = os.path.join(draft_path, document_dict[self.yang_file_name])
-        cisco_email = extract_email_string(draft_file_path, '@cisco.com', debug_level)
-        tailf_email = extract_email_string(draft_file_path, '@tail-f.com', debug_level)
-
-        draft_emails = ','.join(filter(None, [cisco_email, tailf_email]))
-        cisco_email_anchor = '<a href="mailto:{}">Email Cisco Authors Only</a>'.format(draft_emails)
-        yang_model_url = '{}/YANG-modules/{}'.format(web_url, self.yang_file_name)
-        yang_model_anchor = '<a href="{}">Download the YANG model</a>'.format(yang_model_url)
-        return [self.draft_url_anchor, self.email_anchor, cisco_email_anchor, yang_model_anchor, self.compilation_status,
-                *[result for result in self.compilation_results.values()]]
-
-
-class ExampleMetadataGenerator(DraftMetadataGenerator):
-
-    def get_confd_metadata(self):
-        return {}
-
-    def get_file_compilation(self):
-        return [self.draft_url_anchor, self.email_anchor, self.compilation_status,
-                *[result for result in self.compilation_results.values()]]
 
 
 # ----------------------------------------------------------------------
@@ -219,7 +148,6 @@ def get_modules(temp_dir: str, prefix: str) -> dict:
 
 
 def parse_module(parsers: dict, yang_file: str, root_directory: str, lint: bool, allinclusive: bool):
-    print(yang_file)
     result_pyang = parsers['pyang'].run_pyang(root_directory, yang_file, lint, allinclusive, True)
     result_no_pyang_param = parsers['pyang'].run_pyang(root_directory, yang_file, lint, allinclusive, False)
     result_confd = parsers['confdc'].run_confdc(yang_file, root_directory, allinclusive)
@@ -247,7 +175,7 @@ def parse_example_module(parsers: dict, yang_file: str, root_directory: str, lin
     return compilation_status, module_compilation_results
 
 
-def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict) -> dict:
+def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, document_dict: dict) -> dict:
     updated_modules = []
     agregate_results = {'all': {}, 'no_submodules': {}}
     parsers = {
@@ -279,7 +207,8 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict) -> 
             else:
                 compilation_status, module_compilation_results = parse_module(parsers, yang_file, **parser_args)
 
-            metadata_generator = metadata_generator_cls(module_compilation_results, compilation_status, yang_file)
+            metadata_generator = metadata_generator_cls(module_compilation_results, compilation_status,
+                                                        yang_file, document_dict)
             confd_metadata = metadata_generator.get_confd_metadata()
             yang_file_compilation = metadata_generator.get_file_compilation()
             updated_modules.extend(
@@ -328,13 +257,11 @@ def write_page_main(prefix: str, compilation_stats: dict) -> dict: # pyright: ig
 # Main
 # ----------------------------------------------------------------------
 def main():
-    global config, debug_level, document_dict, draft_path, fileHasher, ietf, metadata_generator_cls, web_private, web_url
+    global config, debug_level, fileHasher, ietf, metadata_generator_cls, web_private
     config = create_config()
     yangcatalog_api_prefix = config.get('Web-Section', 'yangcatalog-api-prefix')
     web_private = config.get('Web-Section', 'private-directory') + '/'
-    web_url = config.get('Web-Section', 'my-uri')
     cache_directory = config.get('Directory-Section', 'cache')
-    draft_path = config.get('Directory-Section', 'ietf-drafts')
     modules_directory = config.get('Directory-Section', 'modules-directory')
     temp_dir = config.get('Directory-Section', 'temp')
     ietf_directory = config.get('Directory-Section', 'ietf-directory')
@@ -402,7 +329,8 @@ def main():
     # Set options depending on the type of documents we're compiling
     if not any([args.draft, args.draft_archive, args.example, args.rfc]):
         ietf = None
-        metadata_generator_cls = MetadataGenerator
+        metadata_generator_cls = BaseMetadataGenerator
+        document_dict = {}
     elif args.rfc:
         ietf = 'ietf-rfc'
         metadata_generator_cls = RfcMetadataGenerator
@@ -412,11 +340,12 @@ def main():
         args.rootdir = os.path.join(ietf_directory, 'YANG-rfc')
     elif args.draft or args.draft_archive:
         ietf = 'ietf-draft'
-        metadata_generator_cls = DraftMetadataGenerator
+        if args.draft_archive:
+            metadata_generator_cls = ArchivedMetadataGenerator
+        else:
+            metadata_generator_cls = DraftMetadataGenerator
         with open(os.path.join(cache_directory, 'draft_dict.json')) as f:
             document_dict = json.load(f)
-        if args.draft_archive:
-           draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
         args.prefix = 'IETFDraft'
         args.rootdir = os.path.join(ietf_directory, 'YANG')
     elif args.example:
@@ -449,7 +378,7 @@ def main():
     if debug_level > 0:
         print('yang_list content:\n{}'.format(yang_list))
     custom_print('relevant files list built, {} modules found in {}'.format(len(yang_list), args.rootdir))
-    agregate_results = validate(args.prefix, modules, yang_list, parser_args)
+    agregate_results = validate(args.prefix, modules, yang_list, parser_args, document_dict)
     custom_print('all modules compiled/validated')
 
     # Generate HTML and JSON files
