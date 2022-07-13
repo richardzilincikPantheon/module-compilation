@@ -19,13 +19,12 @@
     RETVAL=$?
     if [ $RETVAL -eq 0 ]; then
         trap 'rm /var/yang/tmp/cronjob-drafts-lock.lock 2>/dev/null' ERR EXIT
-        echo "$(date) starting checkArchivedDrafts" >>/var/yang/logs/crons-log.log
+        echo "$(date) starting check_archived_drafts" >>/var/yang/logs/crons-log.log
         (
             cd /sdo_analysis/bin
             source configure.sh
-            export LOG=$LOGS/YANGgenericstats.log
-            python3 checkArchivedDrafts.py >>$LOG 2>&1
-        ) >/var/yang/logs/check-archived-drafts.log
+            python3 check_archived_drafts.py >>$LOG/check_archived_drafts.log 2>&1
+        )
     else
         echo "$(date) cronjob-daily still running - skipping now" >>/var/yang/logs/crons-log.log
         exit 1

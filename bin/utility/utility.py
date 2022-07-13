@@ -25,9 +25,9 @@ import time
 import typing as t
 import jinja2
 import requests
-from redisConnections.redisConnection import RedisConnection
+from redis_connections.redis_connection import RedisConnection
 
-from utility.staticVariables import IETF_RFC_MAP
+from utility.static_variables import IETF_RFC_MAP
 from versions import ValidatorsVersions
 
 

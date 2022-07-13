@@ -67,7 +67,7 @@ class YanglintParser:
             result_yanglint = os.popen(' '.join(bash_command)).read()
             result_yanglint = result_yanglint.strip()
             result_yanglint = result_yanglint.replace('\n\n', '\n').replace('\n', '\n\n')
-            result_yanglint = result_yanglint.replace(workdir, '')
+            result_yanglint = result_yanglint.replace(yang_file_path, os.path.basename(yang_file_path))
 
             final_result = _remove_duplicate_messages(result_yanglint)
         except Exception:

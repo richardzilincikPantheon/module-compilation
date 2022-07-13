@@ -24,6 +24,7 @@ import time
 
 import HTML
 
+from utility.utility import dict_to_list, list_br_html_addition
 from versions import ValidatorsVersions
 
 
@@ -50,7 +51,7 @@ class FilesGenerator:
 
         self._custom_print('{} file generated'.format(file_name))
 
-    def generateYANGPageCompilationHTML(self, modules_results: list, headers: list, file_name: str, metadata: str = ''):
+    def generateYANGPageCompilationHTML(self, dictionary_data: dict, headers: list, file_name: str, metadata: str = ''):
         """
         Create YANGPageCompilation HTML table out of the modules compilation messages and generate a HTML file.
 
@@ -61,6 +62,7 @@ class FilesGenerator:
             :param metadata         (str) Extra metadata text to be inserted in the generated message
         :return: None
         """
+        modules_results = list_br_html_addition(sorted(dict_to_list(dictionary_data)))
         generated_message = 'Generated on {} by the YANG Catalog. {}'.format(time.strftime('%d/%m/%Y'), metadata)
         message_html = HTML.list([generated_message])
         table_html = HTML.table(modules_results, header_row=headers)
@@ -135,7 +137,7 @@ class FilesGenerator:
         os.chmod(HTML_filename, 0o664)
         self._custom_print('IETFYANGPageMain.html HTML page generated in directory {}'.format(self._htmlpath))
 
-    def generateHTMLTable(self, rfcs_list: list, headers: list):
+    def generateHTMLTable(self, dictionary_data: dict, headers: list):
         """
         Create IETFYANGRFC HTML with links to RFC documents.
 
@@ -143,6 +145,7 @@ class FilesGenerator:
             :param rfcs_list        (list) List of modules with links to the RFC documents
             :param headers          (list) Headers list to generate the HTML table
         """
+        rfcs_list = sorted(dict_to_list(dictionary_data, True))
         generated_message = 'Generated on {} by the YANG Catalog.'.format(time.strftime('%d/%m/%Y'))
         htmlcode = HTML.list([generated_message])
         htmlcode1 = HTML.table(rfcs_list, header_row=headers)

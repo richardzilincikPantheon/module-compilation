@@ -18,18 +18,18 @@ cd $BIN
 #source activate
 source configure.sh
 date +"%c: Downloading from GitHub YangModels"
-rundownloadgithub.sh
-date +"%c: Starting runYANGGenericstats.sh"
-runYANGgenericstats.sh
-date +"%c: Starting runIETFstats.sh"
-runIETFstats.sh
-date +"%c: Starting rename-file-backup.py"
+run_download_github.sh
+date +"%c: Starting run_ietf_module_extraction.sh"
+run_ietf_module_extraction.sh
+date +"%c: Starting run_module_compilation.sh"
+run_module_compilation.sh
+date +"%c: Starting rename_file_backup.py"
 mkdir -p $BACKUPDIR
-python rename-file-backup.py
-date +"%c: Starting runGenerateMainPage.sh"
-runGenerateMainPage.sh
-date +"%c: Starting runGenerateFiguresAndStats.sh"
-runGenerateFiguresAndStats.sh
+python rename_file_backup.py
+date +"%c: Starting run_generate_main_page.sh"
+run_generate_main_page.sh
+date +"%c: Starting run_generate_figures_and_stats.sh"
+run_generate_figures_and_stats.sh
 
 # This simple files for other Yang Catalog to know which files have been created
 cd $WEB_PRIVATE

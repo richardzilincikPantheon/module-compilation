@@ -69,6 +69,11 @@ class DraftExtractor:
         self.ietf_drafts.sort()
         print('Drafts list created')
 
+    def extract(self):
+        self.extract_drafts()
+        self.invert_dict()
+        self.remove_invalid_files()
+
     def extract_drafts(self):
         for draft_file in self.ietf_drafts:
             draft_file_path = os.path.join(self.draft_path, draft_file)
