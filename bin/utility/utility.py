@@ -187,8 +187,7 @@ def _generate_compilation_result_file(module_data: dict, compilation_results: di
                                       is_rfc: bool, versions: dict, ietf_type: t.Optional[str]) -> str:
     name = module_data['name']
     rev = module_data['revision']
-    org = module_data['organization']
-    file_url = '{}@{}_{}.html'.format(name, rev, org)
+    file_url = '{}@{}.html'.format(name, rev)
     compilation_results['name'] = name
     compilation_results['revision'] = rev
     compilation_results['generated'] = time.strftime('%d/%m/%Y')
@@ -240,7 +239,6 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
         module_data: t.Dict[str, t.Any] = {
             'name': name,
             'revision': revision,
-            'organization': 'unknown'
         }
         update = True
     for field in ['document-name', 'reference', 'author-email']:
