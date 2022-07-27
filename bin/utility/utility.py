@@ -240,6 +240,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
             'name': name,
             'revision': revision,
         }
+
         update = True
     for field in ['document-name', 'reference', 'author-email']:
         if new_module_data.get(field) and module_data.get(field) != new_module_data[field]:
@@ -266,7 +267,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
             update = True
             module_data['compilation-result'] = comp_result
 
-    if ietf_type is not None and module_data.get('organization') == 'ietf' and 'document-name' in new_module_data:
+    if ietf_type is not None and 'document-name' in new_module_data:
         wg = _resolve_working_group(name_revision, ietf_type, new_module_data['document-name'])
         if (module_data.get('ietf') is None or module_data['ietf']['ietf-wg'] != wg) and wg is not None:
             update = True
