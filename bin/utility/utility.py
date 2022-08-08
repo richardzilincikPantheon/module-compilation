@@ -31,6 +31,9 @@ from utility.static_variables import NS_MAP, ORGANIZATIONS, IETF_RFC_MAP
 from versions import ValidatorsVersions
 
 
+module_db = None
+incomplete_db = None
+
 
 def json_parse_organization(module: dict) -> t.Optional[str]:
     if 'organization' in module:
@@ -65,25 +68,6 @@ def namespace_to_organization(namespace: str) -> str:
     elif 'urn:' in namespace:
         return namespace.split('urn:')[1].split(':')[0]
     return 'independent'
-
-
-def push_to_redis(updated_modules: list, config: configparser.ConfigParser):
-    json_modules_data = json.dumps({'modules': {'module': updated_modules}})
-    credentials = config.get('Secrets-Section', 'confd-credentials').strip('"').split()
-    confd_prefix = config.get('Web-Section', 'confd-prefix')
-
-    if '{"module": []}' not in json_modules_data:
-        print('Creating patch request to ConfD with updated data')
-        url = '{}/restconf/data/yang-catalog:catalog/modules/'.format(confd_prefix)
-        response = requests.patch(url, data=json_modules_data,
-                                  auth=(credentials[0], credentials[1]),
-                                  headers={
-                                      'Accept': 'application/yang-data+json',
-                                      'Content-type': 'application/yang-data+json'})
-        if response.status_code < 200 or response.status_code > 299:
-            print('Request with body {} on path {} failed with {}'.
-                  format(json_modules_data, url, response.text))
-        RedisConnection().populate_modules(updated_modules)
 
 
 def module_or_submodule(yang_file_path: str):
@@ -260,10 +244,14 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
     save_file_dir = config.get('Directory-Section', 'save-file-dir')
     versions = ValidatorsVersions().get_versions()
 
+    global module_db, incomplete_db
+    if not (module_db and incomplete_db):
+        module_db = RedisConnection()
+        incomplete_db = RedisConnection(modules_db=5)
+
     yang_file_path = _path_in_dir(yang_file_pseudo_path)
     is_rfc = ietf_type == 'ietf-rfc'
 
-    updated_modules = []
     json_module_command = 'pypy3 {} -fbasic-info --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
     with os.popen(json_module_command) as pipe:
         module_basic_info = json.load(pipe)
@@ -275,6 +263,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
 
     if name_revision in all_modules:
         module_data = all_modules[name_revision].copy()
+        incomplete = False
         update = False
     else:
         print('WARN: {} not in Redis yet'.format(name_revision))
@@ -293,6 +282,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
             'organization': organization
         }
 
+        incomplete = True
         update = True
     for field in ['document-name', 'reference', 'author-email']:
         if new_module_data.get(field) and module_data.get(field) != new_module_data[field]:
@@ -335,9 +325,11 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
             module_data['maturity-level'] = mat_level
 
     if update:
-        updated_modules.append(module_data)
+        if incomplete:
+            incomplete_db.populate_module(module_data)
+        else:
+            module_db.populate_module(module_data)
         print('DEBUG: updated_modules: {}'.format(name_revision))
-    return updated_modules
 
 
 def number_that_passed_compilation(in_dict: dict, position: int, compilation_condition: str):
