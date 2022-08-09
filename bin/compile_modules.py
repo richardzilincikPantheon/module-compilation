@@ -36,7 +36,7 @@ from parsers.pyang_parser import PyangParser
 from parsers.yangdump_pro_parser import YangdumpProParser
 from parsers.yanglint_parser import YanglintParser
 from utility.utility import (check_yangcatalog_data, module_or_submodule,
-                             number_that_passed_compilation, push_to_redis)
+                             number_that_passed_compilation)
 
 __author__ = 'Benoit Claise'
 __copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2022, All Rights Reserved'
@@ -177,7 +177,6 @@ def parse_example_module(parsers: dict, yang_file: str, root_directory: str, lin
 
 
 def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, document_dict: dict) -> dict:
-    updated_modules = []
     agregate_results = {'all': {}, 'no_submodules': {}}
     parsers = {
         'pyang': PyangParser(debug_level),
@@ -212,13 +211,9 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, doc
                                                         yang_file, document_dict)
             confd_metadata = metadata_generator.get_confd_metadata()
             yang_file_compilation = metadata_generator.get_file_compilation()
-            updated_modules.extend(
-                check_yangcatalog_data(
-                    config, yang_file, confd_metadata, module_compilation_results,
-                    all_yang_catalog_metadata, ietf))
-            if len(updated_modules) > 100:
-                push_to_redis(updated_modules, config)
-                updated_modules.clear()
+
+            check_yangcatalog_data(config, yang_file, confd_metadata, module_compilation_results,
+                                   all_yang_catalog_metadata, ietf)
 
             # Revert to previous hash if compilation status is 'UNKNOWN' -> try to parse model again next time
             if compilation_status != 'UNKNOWN':
@@ -228,7 +223,6 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, doc
             agregate_results['all'][yang_file_with_revision] = yang_file_compilation
             if module_or_submodule(yang_file) == 'module':
                 agregate_results['no_submodules'][yang_file_with_revision] = yang_file_compilation
-    push_to_redis(updated_modules, config)
     return agregate_results
 
 
