@@ -1,0 +1,85 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "configurations": [
+    {
+      "name": "compile_modules - RFCStandard",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/compile_modules.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false,
+      "args": [
+        "--rfc",
+        "--metadata",
+        "RFC-produced YANG models: Oh gosh, not all of them correctly passed pyang 2.5.3 with --ietf :-( ",
+        "--forcecompilation"
+      ]
+    },
+    {
+      "name": "compile_modules - IETFDraft",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/compile_modules.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false,
+      "args": [
+        "--draft",
+        "--forcecompilation"
+      ]
+    },
+    {
+      "name": "compile_modules - IETFDraftExample",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/compile_modules.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false,
+      "args": [
+        "--example",
+        "--forcecompilation"
+      ]
+    },
+    {
+      "name": "compile_modules - IANAStandard",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/compile_modules.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false,
+      "args": [
+        "--metadata",
+        "IANA: Standard YANG Data Models compilation from https://github.com/YangModels/yang/tree/master/standard/iana: The 'standard/iana' branch is intended for IANA-maintained YANG models.",
+        "--lint",
+        "--prefix",
+        "IANAStandard",
+        "--rootdir",
+        "/var/yang/nonietf/yangmodels/yang/standard/iana/",
+        "--forcecompilation"
+      ]
+    },
+    {
+      "name": "extract_ietf_modules",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/extract_ietf_modules.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false
+    },
+    {
+      "name": "check_archived_drafts",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/check_archived_drafts.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "justMyCode": false
+    }
+  ]
+}

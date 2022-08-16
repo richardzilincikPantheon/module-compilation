@@ -143,7 +143,7 @@ def get_modules(temp_dir: str, prefix: str) -> dict:
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         modules = {}
     if modules == {}:
-        modules = requests.get('{}/api/search/modules'.format(prefix)).json()
+        modules = requests.get('{}/search/modules'.format(prefix)).json()
         custom_print('All the modules data loaded from API')
     return modules
 
@@ -235,13 +235,16 @@ def write_page_main(prefix: str, compilation_stats: dict) -> dict:  # pyright: i
         while True:
             try:
                 if not os.path.exists(stats_file_path):
-                    with open(stats_file_path, 'w') as f:
-                        f.write('{}')
-                with open(stats_file_path, 'r') as f:
-                    stats = json.load(f)
-                    stats[prefix].update(compilation_stats)
-                with open(stats_file_path, 'w') as f:
-                    json.dump(stats, f)
+                    with open(stats_file_path, 'w') as writer:
+                        writer.write('{}')
+                with open(stats_file_path, 'r') as reader:
+                    stats = json.load(reader)
+                    if stats.get(prefix):
+                        stats[prefix].update(compilation_stats)
+                    else:
+                        stats[prefix] = compilation_stats
+                with open(stats_file_path, 'w') as writer:
+                    json.dump(stats, writer)
                 return stats[prefix]
             # NOTE: what kind of exception is expected here?
             except Exception:

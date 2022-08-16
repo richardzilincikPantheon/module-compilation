@@ -2,6 +2,17 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.5.0 - 2022-08-16
+
+  * yang_exclude_bad_drafts.py script removed [#186](https://github.com/YangCatalog/sdo_analysis/issues/186)
+  * Unit tests covering gather_ietf_dependent_modules.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering remove_directory_content.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering rename_file_backup.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Unit tests covering yang_version_1_1.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
+  * Always populate data to the Redis [#175](https://github.com/YangCatalog/sdo_analysis/issues/175)
+  * Metadata generators moved to separate files 
+  * Rename files to snake_case naming convention [#189](https://github.com/YangCatalog/sdo_analysis/issues/189)
+
 * ##### v5.4.0 - 2022-07-08
 
   * Unit tests covering utility.py [#140](https://github.com/YangCatalog/sdo_analysis/issues/140)
