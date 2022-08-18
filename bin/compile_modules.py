@@ -191,7 +191,11 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, doc
 
     # Load compilation results from .json file, if any exists
     try:
-        with open('{}/{}.json'.format(web_private, prefix), 'r') as f:
+        if ietf == 'ietf-draft':
+            path = '{}/IETFCiscoAuthors.json'.format(web_private)
+        else:
+            path = '{}/{}.json'.format(web_private, prefix)
+        with open(path, 'r') as f:
             cached_compilation_results = json.load(f)
     except Exception:
         cached_compilation_results = {}
