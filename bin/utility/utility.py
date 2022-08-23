@@ -23,9 +23,9 @@ import json
 import os
 import time
 import typing as t
+from enum import auto, Enum
 
 import jinja2
-import requests
 from redis_connections.redis_connection import RedisConnection
 from versions import ValidatorsVersions
 
@@ -33,6 +33,13 @@ from utility.static_variables import IETF_RFC_MAP, NAMESPACE_MAP, ORGANIZATIONS
 
 module_db = None
 incomplete_db = None
+
+
+class IETF(Enum):
+    RFC = auto()
+    DRAFT = auto()
+    DRAFT_ARCHIVE = auto()
+    EXAMPLE = auto()
 
 
 def json_parse_organization(module: dict) -> t.Optional[str]:
@@ -136,21 +143,19 @@ def list_br_html_addition(modules_list: list):
     return modules_list
 
 
-def _resolve_maturity_level(ietf_type: t.Optional[str], document_name: t.Optional[str]) -> t.Optional[str]:
-    if not document_name:
+def _resolve_maturity_level(ietf_type: t.Optional[IETF], document_name: t.Optional[str]) -> t.Optional[str]:
+    if not document_name or not ietf_type:
         return 'not-applicable'
-    if ietf_type == 'ietf-rfc':
+    if ietf_type == IETF.RFC:
         return 'ratified'
-    if ietf_type in ['ietf-draft', 'ietf-example']:
-        maturity_level = document_name.split('-')[1]
-        if 'ietf' in maturity_level:
-            return 'adopted'
-        return 'initial'
-    return 'not-applicable'
+    maturity_level = document_name.split('-')[1]
+    if 'ietf' in maturity_level:
+        return 'adopted'
+    return 'initial'
 
 
-def _resolve_working_group(name_revision: str, ietf_type: str, document_name: str):
-    if ietf_type == 'ietf-rfc':
+def _resolve_working_group(name_revision: str, ietf_type: IETF, document_name: str):
+    if ietf_type == IETF.RFC:
         return IETF_RFC_MAP.get('{}.yang'.format(name_revision))
     else:
         return document_name.split('-')[2]
@@ -184,7 +189,7 @@ def _path_in_dir(yang_file_path: str) -> str:
     return yang_file_path
 
 
-def _generate_ths(versions: dict, ietf_type: t.Optional[str]) -> t.List[str]:
+def _generate_ths(versions: dict, ietf_type: t.Optional[IETF]) -> t.List[str]:
     ths = list()
     option = '--lint'
     if ietf_type is not None:
@@ -203,7 +208,7 @@ def _generate_ths(versions: dict, ietf_type: t.Optional[str]) -> t.List[str]:
 
 
 def _generate_compilation_result_file(module_data: dict, compilation_results: dict, result_html_dir: str,
-                                      is_rfc: bool, versions: dict, ietf_type: t.Optional[str]) -> str:
+                                      is_rfc: bool, versions: dict, ietf_type: t.Optional[IETF]) -> str:
     name = module_data['name']
     rev = module_data['revision']
     org = module_data['organization']
@@ -236,7 +241,7 @@ def _generate_compilation_result_file(module_data: dict, compilation_results: di
 
 
 def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_path: str, new_module_data: dict,
-                           compilation_results: dict, all_modules: t.Dict[str, dict], ietf_type: t.Optional[str] = None):
+                           compilation_results: dict, all_modules: t.Dict[str, dict], ietf_type: t.Optional[IETF] = None):
     pyang_exec = config.get('Tool-Section', 'pyang-exec')
     result_html_dir = config.get('Web-Section', 'result-html-dir')
     domain_prefix = config.get('Web-Section', 'domain-prefix')
@@ -249,7 +254,7 @@ def check_yangcatalog_data(config: configparser.ConfigParser, yang_file_pseudo_p
         incomplete_db = RedisConnection(modules_db=5)
 
     yang_file_path = _path_in_dir(yang_file_pseudo_path)
-    is_rfc = ietf_type == 'ietf-rfc'
+    is_rfc = ietf_type == IETF.RFC
 
     json_module_command = 'pypy3 {} -fbasic-info --path="$MODULES" {} 2> /dev/null'.format(pyang_exec, yang_file_path)
     module_basic_info = {}
