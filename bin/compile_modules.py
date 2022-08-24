@@ -35,7 +35,7 @@ from parsers.confdc_parser import ConfdcParser
 from parsers.pyang_parser import PyangParser
 from parsers.yangdump_pro_parser import YangdumpProParser
 from parsers.yanglint_parser import YanglintParser
-from utility.utility import (check_yangcatalog_data, module_or_submodule,
+from utility.utility import (check_yangcatalog_data, IETF, module_or_submodule,
                              number_that_passed_compilation)
 
 __author__ = 'Benoit Claise'
@@ -191,13 +191,13 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, doc
 
     # Load compilation results from .json file, if any exists
     try:
-        if ietf == 'ietf-draft':
-            path = '{}/IETFCiscoAuthors.json'.format(web_private)
+        if ietf == IETF.DRAFT:
+            path = os.path.join(web_private, 'IETFCiscoAuthors.json')
         else:
-            path = '{}/{}.json'.format(web_private, prefix)
+            path = os.path.join(web_private, '{}.json'.format(prefix))
         with open(path, 'r') as f:
             cached_compilation_results = json.load(f)
-    except Exception:
+    except FileNotFoundError:
         cached_compilation_results = {}
 
     for yang_file in yang_list:
@@ -206,7 +206,7 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, doc
         yang_file_compilation = cached_compilation_results.get(yang_file_with_revision)
 
         if should_parse or yang_file_compilation is None:
-            if ietf == 'ietf-example':
+            if ietf == IETF.EXAMPLE:
                 compilation_status, module_compilation_results = parse_example_module(parsers, yang_file, **parser_args)
             else:
                 compilation_status, module_compilation_results = parse_module(parsers, yang_file, **parser_args)
@@ -223,7 +223,7 @@ def validate(prefix: str, modules: dict, yang_list: list, parser_args: dict, doc
             if compilation_status != 'UNKNOWN':
                 fileHasher.updated_hashes[yang_file] = file_hash
 
-        if yang_file_with_revision != '' or ietf == 'ietf-example':
+        if yang_file_with_revision != '' or ietf == IETF.EXAMPLE:
             agregate_results['all'][yang_file_with_revision] = yang_file_compilation
             if module_or_submodule(yang_file) == 'module':
                 agregate_results['no_submodules'][yang_file_with_revision] = yang_file_compilation
@@ -336,24 +336,26 @@ def main():
         metadata_generator_cls = BaseMetadataGenerator
         document_dict = {}
     elif args.rfc:
-        ietf = 'ietf-rfc'
+        ietf = IETF.RFC
         metadata_generator_cls = RfcMetadataGenerator
         with open(os.path.join(cache_directory, 'rfc_dict.json')) as f:
             document_dict = json.load(f)
         args.prefix = 'RFCStandard'
         args.rootdir = os.path.join(ietf_directory, 'YANG-rfc')
     elif args.draft or args.draft_archive:
-        ietf = 'ietf-draft'
         if args.draft_archive:
+            ietf = IETF.DRAFT_ARCHIVE
             metadata_generator_cls = ArchivedMetadataGenerator
+            args.prefix = 'IETFDraftArchive'
         else:
+            ietf = IETF.DRAFT
             metadata_generator_cls = DraftMetadataGenerator
+            args.prefix = 'IETFDraft'
         with open(os.path.join(cache_directory, 'draft_dict.json')) as f:
             document_dict = json.load(f)
-        args.prefix = 'IETFDraft'
         args.rootdir = os.path.join(ietf_directory, 'YANG')
     elif args.example:
-        ietf = 'ietf-example'
+        ietf = IETF.EXAMPLE
         metadata_generator_cls = ExampleMetadataGenerator
         with open(os.path.join(cache_directory, 'example_dict.json')) as f:
             document_dict = json.load(f)
@@ -387,11 +389,21 @@ def main():
 
     # Generate HTML and JSON files
     filesGenerator = FilesGenerator(web_private)
-    if ietf == 'ietf-draft':
+    if ietf == IETF.DRAFT:
         # Generate json and html files with compilation results of modules extracted from IETF Drafts with Cisco authors
         filesGenerator.write_dictionary(agregate_results['all'], 'IETFCiscoAuthors')
         headers = filesGenerator.getIETFCiscoAuthorsYANGPageCompilationHeaders()
         filesGenerator.generateYANGPageCompilationHTML(agregate_results['all'], headers, 'IETFCiscoAuthors')
+
+        # Update draft archive cache
+        path = os.path.join(web_private, 'IETFDraftArchive.json')
+        try:
+            with open(path) as f:
+                old_draft_archive_results = json.load(f)
+        except FileNotFoundError:
+            old_draft_archive_results = {}
+        draft_archive_results = old_draft_archive_results | agregate_results['all']
+        filesGenerator.write_dictionary(draft_archive_results, 'IETFDraftArchive')      
 
         # Strip cisco authors out
         agregate_results['all'] = {k: v[:2] + v[3:] for k, v in agregate_results['all'].items()}
@@ -400,12 +412,25 @@ def main():
         filesGenerator.write_dictionary(agregate_results['all'], args.prefix)
         headers = filesGenerator.getIETFDraftYANGPageCompilationHeaders()
         filesGenerator.generateYANGPageCompilationHTML(agregate_results['all'], headers, args.prefix)
-    elif ietf == 'ietf-example':
+    elif ietf == IETF.DRAFT_ARCHIVE:
+        filesGenerator.write_dictionary(agregate_results['all'], args.prefix)
+
+        # Update draft cache
+        path = os.path.join(web_private, 'IETFCiscoAuthors.json')
+        try:
+            with open(path) as f:
+                draft_keys = json.load(f).keys()
+        except FileNotFoundError:
+            draft_keys = set()
+        draft_results = {key: agregate_results['all'] for key in draft_keys}
+        filesGenerator.write_dictionary(draft_results, 'IETFCiscoAuthors')
+        
+    elif ietf == IETF.EXAMPLE:
         filesGenerator.write_dictionary(agregate_results['all'], args.prefix)
         headers = filesGenerator.getIETFDraftExampleYANGPageCompilationHeaders()
         filesGenerator.generateYANGPageCompilationHTML(agregate_results['no_submodules'], headers, args.prefix)
     else:
-        if ietf == 'ietf-rfc':
+        if ietf == IETF.RFC:
             # Create yang module reference table
             module_to_rfc_anchor = {}
             for yang_module, document_name in document_dict.items():
@@ -428,7 +453,7 @@ def main():
     total_number = len(yang_list)
     failed = total_number - passed - passed_with_warnings
 
-    if ietf == 'ietf-draft':
+    if ietf in (IETF.DRAFT, IETF.DRAFT_ARCHIVE):
         all_yang_path = os.path.join(ietf_directory, 'YANG-all')
         compilation_stats = {
             'total-drafts': len(document_dict.keys()),
@@ -438,7 +463,7 @@ def main():
         }
         merged_stats = write_page_main('ietf-yang', compilation_stats)
         filesGenerator.generateIETFYANGPageMainHTML(merged_stats)
-    elif ietf == 'ietf-example':
+    elif ietf == IETF.EXAMPLE:
         compilation_stats = {
             'example-drafts': len(document_dict.keys())
         }
@@ -456,7 +481,7 @@ def main():
 
     # Print the summary of the compilation results
     print('--------------------------')
-    if ietf == 'ietf-draft':
+    if ietf in (IETF.DRAFT, IETF.DRAFT_ARCHIVE):
         print('Number of correctly extracted YANG models from IETF drafts: {}'
               .format(compilation_stats['total-drafts']))
         print('Number of YANG models in IETF drafts that passed compilation: {}/{}'
@@ -465,7 +490,7 @@ def main():
               .format(compilation_stats['draft-warnings'], compilation_stats.get('total-drafts'))),
         print('Number of all YANG models in IETF drafts (examples, badly formatted, etc. ): {}'
               .format(compilation_stats['all-ietf-drafts']))
-    elif ietf == 'ietf-example':
+    elif ietf == IETF.EXAMPLE:
         print('Number of correctly extracted example YANG models from IETF drafts: {}'
               .format(compilation_stats['example-drafts']), flush=True)
     else:

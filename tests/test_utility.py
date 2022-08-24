@@ -20,7 +20,6 @@ __email__ = 'richard.zilincik@pantheon.tech'
 
 import unittest
 import os
-from unittest import mock
 
 import utility.utility as u
 from create_config import create_config
@@ -55,26 +54,26 @@ class TestUtility(unittest.TestCase):
         self.assertEqual(result, [['foo<br>', 'bar<br>'], ['foo<br>bar<br>'], []])
 
     def test_resolve_maturity_level(self):
-        result = u._resolve_maturity_level('foo', 'fake-ietf-document')
+        result = u._resolve_maturity_level(None, 'fake-ietf-document')
         self.assertEqual(result, 'not-applicable')
 
-        result = u._resolve_maturity_level('ietf-rfc', 'foo-document-name')
+        result = u._resolve_maturity_level(u.IETF.RFC, 'foo-document-name')
         self.assertEqual(result, 'ratified')
 
-        result = u._resolve_maturity_level('ietf-draft', 'draft-ietf-new-thing')
+        result = u._resolve_maturity_level(u.IETF.DRAFT, 'draft-ietf-new-thing')
         self.assertEqual(result, 'adopted')
 
-        result = u._resolve_maturity_level('ietf-draft', 'draft-new-thing')
+        result = u._resolve_maturity_level(u.IETF.DRAFT, 'draft-new-thing')
         self.assertEqual(result, 'initial')
 
     def test_resolve_working_group(self):
-        result = u._resolve_working_group('iana-crypt-hash@2014-08-06', 'ietf-rfc', 'iana-crypt-hash')
+        result = u._resolve_working_group('iana-crypt-hash@2014-08-06', u.IETF.RFC, 'iana-crypt-hash')
         self.assertEqual(result, 'NETMOD')
 
-        result = u._resolve_working_group('ietf-restconf@2017-01-26', 'ietf-rfc', 'ietf-restconf')
+        result = u._resolve_working_group('ietf-restconf@2017-01-26', u.IETF.RFC, 'ietf-restconf')
         self.assertEqual(result, 'NETCONF')
 
-        result = u._resolve_working_group('draft-foo-groupname-bar@2017-01-26', 'ietf-draft', 'draft-foo-groupname-bar')
+        result = u._resolve_working_group('draft-foo-groupname-bar@2017-01-26', u.IETF.DRAFT, 'draft-foo-groupname-bar')
         self.assertEqual(result, 'groupname')
 
     def test_path_in_dir(self):
