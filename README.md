@@ -12,6 +12,7 @@ YANG modules are retrieved from several sources:
 - [mef/YANG-public](https://github.com/MEF-GIT/YANG-public)
 - automatically extracted from IETF Internet Drafts and RFCs
 
+YANG modules are extracted from RFCs and Internet Drafts by running [xym](https://github.com/xym-tool/xym) on the text or xml versions of the documents.
 When extracting data from IETF documents, the document's metadata is added to the extracted module's properties.
 
 -----------------
@@ -29,11 +30,6 @@ There are daily and weekly cronjob as described in the `crontab` file:
 - `cronjob-drafts`: Check if all modules from Internet Drafts (including archived ones) are populated into YANG Catalog. Runs weekly.
 
 After validation by several validators/compilers, the result is presented in several HTML pages (one per set of models: specific vendor OS version, or set of IETF drafts, ...) but also in several JSON files which are then used by another cronjob of the backend part to populate the YangCatalog main database (Redis). 
-
-## Data source
-
-The YANG models are either from `https://github.com/YangModels/yang` repository or from the IETF RFC, current IETF drafts and expired IETF drafts (the package `xym` is then used to extract YANG models from the text of RFC & drafts). In the case of IETF, the extracted YANG models are stored in different places (see below) based on their source (RFC vs. draft), ...
-
 
 ## Directory structure
 
