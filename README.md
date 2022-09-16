@@ -25,10 +25,10 @@ Some configuration files are in the `conf/` directory including `paths.sh` which
 ## Overall data flow
 
 There are daily and weekly cronjob as described in the `crontab` file:
-- `cronjob-daily`: fetch all files (IETF and YangModels repo), but, validates only IETF drafts/RFC and SDO (IEEE, BBF, OpenConfig, ...) YANG models;
-- `cronjob-weekly`: fetch all files (IETF and YangModels repo), but, validates only network vendors (Cisco, Juniper, Huawei, ...) YANG models.
+- `cronjob`: Fetch, extract and validate all modules daily. This also includes modules from archived Internet Drafts once a week.
+- `cronjob-drafts`: Check if all modules from Internet Drafts (including archived ones) are populated into YANG Catalog. Runs weekly.
 
-After validation by several validators/compilers, the result is presented in several HTML pages (one per set of models: specific vendor OS version, or set of IETF drafts, ...) but also in several .JSON files which are then used by another cronjob of the backend part to populate the YangCatalog main database (that is ConfD database). 
+After validation by several validators/compilers, the result is presented in several HTML pages (one per set of models: specific vendor OS version, or set of IETF drafts, ...) but also in several JSON files which are then used by another cronjob of the backend part to populate the YangCatalog main database (Redis). 
 
 ## Data source
 
