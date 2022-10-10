@@ -2,6 +2,11 @@
 
 * ##### vm.m.p - 2022-MM-DD
 
+* ##### v5.6.1 - 2022-10-10
+
+  * Loading xym tool version from .env file [deployment #161](https://github.com/YangCatalog/deployment/issues/161)
+  * yang_get_stats.py script refactored [#204](https://github.com/YangCatalog/sdo_analysis/issues/204)
+
 * ##### v5.6.0 - 2022-09-30
 
   * Unsubscribe functionality added for emails of problematic drafts [#203](https://github.com/YangCatalog/sdo_analysis/issues/203)
