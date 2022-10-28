@@ -10,13 +10,12 @@
 from __future__ import print_function  # Must be at the beginning of the file
 
 import argparse
-import glob
-import os
 import re
 import sys
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from utility.utility import list_files_by_extensions
 
 __author__ = 'Jan Medved, Eric Vyncke'
 __copyright__ = 'Copyright(c) 2015, Cisco Systems, Inc.,  Copyright The IETF Trust 2019, All Rights Reserved'
@@ -65,27 +64,23 @@ def error(s):
     print('ERROR: %s' % s, file=sys.stderr)
 
 
-def get_local_yang_files(local_repos, recurse=False):
+def get_local_yang_files(local_repos: list[str], recurse: bool = False) -> list[str]:
     """
     Gets the list of all yang module files in the specified local repositories
-    :param local_repos: List of local repositories, i.e. directories where
-           yang modules may be located
+    :param local_repos: List of local repositories, i.e. directories where yang modules may be located
     :return: list of all *.yang files in the local repositories
     """
     yfs = []
-    if not recurse:
-        for repo in local_repos:
-            if repo.endswith('/'):
-                yfs.extend(glob.glob('%s*.yang' % repo))
-            else:
-                yfs.extend(glob.glob('%s/*.yang' % repo))
-    else:
-        for repo in local_repos:
-            for path, sub, files in os.walk(repo, followlinks=True):
-                for f in files:
-                    if f.endswith('.yang'):
-                        yfs.append(os.path.join(path, f))
-
+    for repo in local_repos:
+        yfs.extend(
+            list_files_by_extensions(
+                repo,
+                ('yang',),
+                return_full_paths=True,
+                recursive=recurse,
+                follow_links=True,
+            ),
+        )
     return yfs
 
 
