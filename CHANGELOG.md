@@ -4,6 +4,7 @@
 
 * ##### v5.7.0 - 2022-11-11
  
+  * Repository renamed from sdo_analysis to module-compilation [deployment #154](https://github.com/YangCatalog/deployment/issues/154)
   * Coverage badge added to the README.md file
   * Coverage report generation adde to GitHub Actions
   * Bugfix: check_archived_drafts.py attempting to use nonexistent directory [#208](https://github.com/YangCatalog/sdo_analysis/issues/208)
