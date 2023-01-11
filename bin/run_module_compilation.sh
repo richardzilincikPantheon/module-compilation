@@ -49,7 +49,7 @@ compile_modules() {
 compile_modules --metadata "RFC-produced YANG models: Oh gosh, not all of them correctly passed $($PYANG -v) with --ietf :-( " --rfc
 
 # IETF drafts
-if [ $(date +%u) -eq 6 ]; then
+if [ "$(date +%u)" -eq 6 ]; then
    compile_modules --draft-archive
    # high RAM usage
    wait

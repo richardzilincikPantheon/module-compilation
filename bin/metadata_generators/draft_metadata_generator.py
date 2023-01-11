@@ -9,7 +9,6 @@ ietf_directory = config.get('Directory-Section', 'ietf-directory')
 
 
 class DraftMetadataGenerator(BaseMetadataGenerator):
-
     draft_path = config.get('Directory-Section', 'ietf-drafts')
     web_url = config.get('Web-Section', 'my-uri')
 
@@ -24,7 +23,7 @@ class DraftMetadataGenerator(BaseMetadataGenerator):
         self.draft_url_anchor = '<a href="{}">{}</a>'.format(self.datatracker_url, self.document_name)
         self.email_anchor = '<a href="mailto:{}">Email Authors</a>'.format(self.mailto)
 
-    def get_confd_metadata(self):
+    def get_confd_metadata(self) -> dict:
         return {
             'compilation-status': self.compilation_status,
             'reference': self.datatracker_url,
@@ -32,7 +31,7 @@ class DraftMetadataGenerator(BaseMetadataGenerator):
             'author-email': self.mailto,
         }
 
-    def get_file_compilation(self):
+    def get_file_compilation(self) -> BaseMetadataGenerator.FileCompilationData:
         draft_file_path = os.path.join(self.draft_path, self.document_dict[self.yang_file_name])
         cisco_email = extract_email_string(draft_file_path, '@cisco.com')
         tailf_email = extract_email_string(draft_file_path, '@tail-f.com')
@@ -41,16 +40,17 @@ class DraftMetadataGenerator(BaseMetadataGenerator):
         cisco_email_anchor = '<a href="mailto:{}">Email Cisco Authors Only</a>'.format(draft_emails)
         yang_model_url = '{}/YANG-modules/{}'.format(self.web_url, self.yang_file_name)
         yang_model_anchor = '<a href="{}">Download the YANG model</a>'.format(yang_model_url)
-        return [
-            self.draft_url_anchor,
-            self.email_anchor,
-            cisco_email_anchor,
-            yang_model_anchor,
-            self.compilation_status,
-            *list(self.compilation_results.values()),
-        ]
+        return self.FileCompilationData(
+            compilation_metadata=(
+                self.draft_url_anchor,
+                self.email_anchor,
+                cisco_email_anchor,
+                yang_model_anchor,
+                self.compilation_status,
+            ),
+            compilation_results=self.compilation_results.copy(),
+        )
 
 
 class ArchivedMetadataGenerator(DraftMetadataGenerator):
-
     draft_path = os.path.join(ietf_directory, 'my-id-archive-mirror')
