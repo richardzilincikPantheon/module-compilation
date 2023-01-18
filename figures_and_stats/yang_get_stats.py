@@ -85,6 +85,7 @@ class GetStats:
         self.web_private = config.get('Web-Section', 'private-directory')
         self.backup_directory = config.get('Directory-Section', 'backup')
         self.ietf_directory = config.get('Directory-Section', 'ietf-directory')
+        self.temp_dir = config.get('Directory-Section', 'temp')
 
         self.draft_path_strict = os.path.join(self.ietf_directory, 'draft-with-YANG-strict')
         self.draft_path_nostrict = os.path.join(self.ietf_directory, 'draft-with-YANG-no-strict')

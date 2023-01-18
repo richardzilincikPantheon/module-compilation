@@ -64,7 +64,7 @@ if __name__ == '__main__':
     config = create_config()
     yangcatalog_api_prefix = config.get('Web-Section', 'yangcatalog-api-prefix')
     all_modules_dir = config.get('Directory-Section', 'save-file-dir')
+    temp_dir = config.get('Directory-Section', 'temp')
     ietf_dir = config.get('Directory-Section', 'ietf-directory')
     ietf_dependencies_dir = os.path.join(ietf_dir, 'dependencies')
-
     copy_modules(yangcatalog_api_prefix, all_modules_dir, ietf_dependencies_dir)

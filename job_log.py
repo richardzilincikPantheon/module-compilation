@@ -19,19 +19,62 @@ __email__ = 'slavomir.mazur@pantheon.tech'
 import argparse
 import json
 import os.path
+import time
 import typing as t
+from enum import Enum
 
 from create_config import create_config
 
 
-def job_log(
+class JobLogStatuses(str, Enum):
+    SUCCESS = 'Success'
+    IN_PROGRESS = 'In Progress'
+    FAIL = 'Fail'
+
+
+def job_log(file_basename: str):
+    def _job_log_decorator(func):
+        config = create_config()
+        temp_dir = config.get('Directory-Section', 'temp')
+
+        def _job_log(*args, **kwargs):
+            nonlocal temp_dir, file_basename
+            start_time = int(time.time())
+            write_job_log(start_time, '', temp_dir, file_basename, status=JobLogStatuses.IN_PROGRESS)
+            try:
+                success_messages: list[dict[str, str], ...] = func(*args, **kwargs)
+            except Exception as e:
+                write_job_log(
+                    start_time,
+                    int(time.time()),
+                    temp_dir,
+                    file_basename,
+                    error=str(e),
+                    status=JobLogStatuses.FAIL,
+                )
+                return
+            write_job_log(
+                start_time,
+                int(time.time()),
+                temp_dir,
+                file_basename,
+                messages=success_messages,
+                status=JobLogStatuses.SUCCESS,
+            )
+
+        return _job_log
+
+    return _job_log_decorator
+
+
+def write_job_log(
     start_time: int,
-    end_time: int,
+    end_time: t.Union[str, int],
     temp_dir: str,
     filename: str,
-    messages: t.Optional[list] = None,
+    messages: t.Optional[list[dict[str, str]]] = None,
     error: str = '',
-    status: str = '',
+    status: str = JobLogStatuses,
 ):
     cronjob_results_path = os.path.join(temp_dir, 'cronjob.json')
     result = {'start': start_time, 'end': end_time, 'status': status, 'error': error, 'messages': messages or []}
@@ -44,14 +87,11 @@ def job_log(
 
     filename = filename.split('.py')[0]
     # If successful rewrite, otherwise use last_successful value from JSON
-    if status == 'Success':
+    last_successful = None
+    if status == JobLogStatuses.SUCCESS:
         last_successful = end_time
-    else:
-        try:
-            previous_state = file_content[filename]
-            last_successful = previous_state.get('last_successfull')
-        except KeyError:
-            last_successful = None
+    elif previous_state := file_content.get(filename):
+        last_successful = previous_state.get('last_successfull')
 
     result['last_successfull'] = last_successful
     file_content[filename] = result
@@ -65,9 +105,28 @@ if __name__ == '__main__':
     temp_dir = config.get('Directory-Section', 'temp')
     parser = argparse.ArgumentParser()
     parser.add_argument('--start', help='Cronjob start time', type=int, default=0, required=True)
-    parser.add_argument('--end', help='Cronjob end time', type=int, default=0, required=True)
+    parser.add_argument('--end', help='Cronjob end time', type=str, default='', required=True)
     parser.add_argument('--status', help='Result of cronjob run', type=str, default='Fail', required=True)
     parser.add_argument('--filename', help='Name of job', type=str, default='', required=True)
-    args = parser.parse_args()
+    parser.add_argument('--error', help='Error message in case of an exception', type=str, default='')
+    parser.add_argument('--messages', help='Success messages, could be 0 or more', nargs='*')
+    parser.add_argument(
+        '--load-messages-json',
+        help='True if messages should be json loaded',
+        action='store_true',
+        default=False,
+    )
+    parsed_args = parser.parse_args()
 
-    job_log(int(args.start), int(args.end), temp_dir, args.filename, status=args.status)
+    if parsed_args.load_messages_json:
+        parsed_args.messages = [json.loads(message) for message in parsed_args.messages]
+
+    write_job_log(
+        int(parsed_args.start),
+        int(parsed_args.end) if parsed_args.end.isnumeric() else '',
+        temp_dir,
+        parsed_args.filename,
+        status=parsed_args.status,
+        error=parsed_args.error,
+        messages=parsed_args.messages,
+    )

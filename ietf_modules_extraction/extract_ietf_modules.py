@@ -27,9 +27,7 @@ from extractors.draft_extractor import DraftExtractor
 from extractors.rfc_extractor import RFCExtractor
 from utility.utility import remove_directory_content
 
-# ----------------------------------------------------------------------
-# Functions
-# ----------------------------------------------------------------------
+file_basename = os.path.basename(__file__)
 
 
 def custom_print(message: str):
@@ -37,9 +35,6 @@ def custom_print(message: str):
     print(f'{timestamp} {message}', flush=True)
 
 
-# ----------------------------------------------------------------------
-# Main
-# ----------------------------------------------------------------------
 def main():
     config = create_config()
     ietf_directory = config.get('Directory-Section', 'ietf-directory')

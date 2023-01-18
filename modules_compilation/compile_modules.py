@@ -44,6 +44,8 @@ from utility.utility import (
 )
 from versions import validator_versions
 
+file_basename = os.path.basename(__file__)
+
 __author__ = 'Benoit Claise'
 __copyright__ = 'Copyright(c) 2015-2018, Cisco Systems, Inc.,  Copyright The IETF Trust 2022, All Rights Reserved'
 __license__ = 'Apache License, Version 2.0'
@@ -464,7 +466,7 @@ def main():
         args.prefix = 'IETFDraftExample'
         args.rootdir = os.path.join(ietf_directory, 'YANG-example')
     else:
-        assert False, 'This is unreachable'
+        raise RuntimeError('Incorrect ietf arg')
 
     custom_print(f'Start of job in {args.rootdir}')
 
