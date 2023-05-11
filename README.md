@@ -1,6 +1,6 @@
 # Module Compilation
 
-[![codecov](https://codecov.io/gh/YangCatalog/module-compilation/branch/develop/graph/badge.svg?token=JHFBBUTL1X)](https://codecov.io/gh/YangCatalog/module-compilation)
+[![codecov](https://codecov.io/gh/YangCatalog/module-compilation/branch/develop/graph/badge.svg?token=09TJME38HB)](https://codecov.io/gh/YangCatalog/module-compilation)
 
 ---
 
