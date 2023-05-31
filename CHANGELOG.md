@@ -1,5 +1,11 @@
 ## Module Compilation Release Notes
 
+* ##### v5.12.0 - 2023-05-31
+
+  * requests bumped from 2.26.0 to 2.31.0
+  * Improved code coverage with tests
+  * Replaced old method of generating coverage reports with a new one [#286](https://github.com/YangCatalog/module-compilation/issues/286)
+
 * ##### v5.11.1 - 2023-05-03
 
   * Unit tests covering compile_modules.py [#272](https://github.com/YangCatalog/module-compilation/issues/272)
