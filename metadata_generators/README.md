@@ -1,0 +1,1 @@
+Classes for retrieving and keeping relevant metadata for different categories of modules.

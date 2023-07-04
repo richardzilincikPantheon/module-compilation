@@ -21,7 +21,7 @@ When extracting data from IETF documents, the document's metadata is added to th
 
 ---
 
-Most of the code is in the `bin/` directory and uses `bash` and Python3 scripts.
+The code consists of `bash` and Python3 scripts.
 
 Some configuration files are in the `conf/` directory including `paths.sh` which defines all paths used by the scripts. This script merely reads the global configuration file `/etc/yangcatalog/yangcatalog.conf` and creates the required environement variables required by the shell scripts.
 
